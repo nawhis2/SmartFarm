@@ -1,5 +1,5 @@
 /*
-    [기능 이름]: OpenSSl TCP서버
+    [기능 이름]: OpenSSL TCP서버
     [작성자]: 조찬우 (chanwoo)
     [파일 설명]:
       - TCP 서버
