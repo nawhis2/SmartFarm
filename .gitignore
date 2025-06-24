@@ -5,5 +5,8 @@
 *.lib
 *.xml
 *.pem
+*.user
 main
+
 #folder
+build/
