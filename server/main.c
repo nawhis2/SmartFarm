@@ -17,7 +17,6 @@
 #include <signal.h>
 #include <dlfcn.h>
 #include <wait.h>
-#include <wiringPi.h>
 #include <sys/stat.h>
 #include <sys/resource.h>
 
@@ -51,12 +50,9 @@ int main()
     SSL_CTX *ctx = create_context();
     configure_context(ctx);
 
-    daemonP();
+    //daemonP();
 
     int server_fd = serverNetwork();
-
-    if (wiringPiSetupGpio() == -1)
-        return 1;
 
     struct sigaction sa;
     sa.sa_handler = sigchld_handler;
@@ -188,7 +184,7 @@ int serverNetwork()
 SSL *clientNetwork(int sockfd, SSL_CTX *ctx)
 {
     struct sockaddr_in client_addr;
-    int addr_len = sizeof(struct sockaddr_in);
+    socklen_t addr_len = sizeof(client_addr);
     
     if(clientFdCnt >= maxFdCnt){
         perror("클라이언트 수 초과");
@@ -256,14 +252,10 @@ void receiveMsg(SSL *ssl)
 {
     while (1)
     {
-        char buffer[BUF_SIZE] = "";
-        int bytes = SSL_read(ssl, buffer, BUF_SIZE);
-        if (bytes <= 0) {
+        int bytes = receive_packet(ssl);
+        if (bytes < 0) {
             printf("Client disconnected.\n");
             break;
         }
-
-        buffer[bytes] = '\0';
-        printf("%s\n", buffer);
     }
 }

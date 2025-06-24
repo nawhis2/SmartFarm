@@ -4,5 +4,6 @@
 *.dll
 *.lib
 *.xml
-
+*.pem
+main
 #folder
