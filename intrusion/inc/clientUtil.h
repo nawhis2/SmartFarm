@@ -10,5 +10,6 @@
 #include <openssl/err.h>
 
 void send_command(SSL* sock, const char* msg);
+void send_image(SSL *sock, const char *filepath);
 
 #endif

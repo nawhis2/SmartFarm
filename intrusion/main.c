@@ -1,5 +1,18 @@
+/*
+    [기능 이름]: 침입 감지 client
+    [작성자]: 조찬우 (chanwoo)
+    [파일 설명]:
+      - 침입 감지 client 코드
+
+    [TODO]:
+      - [ ] 침입 감지 추가
+      - [ ] while문 추가
+
+    [참고 사항]:
+*/
+
 #include "main.h"
-#include "client_util.h"
+#include "clientUtil.h"
 
 #define PORT 60000
 #define BUF_SIZE 1024
@@ -34,7 +47,7 @@ SSL* network(SSL_CTX *ctx)
 	struct sockaddr_in server_addr;
 
 	struct hostent *he;
-	if ((he = gethostbyname("vedaR")) == NULL) {
+	if ((he = gethostbyname("localhost")) == NULL) {
         perror("gethostbyname");
         exit(1);
     }
@@ -79,8 +92,9 @@ int main(){
     SSL_CTX *ctx = create_context();
 
 	SSL* sock_fd = network(ctx);
-	
-	send_command(sock_fd, "exit");
+	send_command(sock_fd, "hi Server\n");
+    send_image(sock_fd, "/home/veda/openTest/imageOpencv/images/Lenna.jpg");
+    sleep(1);
 	close(sockfd);
 	SSL_shutdown(sock_fd);
     SSL_CTX_free(ctx);
