@@ -92,8 +92,9 @@ int main(){
     SSL_CTX *ctx = create_context();
 
 	SSL* sock_fd = network(ctx);
-	send_command(sock_fd, "hi Server\n");
-    send_video(sock_fd, "/home/veda/openTest/imageOpencv/images/trailer.mp4");
+	send_file(sock_fd, "hi Server\n", "TEXT");
+    send_file(sock_fd, "/home/veda/openTest/imageOpencv/images/opencv.png", "IMG");
+    send_file(sock_fd, "/home/veda/openTest/imageOpencv/images/trailer.mp4", "VIDEO");
     sleep(1);
 	close(sockfd);
 	SSL_shutdown(sock_fd);

@@ -9,8 +9,6 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-void send_command(SSL* sock, const char* msg);
-void send_image(SSL *sock, const char *filepath);
-void send_video(SSL *sock, const char *filepath);
+void send_file(SSL *ssl, const char *filepath, const char *type);
 
 #endif
