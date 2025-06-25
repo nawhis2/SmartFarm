@@ -6,73 +6,50 @@
 
     [참고 사항]:
       - OpenSSL에서 메세지를 보내는 함수의 원형
-      - Send 프로토콜 형태 TYPE, SIZE, DATA
+      - Send 프로토콜 형태 TYPE, SIZE, EXTENSION, DATA
 */
 #include "clientUtil.h"
 
-void send_command(SSL *sock, const char *msg)
-{
-    int msg_len = strlen(msg);
-    
-    SSL_write(sock, "TEXT", 4);
-
-    SSL_write(sock, &msg_len, sizeof(int));
-
-    int ret = SSL_write(sock, msg, msg_len);
-    if (ret <= 0)
-    {
-        int err = SSL_get_error(sock, ret);
-        printf("SSL_write failed: %d\n", err);
-        ERR_print_errors_fp(stderr);
-    }
-}
-
-void send_image(SSL *sock, const char *filepath)
-{
-    FILE *fp = fopen(filepath, "rb");
-    if (!fp) {
-        perror("fopen failed");
+void send_file(SSL *ssl, const char *filepath, const char *type) {
+    if (strncmp(type, "TEXT", 4) == 0) {
+        int size = strlen(filepath);
+        SSL_write(ssl, "TEXT", 4);
+        SSL_write(ssl, &size, sizeof(int));
+        SSL_write(ssl, filepath, size);
+        printf("[SEND] TEXT (%d bytes)\n", size);
         return;
     }
+
+    FILE *fp = fopen(filepath, "rb");
+    if (!fp) return;
 
     fseek(fp, 0, SEEK_END);
     int filesize = ftell(fp);
     rewind(fp);
 
-    SSL_write(sock, "IMG", 3);
+    const char *ext = strrchr(filepath, '.');
+    if (!ext || strlen(ext) > 10) ext = ".bin";
 
-    SSL_write(sock, &filesize, sizeof(int));
+    int ext_len = strlen(ext);
 
-    char buf[1024];
-    int n;
-    while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
-        SSL_write(sock, buf, n);
-    }
+    // [1] TYPE
+    SSL_write(ssl, type, strlen(type));  // "IMG ", "VIDEO"
 
-    fclose(fp);
-}
+    // [2] SIZE
+    SSL_write(ssl, &filesize, sizeof(int));
 
-void send_video(SSL *sock, const char *filepath)
-{
-    FILE *fp = fopen(filepath, "rb");
-    if (!fp) {
-        perror("fopen failed");
-        return;
-    }
+    // [3] EXTENSION LENGTH
+    SSL_write(ssl, &ext_len, sizeof(int));
 
-    fseek(fp, 0, SEEK_END);
-    int filesize = ftell(fp);
-    rewind(fp);
+    // [4] EXTENSION
+    SSL_write(ssl, ext, ext_len);
 
-    SSL_write(sock, "VIDEO", 5);
-    SSL_write(sock, &filesize, sizeof(int));
-
+    // [5] DATA
     char buf[2048];
     int n;
     while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
-        SSL_write(sock, buf, n);
+        SSL_write(ssl, buf, n);
     }
 
     fclose(fp);
-    printf("[INFO] Video sent: %s (%d bytes)\n", filepath, filesize);
 }
