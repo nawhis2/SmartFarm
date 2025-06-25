@@ -93,7 +93,7 @@ int main(){
 
 	SSL* sock_fd = network(ctx);
 	send_command(sock_fd, "hi Server\n");
-    send_image(sock_fd, "/home/veda/openTest/imageOpencv/images/Lenna.jpg");
+    send_video(sock_fd, "/home/veda/openTest/imageOpencv/images/trailer.mp4");
     sleep(1);
 	close(sockfd);
 	SSL_shutdown(sock_fd);

@@ -39,7 +39,7 @@ void send_image(SSL *sock, const char *filepath)
     int filesize = ftell(fp);
     rewind(fp);
 
-    SSL_write(sock, "IMG ", 4);
+    SSL_write(sock, "IMG", 3);
 
     SSL_write(sock, &filesize, sizeof(int));
 
@@ -50,4 +50,29 @@ void send_image(SSL *sock, const char *filepath)
     }
 
     fclose(fp);
+}
+
+void send_video(SSL *sock, const char *filepath)
+{
+    FILE *fp = fopen(filepath, "rb");
+    if (!fp) {
+        perror("fopen failed");
+        return;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    int filesize = ftell(fp);
+    rewind(fp);
+
+    SSL_write(sock, "VIDEO", 5);
+    SSL_write(sock, &filesize, sizeof(int));
+
+    char buf[2048];
+    int n;
+    while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
+        SSL_write(sock, buf, n);
+    }
+
+    fclose(fp);
+    printf("[INFO] Video sent: %s (%d bytes)\n", filepath, filesize);
 }
