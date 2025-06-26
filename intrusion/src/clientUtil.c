@@ -16,7 +16,6 @@ void send_file(SSL *ssl, const char *filepath, const char *type) {
         SSL_write(ssl, "TEXT", 4);
         SSL_write(ssl, &size, sizeof(int));
         SSL_write(ssl, filepath, size);
-        printf("[SEND] TEXT (%d bytes)\n", size);
         return;
     }
 

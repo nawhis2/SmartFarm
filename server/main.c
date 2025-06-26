@@ -7,27 +7,22 @@
     [TODO]:
       - [x] 서버 코드 작성
       - [x] client fd 관리 코드 추가
+      - [ ] CCTV IP 주소 저장
+      - [ ] CCTV, User 클라이언트 별로 별도 리시브 함수 구현
       - [ ] 측정값을 서버로 전송하는 로직 추가 (MQTT 예정)
 
     [참고 사항]:
 */
 
 #include "main.h"
-#include <fcntl.h>
-#include <signal.h>
-#include <dlfcn.h>
-#include <wait.h>
-#include <sys/stat.h>
-#include <sys/resource.h>
+#include "network.h"
+#include "storage.h" 
+#include "handshake.h"
 
-#define PORT 60000
 #define BUF_SIZE 1024
-#define BACKLOG 10
 
-typedef void (*FUNC)(const char *);
 int clientFdCnt = 0;
 int maxFdCnt = 4;
-int sensorOn;
 
 void sigchld_handler(int sig)
 {
@@ -35,14 +30,6 @@ void sigchld_handler(int sig)
     while (waitpid(-1, NULL, WNOHANG) > 0)
         clientFdCnt--;
 }
-
-void daemonP();
-int serverNetwork();
-SSL *clientNetwork(int, SSL_CTX *);
-void init_openssl();
-SSL_CTX *create_context();
-void configure_context(SSL_CTX *ctx);
-void receiveMsg(SSL *);
 
 int main()
 {
@@ -53,15 +40,18 @@ int main()
     //daemonP();
 
     int server_fd = serverNetwork();
+    signal(SIGCHLD, sigchld_handler);
 
-    struct sigaction sa;
-    sa.sa_handler = sigchld_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART; // accept()가 중단되지 않도록
-    sigaction(SIGCHLD, &sa, NULL);
-    SSL *ssl;
+    init_storage();
+    
+    SSL *ssl = NULL;
     while (1)
-    {
+    {     
+        if(clientFdCnt >= maxFdCnt){
+            perror("클라이언트 수 초과");
+            continue;
+        }
+
         ssl = clientNetwork(server_fd, ctx);
         if (!ssl)
         {
@@ -69,14 +59,29 @@ int main()
             continue;
         }
 
+        char cam_name[32]={0};
+        Role role = handshakeRole(ssl, cam_name, sizeof(cam_name));
+        if (role==ROLE_UNKNOWN) {
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
+            continue;
+        }
+
         pid_t pid = fork();
         if (pid == 0)
         {
-            receiveMsg(ssl);
+            if (role==ROLE_CCTV) {
+                register_cctv(ssl, cam_name);
+                receiveMsg(ssl);
+                remove_active_cctv(cam_name);
+            }
+            else {
+                receiveMsg(ssl);
+            }
             SSL_shutdown(ssl);
             SSL_free(ssl);
             close(SSL_get_fd(ssl));
-            exit(0);
+            return 0;
         }
         else if(pid > 0)  
             clientFdCnt++;
@@ -144,71 +149,6 @@ void daemonP()
     fd0 = open("/dev/null", O_RDWR);
     fd1 = dup(0);
     fd2 = dup(0);
-}
-
-int serverNetwork()
-{
-    int sockfd;
-    struct sockaddr_in server_addr;
-
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-    {
-        perror("socket");
-        exit(1);
-    }
-
-    int opt = 1;
-    if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1){
-        perror("setsockopt");
-        exit(1);
-    }
-
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
-    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    memset(&(server_addr.sin_zero), '\0', 8);
-    if (bind(sockfd, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) == -1)
-    {
-        perror("bind");
-        exit(1);
-    }
-    if (listen(sockfd, BACKLOG) == -1)
-    {
-        perror("listen");
-        exit(1);
-    }
-
-    return sockfd;
-}
-
-SSL *clientNetwork(int sockfd, SSL_CTX *ctx)
-{
-    struct sockaddr_in client_addr;
-    socklen_t addr_len = sizeof(client_addr);
-    
-    if(clientFdCnt >= maxFdCnt){
-        perror("클라이언트 수 초과");
-        return NULL;
-    }
-
-    int client_fd = accept(sockfd, (struct sockaddr *)&client_addr, &addr_len);
-    if (client_fd < 0)
-    {
-        close(client_fd);
-        perror("클라이언트 연결 실패");
-        return NULL;
-    }
-
-    SSL *ssl = SSL_new(ctx);
-    SSL_set_fd(ssl, client_fd);
-    if (SSL_accept(ssl) <= 0)
-    {
-        ERR_print_errors_fp(stderr);
-        SSL_free(ssl);       // 추가하면 더 안전
-        close(client_fd);    // SSL 실패 시 소켓도 닫기
-        return NULL;
-    }
-    return ssl;
 }
 
 // OpenSSL 초기화

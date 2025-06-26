@@ -15,4 +15,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+void init_openssl();
+SSL_CTX *create_context();
+
 #endif
