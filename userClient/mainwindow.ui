@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>968</width>
     <height>600</height>
    </rect>
   </property>
@@ -19,7 +19,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>791</width>
+      <width>971</width>
       <height>581</height>
      </rect>
     </property>
@@ -79,18 +79,31 @@
        <string>📊</string>
       </property>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>270</x>
-        <y>37</y>
-        <width>401</width>
-        <height>381</height>
+        <x>170</x>
+        <y>70</y>
+        <width>642</width>
+        <height>398</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="videoLayout">
        <item>
-        <widget class="QWidget" name="videoWidget" native="true"/>
+        <widget class="QLabel" name="videoLabel">
+         <property name="minimumSize">
+          <size>
+           <width>640</width>
+           <height>360</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="startCameraButton">
@@ -169,7 +182,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>968</width>
      <height>25</height>
     </rect>
    </property>

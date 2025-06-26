@@ -1,12 +1,8 @@
 #pragma once
-#include <QApplication>
 #include <QMainWindow>
-//#include <opencv2/opencv.hpp>
-//#include <QTimer>
-#include <QLabel>
-#include <QApplication>
-#include <QMediaPlayer>
-#include <QVideoWidget>
+#include <QImage>
+#include <gst/gst.h>
+#include <gst/app/gstappsink.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -14,30 +10,32 @@ QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
-    //QLabel* videoLabel;
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+signals:
+    void frameReady(const QImage &img);
+
 private slots:
+    // 페이지 전환
     void showFirePage();
     void showGrowthPage();
     void showIntrusionPage();
     void showSensorPage();
     void showMainMenu();
-   // void startCamera();
-   // void readFrame();
-    //void grabFrame();
 
+    // 스트림 제어
+    void setupVideoPlayer();
+    void onNewFrame(const QImage &img);
 
 private:
     Ui::MainWindow *ui;
-   // cv::VideoCapture cap;
-    //QTimer      *timer;
-    QImage imgBuffer;
-    QMediaPlayer        *player;
-    QVideoWidget        *videoWidget;
-    void setupVideoPlayer();
+    GstElement    *pipeline = nullptr;
 
+    // appsink new-sample 콜백
+    static GstFlowReturn onNewSample(GstAppSink *sink, gpointer user_data);
+    // 버스 에러 메시지 콜백
+    static void onBusMessage(GstBus *bus, GstMessage *msg, gpointer user_data);
 };
