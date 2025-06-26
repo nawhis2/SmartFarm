@@ -1,6 +1,5 @@
 #include "main.h"
-#include <opencv2/opencv.hpp>
-
+#include "display.h"
 using namespace cv;
 
 void display_image(const char *filepath)

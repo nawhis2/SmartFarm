@@ -13,12 +13,44 @@
 
 #include "main.h"
 #include "clientUtil.h"
+#include "network.h"
+#include "handshake.h"
 
-#define PORT 60000
 #define BUF_SIZE 1024
-#define BACKLOG 10
 
-int sockfd;
+int main(){
+    int num;
+	char buffer[BUF_SIZE];
+	
+	sigset_t set;
+    
+    sigfillset(&set);
+    sigdelset(&set, SIGINT);
+    sigprocmask(SIG_SETMASK, &set, NULL);
+    
+	init_openssl();
+    SSL_CTX *ctx = create_context();
+    
+    int sockfd = socketNetwork();
+	SSL* sock_fd = network(sockfd, ctx);
+
+    handshakeClient(sock_fd, "CCTV", "Intrusion");
+
+	send_file(sock_fd, "hi Server\n", "TEXT");
+    send_file(sock_fd, "/home/chanwoo/images/opencv.png", "IMG");
+    send_file(sock_fd, "/home/chanwoo/images/trailer.mp4", "VIDEO");
+    sleep(1);
+
+    while(1);
+
+	close(sockfd);
+	SSL_shutdown(sock_fd);
+    SSL_CTX_free(ctx);
+	SSL_free(sock_fd);
+	EVP_cleanup();
+    
+    return 0;
+}
 
 // OpenSSL 초기화
 void init_openssl() {
@@ -40,67 +72,4 @@ SSL_CTX *create_context() {
     }
 
     return ctx;
-}
-
-SSL* network(SSL_CTX *ctx)
-{
-	struct sockaddr_in server_addr;
-
-	struct hostent *he;
-	if ((he = gethostbyname("localhost")) == NULL) {
-        perror("gethostbyname");
-        exit(1);
-    }
-
-	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-	{
-		perror("socket");
-		exit(1);
-	}
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(PORT);
-	server_addr.sin_addr = *((struct in_addr *)he->h_addr);
-	memset(&(server_addr.sin_zero), '\0', 8);
-
-	// 서버 연결
-    if (connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        perror("서버 연결 실패");
-        exit(EXIT_FAILURE);
-    }
-
-    // SSL 객체 생성 및 핸드셰이크 수행
-    SSL *ssl = SSL_new(ctx);
-    SSL_set_fd(ssl, sockfd);
-    if (SSL_connect(ssl) <= 0) {
-        ERR_print_errors_fp(stderr);
-    }
-
-	return ssl;
-}
-
-int main(){
-    int num;
-	char buffer[BUF_SIZE];
-	
-	sigset_t set;
-
-    sigfillset(&set);
-    sigdelset(&set, SIGINT);
-    sigprocmask(SIG_SETMASK, &set, NULL);
-
-	init_openssl();
-    SSL_CTX *ctx = create_context();
-
-	SSL* sock_fd = network(ctx);
-	send_file(sock_fd, "hi Server\n", "TEXT");
-    send_file(sock_fd, "/home/veda/openTest/imageOpencv/images/opencv.png", "IMG");
-    send_file(sock_fd, "/home/veda/openTest/imageOpencv/images/trailer.mp4", "VIDEO");
-    sleep(1);
-	close(sockfd);
-	SSL_shutdown(sock_fd);
-    SSL_CTX_free(ctx);
-	SSL_free(sock_fd);
-	EVP_cleanup();
-
-    return 0;
 }

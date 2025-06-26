@@ -8,24 +8,26 @@
 #include <netdb.h>
 #include <errno.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <dlfcn.h>
+#include <wait.h>
+#include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
+#include <sys/resource.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+void daemonP();
 
+void init_openssl();
+SSL_CTX *create_context();
+void configure_context(SSL_CTX *);
+
+void receiveMsg(SSL *);
 int receive_packet(SSL *ssl);
-void display_image(const char *filepath);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
