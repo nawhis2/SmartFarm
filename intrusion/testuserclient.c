@@ -34,14 +34,18 @@ int main(){
     int sockfd = socketNetwork();
 	SSL* sock_fd = network(sockfd, ctx);
 
-    handshakeClient(sock_fd, "CCTV", "Intrusion");
+    handshakeClient(sock_fd, "USER", NULL);
 
-	sendFile(sock_fd, "hi Server\n", "TEXT");
-    //sendFile(sock_fd, "/home/chanwoo/images/opencv.png", "IMG");
-    //sendFile(sock_fd, "/home/chanwoo/images/trailer.mp4", "VIDEO");
+	sendFile(sock_fd, "Intrusion\n", "TEXT");
+    
     sleep(1);
-
-    while(1);
+    int n;
+    while(1){
+        if (n = SSL_read(sock_fd, buffer, BUF_SIZE)){
+            buffer[n]='\0';  
+            printf("[TEST] : %s\n", buffer);
+        }
+    }
 
 	close(sockfd);
 	SSL_shutdown(sock_fd);
