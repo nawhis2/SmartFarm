@@ -10,7 +10,7 @@
 */
 #include "clientUtil.h"
 
-void send_file(SSL *ssl, const char *filepath, const char *type) {
+void sendFile(SSL *ssl, const char *filepath, const char *type) {
     if (strncmp(type, "TEXT", 4) == 0) {
         int size = strlen(filepath);
         SSL_write(ssl, "TEXT", 4);
@@ -32,7 +32,7 @@ void send_file(SSL *ssl, const char *filepath, const char *type) {
     int ext_len = strlen(ext);
 
     // [1] TYPE
-    SSL_write(ssl, type, strlen(type));  // "IMG ", "VIDEO"
+    SSL_write(ssl, type, strlen(type));  // "TEXT", "IMG ", "VIDEO"
 
     // [2] SIZE
     SSL_write(ssl, &filesize, sizeof(int));
