@@ -18,6 +18,7 @@
 #include "network.h"
 #include "storage.h" 
 #include "handshake.h"
+#include "receive.h"
 
 #define BUF_SIZE 1024
 
@@ -42,7 +43,7 @@ int main()
     int server_fd = serverNetwork();
     signal(SIGCHLD, sigchld_handler);
 
-    init_storage();
+    initStorage();
     
     SSL *ssl = NULL;
     while (1)
@@ -59,24 +60,20 @@ int main()
             continue;
         }
 
-        char cam_name[32]={0};
-        Role role = handshakeRole(ssl, cam_name, sizeof(cam_name));
-        if (role==ROLE_UNKNOWN) {
-            SSL_shutdown(ssl);
-            SSL_free(ssl);
-            continue;
-        }
-
         pid_t pid = fork();
         if (pid == 0)
         {
+            char cam_name[32]={0};
+            Role role = handshakeRole(ssl, cam_name, sizeof(cam_name));
             if (role==ROLE_CCTV) {
-                register_cctv(ssl, cam_name);
-                receiveMsg(ssl);
-                remove_active_cctv(cam_name);
+                printf("CCTV\n");
+                registerCCTV(ssl, cam_name);
+                receiveCCTV(ssl);
+                removeActiveCCTV(cam_name);
             }
-            else {
-                receiveMsg(ssl);
+            else if (role==ROLE_USER){
+                printf("User\n");
+                receiveUser(ssl);
             }
             SSL_shutdown(ssl);
             SSL_free(ssl);
@@ -185,17 +182,5 @@ void configure_context(SSL_CTX *ctx)
     {
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);
-    }
-}
-
-void receiveMsg(SSL *ssl)
-{
-    while (1)
-    {
-        int bytes = receive_packet(ssl);
-        if (bytes < 0) {
-            printf("Client disconnected.\n");
-            break;
-        }
     }
 }

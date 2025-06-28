@@ -23,11 +23,9 @@
 
 void daemonP();
 
+// OpeenSSL 설정
 void init_openssl();
 SSL_CTX *create_context();
-void configure_context(SSL_CTX *);
-
-void receiveMsg(SSL *);
-int receive_packet(SSL *ssl);
+void configure_context(SSL_CTX*);
 
 #endif

@@ -15,6 +15,7 @@
 #include "clientUtil.h"
 #include "network.h"
 #include "handshake.h"
+#include "jsonlParse.h"
 
 #define BUF_SIZE 1024
 
@@ -37,12 +38,37 @@ int main(){
     handshakeClient(sock_fd, "CCTV", "Intrusion");
 
 	sendFile(sock_fd, "hi Server\n", "TEXT");
-    //sendFile(sock_fd, "/home/chanwoo/images/opencv.png", "IMG");
+    JSONLEvent ev = create_jsonl_event(
+        "fire_detected",   // event_type
+        1,                 // has_file
+        NULL,              // class_type
+        0,                 // has_class_type
+        350,               // feature
+        1                  // has_feature
+    );
+
+    char* jsonlFile = make_jsonl_event(&ev);
+    sendFile(sock_fd, jsonlFile, "JSON");
+    sendFile(sock_fd, "/home/chanwoo/images/opencv.png", "DATA");
     //sendFile(sock_fd, "/home/chanwoo/images/trailer.mp4", "VIDEO");
     sleep(1);
 
+    JSONLEvent ev1 = create_jsonl_event(
+        "fire_detected",   // event_type
+        0,                 // has_file
+        NULL,              // class_type
+        0,                 // has_class_type
+        350,               // feature
+        1                  // has_feature
+    );
+    char* jsonlFile1 = make_jsonl_event(&ev1);
+    sendFile(sock_fd, jsonlFile1, "JSON");
+    
+    free_jsonl_event(jsonlFile);
+    free_jsonl_event(jsonlFile1);
+    
     while(1);
-
+    
 	close(sockfd);
 	SSL_shutdown(sock_fd);
     SSL_CTX_free(ctx);
