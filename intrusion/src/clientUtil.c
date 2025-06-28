@@ -10,29 +10,40 @@
 */
 #include "clientUtil.h"
 
-void sendFile(SSL *ssl, const char *filepath, const char *type) {
+void sendFile(SSL *ssl, const char *filepath_or_data, const char *type) {
+    // TEXT 전송: filepath_or_data는 단순 문자열
     if (strncmp(type, "TEXT", 4) == 0) {
-        int size = strlen(filepath);
-        SSL_write(ssl, "TEXT", 4);
+        int size = strlen(filepath_or_data);
+        SSL_write(ssl, "TEXT", 5);
         SSL_write(ssl, &size, sizeof(int));
-        SSL_write(ssl, filepath, size);
+        SSL_write(ssl, filepath_or_data, size);
         return;
     }
 
-    FILE *fp = fopen(filepath, "rb");
+    // JSON 전송: filepath_or_data는 JSONL/JSON 문자열
+    if (strncmp(type, "JSON", 4) == 0) {
+        int size = strlen(filepath_or_data);
+        SSL_write(ssl, "JSON", 5);
+        SSL_write(ssl, &size, sizeof(int));
+        SSL_write(ssl, filepath_or_data, size);
+        return;
+    }
+
+    // DATA 전송 (이미지/영상 파일)
+    FILE *fp = fopen(filepath_or_data, "rb");
     if (!fp) return;
 
     fseek(fp, 0, SEEK_END);
     int filesize = ftell(fp);
     rewind(fp);
 
-    const char *ext = strrchr(filepath, '.');
+    // 확장자 추출
+    const char *ext = strrchr(filepath_or_data, '.');
     if (!ext || strlen(ext) > 10) ext = ".bin";
-
     int ext_len = strlen(ext);
 
     // [1] TYPE
-    SSL_write(ssl, type, strlen(type));  // "TEXT", "IMG ", "VIDEO"
+    SSL_write(ssl, "DATA", 5);
 
     // [2] SIZE
     SSL_write(ssl, &filesize, sizeof(int));
@@ -49,6 +60,5 @@ void sendFile(SSL *ssl, const char *filepath, const char *type) {
     while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
         SSL_write(ssl, buf, n);
     }
-
     fclose(fp);
 }
