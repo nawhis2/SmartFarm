@@ -1,0 +1,3 @@
+/home/veda/project/CMakeFiles/demo.dir
+/home/veda/project/CMakeFiles/edit_cache.dir
+/home/veda/project/CMakeFiles/rebuild_cache.dir
