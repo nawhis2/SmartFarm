@@ -72,6 +72,37 @@ static size_t calculate_jsonl_event_size(const JSONLEvent *ev){
          + 1;  // '\0'
 }
 
+static void backup_jsonl(const char *line) {
+    // 1) 디렉터리 생성
+    mkdir(JSONL_DIR, 0755);
+
+    struct timeval tv; gettimeofday(&tv, NULL);
+    struct tm *tm_info = localtime(&tv.tv_sec);
+    char ts[32];
+    strftime(ts, sizeof(ts), "%Y%m%d_%H%M%S", tm_info);
+
+    char outpath[512];
+    snprintf(outpath, sizeof(outpath), "%s/%s_%06ld.jsonl",
+             JSONL_DIR, ts, (long)tv.tv_usec);
+
+    // 2) 파일 열기
+    FILE *fp = fopen(outpath, "a");
+    if (!fp) {
+        perror("fopen JSONL backup");
+        return;
+    }
+
+    // 3) 한 줄 쓰기(개행 여부 체크)
+    size_t len = strlen(line);
+    if (len > 0 && line[len-1] == '\n') {
+        fputs(line, fp);
+    } else {
+        fprintf(fp, "%s\n", line);
+    }
+
+    fclose(fp);
+}
+
 char* make_jsonl_event(const JSONLEvent *ev) {
     time_t now = time(NULL);
     // buffer size estimate
@@ -106,6 +137,8 @@ char* make_jsonl_event(const JSONLEvent *ev) {
     }
 
     off += snprintf(buf + off, needed - off, "}}\n");
+
+    backup_jsonl(buf);
     return buf;
 }
 

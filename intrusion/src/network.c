@@ -7,7 +7,7 @@ int socketNetwork(){
 	struct sockaddr_in socket_addr;
 
 	struct hostent *he;
-	if ((he = gethostbyname("localhost")) == NULL) {
+	if ((he = gethostbyname("192.168.0.46")) == NULL) {
         perror("gethostbyname");
         exit(1);
     }

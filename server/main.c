@@ -19,6 +19,7 @@
 #include "storage.h" 
 #include "handshake.h"
 #include "receive.h"
+#include "db.h"
 
 #define BUF_SIZE 1024
 
@@ -45,6 +46,12 @@ int main()
 
     initStorage();
     
+    init_mysql("localhost",
+           "sfapp",         // 새로 만든 계정
+           "StrongAppPass!",
+           "smartfarm",
+           3306);
+
     SSL *ssl = NULL;
     while (1)
     {     
@@ -84,6 +91,7 @@ int main()
             clientFdCnt++;
     }
 
+    close_mysql();
     SSL_free(ssl);
     close(server_fd);
     SSL_CTX_free(ctx);

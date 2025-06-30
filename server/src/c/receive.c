@@ -11,10 +11,105 @@
         데이터 저장위치 루트 안에 들어있는 var폴더 내에 생성
 */
 #include "receive.h"
+#include "db.h"
 
 // 클라이언트가 보낸 단일 JSONL 한 줄을 버퍼에 저장
 static char *jsonl_buf = NULL;
 static int   jsonl_size = 0;
+
+void store_event_to_mysql(json_t *obj) {
+    // 1) 필드 추출
+    const char *etype = json_string_value(json_object_get(obj, "event_type"));
+    long       ts    = json_integer_value(json_object_get(obj, "timestamp"));
+
+    json_t *data = json_object_get(obj, "data");
+    json_t *jt;
+    const char *class_type =
+        (jt = json_object_get(data, "class_type")) && json_is_string(jt)
+        ? json_string_value(jt) : NULL;
+    const char *image_url =
+        (jt = json_object_get(data, "image_url")) && json_is_string(jt)
+        ? json_string_value(jt) : NULL;
+    int feature =
+        (jt = json_object_get(data, "feature")) && json_is_integer(jt)
+        ? (int)json_integer_value(jt) : 0;
+
+    // 2) 원본 obj를 JSON_COMPACT 한 줄로 직렬화
+    char *raw = json_dumps(obj, JSON_COMPACT);
+    if (!raw) {
+        fprintf(stderr, "json_dumps failed\n");
+        return;
+    }
+
+    // 3) Prepared Statement
+    MYSQL_STMT *stmt = mysql_stmt_init(g_conn);
+    const char *sql =
+      "INSERT INTO events "
+      "(event_type, ts_epoch, class_type, image_url, feature, raw_payload) "
+      "VALUES (?, ?, ?, ?, ?, ?)";
+    if (mysql_stmt_prepare(stmt, sql, strlen(sql))) {
+        fprintf(stderr, "Stmt prepare error: %s\n", mysql_stmt_error(stmt));
+        free(raw);
+        mysql_stmt_close(stmt);
+        return;
+    }
+
+    MYSQL_BIND bind[6];
+    memset(bind, 0, sizeof(bind));
+
+    // event_type
+    unsigned long etype_len = strlen(etype);
+    bind[0].buffer_type   = MYSQL_TYPE_STRING;
+    bind[0].buffer        = (char*)etype;
+    bind[0].buffer_length = etype_len;
+    bind[0].length        = &etype_len;
+
+    // ts_epoch
+    bind[1].buffer_type = MYSQL_TYPE_LONG;
+    bind[1].buffer      = &ts;
+    bind[1].is_unsigned = 1;
+
+    // class_type
+    my_bool       class_null = (class_type == NULL);
+    unsigned long class_len  = class_type ? strlen(class_type) : 0;
+    bind[2].buffer_type   = MYSQL_TYPE_STRING;
+    bind[2].buffer        = (char*)(class_type ? class_type : "");
+    bind[2].buffer_length = class_len;
+    bind[2].is_null       = &class_null;
+    bind[2].length        = &class_len;
+
+    // image_url
+    my_bool       url_null = (image_url == NULL);
+    unsigned long url_len  = image_url ? strlen(image_url) : 0;
+    bind[3].buffer_type   = MYSQL_TYPE_STRING;
+    bind[3].buffer        = (char*)(image_url ? image_url : "");
+    bind[3].buffer_length = url_len;
+    bind[3].is_null       = &url_null;
+    bind[3].length        = &url_len;
+
+    // feature
+    bind[4].buffer_type = MYSQL_TYPE_LONG;
+    bind[4].buffer      = &feature;
+
+    // raw_payload
+    my_bool       raw_null = 0;  // raw는 절대 NULL 아님
+    unsigned long raw_len  = strlen(raw);
+    bind[5].buffer_type   = MYSQL_TYPE_STRING;
+    bind[5].buffer        = raw;
+    bind[5].buffer_length = raw_len;
+    bind[5].is_null       = &raw_null;
+    bind[5].length        = &raw_len;
+
+    // 4) 실행
+    mysql_stmt_bind_param(stmt, bind);
+    if (mysql_stmt_execute(stmt)) {
+        fprintf(stderr, "MySQL insert error: %s\n", mysql_stmt_error(stmt));
+    }
+    mysql_stmt_close(stmt);
+
+    // 5) 메모리 해제
+    free(raw);
+}
 
 // jsonl을 json으로 저장
 static int write_event_with_filepath(const char *buf, int size, const char *file_path) {
@@ -41,32 +136,12 @@ static int write_event_with_filepath(const char *buf, int size, const char *file
     // image_url 필드 설정 (파일 시스템 상대 경로)
     // image_url 필드 설정 (절대 파일 경로)
     json_object_set_new(data, "image_url", json_string(file_path));
-
-    // 저장할 JSON 파일명 생성
-    struct timeval tv; gettimeofday(&tv, NULL);
-    struct tm *tm_info = localtime(&tv.tv_sec);
-    char ts[32];
-    strftime(ts, sizeof(ts), "%Y%m%d_%H%M%S", tm_info);
-
-    char outdir[512];
-    snprintf(outdir, sizeof(outdir), "%s/json", RECEIVED_ROOT);
-    
-    mkdir(RECEIVED_ROOT, 0755);  
-    mkdir(outdir,        0755);  
-
-    char outpath[512];
-    snprintf(outpath, sizeof(outpath), "%s/%s_%06ld.json",
-             outdir, ts, (long)tv.tv_usec);
-
     json_object_del(obj, "has_file");
 
     // JSON 파일로 저장
-    if (json_dump_file(obj, outpath, JSON_INDENT(2)) != 0) {
-        fprintf(stderr, "Failed to write JSON file %s\n", outpath);
-        json_decref(obj);
-        return -1;
-    }
-    printf("[EVENT JSON] saved to %s\n", outpath);
+    store_event_to_mysql(obj);
+
+    printf("[EVENT JSON] saved to mysql\n");
     json_decref(obj);
     return 0;
 }
@@ -114,7 +189,7 @@ int receiveCCTVPacket(SSL *ssl) {
         }
         jsonl_buf[size] = '\0';
         jsonl_size = size;
-        printf("[JSONL buffered] %s", jsonl_buf, jsonl_size);
+        printf("[JSONL buffered] %s", jsonl_buf);
 
         // has_file 플래그 확인
         json_error_t error;
