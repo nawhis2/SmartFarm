@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
+#include <sys/stat.h>
+
+#define JSONL_DIR "../log"
 
 // JSONL 이벤트 구조체
 typedef struct {

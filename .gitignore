@@ -7,6 +7,9 @@
 *.pem
 *.user
 main
+userTest
 
 #folder
 build/
+log/
+received/
