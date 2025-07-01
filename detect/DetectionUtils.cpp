@@ -14,6 +14,7 @@ std::vector<DetectionResult> runDetection(
     cv::cvtColor(resized, rgb_frame, cv::COLOR_BGR2RGB);
 
     cv::Mat blob = cv::dnn::blobFromImage(rgb_frame, 1.0/255.0, model_size, cv::Scalar(), false, false);
+
     net.setInput(blob);
 
     std::vector<cv::Mat> outputs;
@@ -34,7 +35,6 @@ std::vector<DetectionResult> runDetection(
             float obj_conf = data[4];
             int num_classes = det.cols - 5;
             const float* scores = data + 5;
-
             auto max_score_iter = std::max_element(scores, scores + num_classes);
             float class_conf = *max_score_iter;
             int class_id = std::distance(scores, max_score_iter);
@@ -43,12 +43,12 @@ std::vector<DetectionResult> runDetection(
             if (confidence > conf_threshold) {
                 float cx = data[0];
                 float cy = data[1];
-                float w  = data[2];
-                float h  = data[3];
+                float w = data[2];
+                float h = data[3];
 
-                int left   = std::max(0, static_cast<int>((cx - w/2) * scale_x));
-                int top    = std::max(0, static_cast<int>((cy - h/2) * scale_y));
-                int width  = static_cast<int>(w * scale_x);
+                int left = std::max(0, static_cast<int>((cx - w/2) * scale_x));
+                int top = std::max(0, static_cast<int>((cy - h/2) * scale_y));
+                int width = static_cast<int>(w * scale_x);
                 int height = static_cast<int>(h * scale_y);
 
                 left = std::min(left, frame.cols - 1);
@@ -69,6 +69,7 @@ std::vector<DetectionResult> runDetection(
     for (int idx : indices) {
         detections.push_back({class_ids[idx], confidences[idx], boxes[idx]});
     }
+
     return detections;
 }
 
