@@ -1,4 +1,4 @@
-# Install script for directory: /home/veda/git/SmartFarm/detect
+# Install script for directory: /home/veda/SmartFarm/detect
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/veda/git/SmartFarm/detect/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/veda/SmartFarm/detect/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

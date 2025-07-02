@@ -6,12 +6,11 @@
 #include <atomic>
 #include <vector>
 #include <string>
-#include "DetectionUtils.h" // runDetection, drawDetections 등
+#include "DetectionUtils.h"
 
 using namespace std;
 using namespace cv;
 
-// 클래스 이름 정의 (예시)
 const vector<string> class_names = {
     "Angular Leafspot", "Anthracnose Fruit Rot", "Blossom Blight",
     "Gray Mold", "Leaf Spot", "Powdery Mildew Fruit",
@@ -20,7 +19,6 @@ const vector<string> class_names = {
 
 atomic<bool> running(true);
 
-// 스트림 컨텍스트 구조체
 struct StreamContext {
     VideoCapture* cap;
     dnn::Net* net;
@@ -31,7 +29,6 @@ struct StreamContext {
     vector<string>* class_names;
 };
 
-// appsrc로 프레임 push
 bool push_frame_to_appsrc(GstElement* appsrc, StreamContext* ctx) {
     Mat orig_frame;
     if (!ctx->cap->read(orig_frame)) {
@@ -39,19 +36,18 @@ bool push_frame_to_appsrc(GstElement* appsrc, StreamContext* ctx) {
         return false;
     }
 
-    // 1. 프레임 복제본(clone)에서 추론 및 박스 좌표 계산
     Mat infer_frame = orig_frame.clone();
     vector<DetectionResult> detections = runDetection(*(ctx->net), infer_frame, 0.4, 0.3, Size(416, 416));
-
-    // 2. 원본 프레임에 박스 등 합성
     drawDetections(orig_frame, detections, *(ctx->class_names));
 
-    // 3. GStreamer 버퍼로 변환 및 송출
-    int size = orig_frame.total() * orig_frame.elemSize();
+    Mat yuv_frame;
+    cvtColor(orig_frame, yuv_frame, COLOR_BGR2YUV_I420);
+
+    int size = yuv_frame.total() * yuv_frame.elemSize();
     GstBuffer* buffer = gst_buffer_new_allocate(NULL, size, NULL);
     GstMapInfo map;
     gst_buffer_map(buffer, &map, GST_MAP_WRITE);
-    memcpy(map.data, orig_frame.data, size);
+    memcpy(map.data, yuv_frame.data, size);
     gst_buffer_unmap(buffer, &map);
 
     GST_BUFFER_PTS(buffer) = gst_util_uint64_scale(ctx->frame_count, GST_SECOND, ctx->fps);
@@ -60,13 +56,12 @@ bool push_frame_to_appsrc(GstElement* appsrc, StreamContext* ctx) {
 
     GstFlowReturn ret = gst_app_src_push_buffer(GST_APP_SRC(appsrc), buffer);
     if (ret != GST_FLOW_OK) {
-        cerr << "Failed to push buffer to appsrc!" << endl;
+        cerr << "Failed to push buffer to appsrc: " << ret << endl;
         return false;
     }
     return true;
 }
 
-// need-data 콜백
 static void on_need_data(GstElement* appsrc, guint, StreamContext* ctx) {
     if (!running) {
         gst_app_src_end_of_stream(GST_APP_SRC(appsrc));
@@ -78,16 +73,18 @@ static void on_need_data(GstElement* appsrc, guint, StreamContext* ctx) {
     }
 }
 
-// media-configure 콜백
 static void media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, gpointer user_data) {
     GstElement *pipeline = gst_rtsp_media_get_element(media);
     GstElement *appsrc = gst_bin_get_by_name(GST_BIN(pipeline), "video_src");
     StreamContext* ctx = static_cast<StreamContext*>(user_data);
 
-    // appsrc caps 명시
+    // 상태 초기화
+    gst_element_set_state(appsrc, GST_STATE_READY);
+    gst_element_set_state(appsrc, GST_STATE_PLAYING);
+
     GstCaps *caps = gst_caps_new_simple(
         "video/x-raw",
-        "format", G_TYPE_STRING, "BGR",
+        "format", G_TYPE_STRING, "I420",
         "width", G_TYPE_INT, ctx->width,
         "height", G_TYPE_INT, ctx->height,
         "framerate", GST_TYPE_FRACTION, ctx->fps, 1,
@@ -96,8 +93,11 @@ static void media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, g
     gst_app_src_set_caps(GST_APP_SRC(appsrc), caps);
     gst_caps_unref(caps);
 
-    // need-data 콜백 연결
+    ctx->frame_count = 0;
+    running = true;
+
     g_signal_connect(appsrc, "need-data", G_CALLBACK(on_need_data), ctx);
+    gst_object_unref(appsrc);
     gst_object_unref(pipeline);
 }
 
@@ -129,7 +129,6 @@ int main() {
     GstRTSPMountPoints *mounts = gst_rtsp_server_get_mount_points(server);
     GstRTSPMediaFactory *factory = gst_rtsp_media_factory_new();
 
-    // RTSP 파이프라인: appsrc → videoconvert → x264enc → rtph264pay
     gst_rtsp_media_factory_set_launch(factory,
         "( appsrc name=video_src is-live=true format=time "
         "! videoconvert ! x264enc tune=zerolatency "
@@ -137,7 +136,6 @@ int main() {
     );
     gst_rtsp_media_factory_set_shared(factory, TRUE);
 
-    // 스트림 컨텍스트 준비
     StreamContext ctx;
     ctx.cap = &cap;
     ctx.net = &net;

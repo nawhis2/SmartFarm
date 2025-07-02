@@ -1,7 +1,6 @@
 CMakeFiles/demo.dir/DetectionUtils.cpp.o: \
- /home/veda/git/SmartFarm/detect/DetectionUtils.cpp \
- /usr/include/stdc-predef.h \
- /home/veda/git/SmartFarm/detect/DetectionUtils.h \
+ /home/veda/SmartFarm/detect/DetectionUtils.cpp \
+ /usr/include/stdc-predef.h /home/veda/SmartFarm/detect/DetectionUtils.h \
  /usr/local/include/opencv4/opencv2/opencv.hpp \
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/local/include/opencv4/opencv2/core.hpp \
