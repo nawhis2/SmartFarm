@@ -3,7 +3,9 @@
 
 #include "main.h"
 
+extern SSL* sock_fd;
+
 int socketNetwork();
-SSL* network(int, SSL_CTX *ctx);
+int network(int, SSL_CTX *ctx);
 
 #endif

@@ -3,6 +3,6 @@
 
 #include "main.h"
 
-void handshakeClient(SSL *, const char *, const char *);
+void handshakeClient(const char *, const char *);
 
 #endif

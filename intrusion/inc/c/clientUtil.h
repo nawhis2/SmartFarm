@@ -9,6 +9,6 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-void sendFile(SSL*, const char*, const char*);
+void sendFile(const char*, const char*);
 
 #endif

@@ -1,8 +1,8 @@
 #include "handshake.h"
 #include "clientUtil.h"
-void handshakeClient(SSL *ssl, const char* role, const char *cctvName){
+void handshakeClient(const char* role, const char *cctvName){
 	if (role)
-		sendFile(ssl, role, "TEXT");
+		sendFile(role, "TEXT");
 	if (cctvName)
-		sendFile(ssl, cctvName, "TEXT");
+		sendFile(cctvName, "TEXT");
 }
