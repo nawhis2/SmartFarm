@@ -2,6 +2,8 @@
 #define PORT 60000
 #define BACKLOG 10
 
+SSL* sock_fd = NULL;
+
 int socketNetwork(){
     int sockfd;
 	struct sockaddr_in socket_addr;
@@ -26,14 +28,14 @@ int socketNetwork(){
     return sockfd;
 }
 
-SSL* network(int sockfd, SSL_CTX *ctx)
+int network(int sockfd, SSL_CTX *ctx)
 {
     struct sockaddr_in client_addr;
     socklen_t addr_len = sizeof(client_addr);
 	// 서버 연결
     if (connect(sockfd, (struct sockaddr*)&client_addr, addr_len) < 0) {
         perror("서버 연결 실패");
-        exit(EXIT_FAILURE);
+        return 0;
     }
 
     // SSL 객체 생성 및 핸드셰이크 수행
@@ -41,7 +43,9 @@ SSL* network(int sockfd, SSL_CTX *ctx)
     SSL_set_fd(ssl, sockfd);
     if (SSL_connect(ssl) <= 0) {
         ERR_print_errors_fp(stderr);
+        return 0;
     }
+    sock_fd = ssl;
 
-	return ssl;
+	return 1;
 }

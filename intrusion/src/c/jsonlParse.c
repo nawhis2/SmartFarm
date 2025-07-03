@@ -1,5 +1,5 @@
 #include "jsonlParse.h"
-
+#include "clientUtil.h"
 JSONLEvent create_jsonl_event(const char *event_type,
                               int has_file,
                               const char *class_type,
@@ -9,27 +9,33 @@ JSONLEvent create_jsonl_event(const char *event_type,
 {
     JSONLEvent ev;
     // event_type 복사 (안전하게 널 종료)
-    strncpy(ev.event_type, event_type, sizeof(ev.event_type)-1);
-    ev.event_type[sizeof(ev.event_type)-1] = '\0';
+    strncpy(ev.event_type, event_type, sizeof(ev.event_type) - 1);
+    ev.event_type[sizeof(ev.event_type) - 1] = '\0';
 
     // has_file
     ev.has_file = has_file ? 1 : 0;
 
     // class_type / has_class_type
-    if (has_class_type && class_type) {
-        strncpy(ev.class_type, class_type, sizeof(ev.class_type)-1);
-        ev.class_type[sizeof(ev.class_type)-1] = '\0';
+    if (has_class_type && class_type)
+    {
+        strncpy(ev.class_type, class_type, sizeof(ev.class_type) - 1);
+        ev.class_type[sizeof(ev.class_type) - 1] = '\0';
         ev.has_class_type = 1;
-    } else {
+    }
+    else
+    {
         ev.class_type[0] = '\0';
         ev.has_class_type = 0;
     }
 
     // feature / has_feature
-    if (has_feature) {
+    if (has_feature)
+    {
         ev.feature = feature;
         ev.has_feature = 1;
-    } else {
+    }
+    else
+    {
         ev.feature = 0;
         ev.has_feature = 0;
     }
@@ -37,11 +43,12 @@ JSONLEvent create_jsonl_event(const char *event_type,
     return ev;
 }
 
-static size_t calculate_jsonl_event_size(const JSONLEvent *ev){
+size_t calculate_jsonl_event_size(const JSONLEvent *ev)
+{
     size_t len_event = strlen(ev->event_type);
     size_t len_class = ev->has_class_type
-                       ? strlen(ev->class_type)
-                       : strlen("null");
+                           ? strlen(ev->class_type)
+                           : strlen("null");
 
     // 타임스탬프 길이 (epoch seconds)
     time_t now = time(NULL);
@@ -50,33 +57,30 @@ static size_t calculate_jsonl_event_size(const JSONLEvent *ev){
 
     // feature 길이
     int len_feat = ev->has_feature
-                   ? snprintf(NULL, 0, "%d", ev->feature)
-                   : strlen("null");
+                       ? snprintf(NULL, 0, "%d", ev->feature)
+                       : strlen("null");
 
     // 2) 상수 오버헤드 길이 (키, 따옴표, 쉼표, 괄호 등)
     const size_t overhead =
-        strlen("{\"event_type\":\"\",") +   // {"event_type":"",
-        strlen("\"timestamp\":,") +         // "timestamp":
-        strlen("\"has_file\":,") +          // "has_file":
-        strlen("\"data\":{") +              // "data":{
-        strlen("\"class_type\":,") +        // "class_type":
-        strlen("\"feature\":") +            // "feature":
-        strlen("}}\n");                     // }}\n
+        strlen("{\"event_type\":\"\",") + // {"event_type":"",
+        strlen("\"timestamp\":,") +       // "timestamp":
+        strlen("\"has_file\":,") +        // "has_file":
+        strlen("\"data\":{") +            // "data":{
+        strlen("\"class_type\":,") +      // "class_type":
+        strlen("\"feature\":") +          // "feature":
+        strlen("}}\n");                   // }}\n
 
     // 3) 총합 + 널 종료
-    return len_event
-         + len_class
-         + (size_t)len_ts
-         + (size_t)len_feat
-         + overhead
-         + 1;  // '\0'
+    return len_event + len_class + (size_t)len_ts + (size_t)len_feat + overhead + 1; // '\0'
 }
 
-static void backup_jsonl(const char *line) {
+void backup_jsonl(const char *line)
+{
     // 1) 디렉터리 생성
     mkdir(JSONL_DIR, 0755);
 
-    struct timeval tv; gettimeofday(&tv, NULL);
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
     struct tm *tm_info = localtime(&tv.tv_sec);
     char ts[32];
     strftime(ts, sizeof(ts), "%Y%m%d_%H%M%S", tm_info);
@@ -87,53 +91,65 @@ static void backup_jsonl(const char *line) {
 
     // 2) 파일 열기
     FILE *fp = fopen(outpath, "a");
-    if (!fp) {
+    if (!fp)
+    {
         perror("fopen JSONL backup");
         return;
     }
 
     // 3) 한 줄 쓰기(개행 여부 체크)
     size_t len = strlen(line);
-    if (len > 0 && line[len-1] == '\n') {
+    if (len > 0 && line[len - 1] == '\n')
+    {
         fputs(line, fp);
-    } else {
+    }
+    else
+    {
         fprintf(fp, "%s\n", line);
     }
 
     fclose(fp);
 }
 
-char* make_jsonl_event(const JSONLEvent *ev) {
+char *make_jsonl_event(const JSONLEvent *ev)
+{
     time_t now = time(NULL);
     // buffer size estimate
     size_t needed = calculate_jsonl_event_size(ev);
-    char *buf = (char*)malloc(needed);
-    if (!buf) return NULL;
+    char *buf = (char *)malloc(needed);
+    if (!buf)
+        return NULL;
 
     int off = 0;
     off += snprintf(buf + off, needed - off,
-        "{\"event_type\":\"%s\","
-        "\"timestamp\":%ld,"
-        "\"has_file\":%d,"
-        "\"data\":{",
-        ev->event_type, (long)now, ev->has_file);
+                    "{\"event_type\":\"%s\","
+                    "\"timestamp\":%ld,"
+                    "\"has_file\":%d,"
+                    "\"data\":{",
+                    ev->event_type, (long)now, ev->has_file);
 
     // class_type
-    if (ev->has_class_type) {
+    if (ev->has_class_type)
+    {
         off += snprintf(buf + off, needed - off,
-            "\"class_type\":\"%s\",", ev->class_type);
-    } else {
+                        "\"class_type\":\"%s\",", ev->class_type);
+    }
+    else
+    {
         off += snprintf(buf + off, needed - off,
-            "\"class_type\":null,");
+                        "\"class_type\":null,");
     }
 
     // feature
-    if (ev->has_feature) {
+    if (ev->has_feature)
+    {
         off += snprintf(buf + off, needed - off,
-            "\"feature\":%d", ev->feature);
-    } else {
+                        "\"feature\":%d", ev->feature);
+    }
+    else
+    {
         off += snprintf(buf + off, needed - off,
-            "\"feature\":null");
+                        "\"feature\":null");
     }
 
     off += snprintf(buf + off, needed - off, "}}\n");
@@ -142,7 +158,31 @@ char* make_jsonl_event(const JSONLEvent *ev) {
     return buf;
 }
 
+void send_jsonl_event(const char *event_type,
+                      int has_file,
+                      const char *class_type,
+                      int has_class_type,
+                      int feature,
+                      int has_feature,
+                      const char *data)
+{
+    JSONLEvent ev = create_jsonl_event(
+        "fire_detected", // event_type
+        1,               // has_file
+        NULL,            // class_type
+        0,               // has_class_type
+        350,             // feature
+        1                // has_feature
+    );
+
+    char *jsonlFile = make_jsonl_event(&ev);
+    sendFile(jsonlFile, "JSON");
+    sendFile(data, "DATA");
+    free_jsonl_event(jsonlFile);
+}
+
 // make_jsonl_event()가 반환한 문자열을 해제합니다.
-void free_jsonl_event(char *line) {
+void free_jsonl_event(char *line)
+{
     free(line);
 }

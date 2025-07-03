@@ -113,6 +113,7 @@ bool pushFrame(GstElement *appsrc, StreamContext &ctx)
     }
     // Process detection and tracking
     detectAndTrack(ctx, frame);
+    
     // Draw tracked results on frame
     for (auto &tr : ctx.tracked)
     {

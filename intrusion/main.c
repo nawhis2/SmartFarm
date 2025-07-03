@@ -33,25 +33,15 @@ int main(){
     SSL_CTX *ctx = create_context();
     
     int sockfd = socketNetwork();
-	SSL* sock_fd = network(sockfd, ctx);
+	if(network(sockfd, ctx) < 1){
+        perror("SSL");
+        exit(1);
+    }
+    handshakeClient("CCTV", "Intrusion");
 
-    handshakeClient(sock_fd, "CCTV", "Intrusion");
+	sendFile("hi Server\n", "TEXT");
 
-	sendFile(sock_fd, "hi Server\n", "TEXT");
-    // JSONLEvent ev = create_jsonl_event(
-    //     "fire_detected",   // event_type
-    //     1,                 // has_file
-    //     NULL,              // class_type
-    //     0,                 // has_class_type
-    //     350,               // feature
-    //     1                  // has_feature
-    // );
-
-    // char* jsonlFile = make_jsonl_event(&ev);
-    // sendFile(sock_fd, jsonlFile, "JSON");
-    // sendFile(sock_fd, "/home/chanwoo/images/opencv.png", "DATA");
-
-    RtspStreaming(1920,1080,15);
+    RtspStreaming(1920, 1080, 15);
     sleep(1);
 
     while(1);

@@ -6,6 +6,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <openssl/ssl.h>
 
 #define JSONL_DIR "../log"
 
@@ -23,6 +24,8 @@ typedef struct {
 JSONLEvent create_jsonl_event(const char*, int, const char*, int, int, int);
 // jsonl 생성
 char* make_jsonl_event(const JSONLEvent*);
+// jsonl과 데이터 전송
+void send_jsonl_event(const char*, int, const char*, int, int, int, const char*);
 // jsonl 해제
 void free_jsonl_event(char*);
 
