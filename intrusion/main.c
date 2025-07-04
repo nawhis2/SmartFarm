@@ -19,7 +19,16 @@
 #include "rtspStreaming.h"
 #define BUF_SIZE 1024
 
-int main(){
+int main(int argc, char** argv){
+    if(argc < 2){
+        fprintf(stderr, "FORMAT: %s <IP ADDRESS>\n", argv[0]);
+        return 1;
+    }
+    char *ip = argv[1];
+    if(!ip){
+        fprintf(stderr, "NO IP ADDRESS");
+        return 1;
+    }
     int num;
 	char buffer[BUF_SIZE];
 	
@@ -32,7 +41,7 @@ int main(){
 	init_openssl();
     SSL_CTX *ctx = create_context();
     
-    int sockfd = socketNetwork();
+    int sockfd = socketNetwork(ip);
 	if(network(sockfd, ctx) < 1){
         perror("SSL");
         exit(1);

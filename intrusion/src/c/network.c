@@ -4,12 +4,12 @@
 
 SSL* sock_fd = NULL;
 
-int socketNetwork(){
+int socketNetwork(const char *ipAddress){
     int sockfd;
 	struct sockaddr_in socket_addr;
 
 	struct hostent *he;
-	if ((he = gethostbyname("192.168.0.46")) == NULL) {
+	if ((he = gethostbyname(ipAddress)) == NULL) {
         perror("gethostbyname");
         exit(1);
     }
