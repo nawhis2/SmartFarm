@@ -1,4 +1,5 @@
 #include "rtspServer.h"
+#include "jsonlParse.h"
 
 const vector<string> class_names = {"Deer", "Hog", "Raccoon", "person"};
 // ----------------------------
@@ -113,14 +114,29 @@ bool pushFrame(GstElement *appsrc, StreamContext &ctx)
     }
     // Process detection and tracking
     detectAndTrack(ctx, frame);
-    
-    // Draw tracked results on frame
+
     for (auto &tr : ctx.tracked)
     {
+        // Draw tracked results on frame
         rectangle(frame, tr.second.box, Scalar(0, 255, 0), 2);
         string label = class_names[tr.second.class_id] + format(" ID %d", tr.first);
         putText(frame, label, tr.second.box.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0), 2);
     }
+
+    auto now = steady_clock::now();
+    if (!ctx.tracked.empty() &&
+        duration_cast<seconds>(now - ctx.last_snapshot_time).count() >= 10)
+    {
+        Mat snapshot = frame.clone();
+        vector<uchar> jpeg_buf;
+        vector<int> jpeg_params = {IMWRITE_JPEG_QUALITY, 90};
+        imencode(".jpg", snapshot, jpeg_buf, jpeg_params);
+
+        send_jsonl_event("intrusion_detected", 1, NULL, 0, 0, 0, jpeg_buf.data(), jpeg_buf.size(), ".jpeg");
+
+        ctx.last_snapshot_time = now;
+    }
+
     // Push to GStreamer appsrc
     int size = frame.total() * frame.elemSize();
     GstBuffer *buf = gst_buffer_new_and_alloc(size);

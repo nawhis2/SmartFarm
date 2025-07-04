@@ -17,6 +17,7 @@
 
 using namespace cv;
 using namespace std;
+using namespace std::chrono;
 
 inline static atomic<bool> running(true);
 extern const vector<string> class_names;
@@ -33,6 +34,7 @@ struct StreamContext
     map<int, DetectionResult> tracked;
     int next_id;
     Mat background_model;
+    steady_clock::time_point last_snapshot_time = steady_clock::now() - seconds(60);
 };
 
 GstRTSPServer *setupRtspServer(StreamContext &ctx);
