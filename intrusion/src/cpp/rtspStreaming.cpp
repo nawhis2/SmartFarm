@@ -31,13 +31,23 @@ int RtspStreaming(const int width, const int height, const int fps)
     ctx.next_id = 0;
     ctx.background_model = Mat();
 
+    std::thread inference_thread(inferenceLoop, &ctx);
+
+    // ⬇️ RTSP 서버 설정
     GstRTSPServer *server = setupRtspServer(ctx);
     if (!server)
+    {
+        running = false;
+        inference_thread.join();
         return -1;
+    }
 
     cout << "RTSP stream ready at rtsp://0.0.0.0:8554/test" << endl;
     GMainLoop *loop = g_main_loop_new(nullptr, FALSE);
     g_main_loop_run(loop);
+
     running = false;
+    inference_thread.join();
+    
     return 0;
 }

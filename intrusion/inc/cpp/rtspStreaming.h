@@ -1,6 +1,8 @@
 #ifndef RTSPSTREAMING_H
 #define RTSPSTREAMING_H
 
+#include "rtspServer.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

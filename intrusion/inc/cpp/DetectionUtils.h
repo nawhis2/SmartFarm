@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DETECTIONUTILS_H
+#define DETECTIONUTILS_H
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/dnn.hpp>
@@ -24,3 +25,5 @@ std::vector<DetectionResult> runDetection(
 );
 
 cv::Rect convertBoxFromLetterbox(const cv::Rect2f& box_in_letterbox, float scale, const cv::Point& pad, const cv::Size& original_size);
+
+#endif
