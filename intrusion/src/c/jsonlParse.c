@@ -164,20 +164,23 @@ void send_jsonl_event(const char *event_type,
                       int has_class_type,
                       int feature,
                       int has_feature,
-                      const char *data)
+                      const uchar *data,
+                      int size,
+                      const char *ext)
 {
     JSONLEvent ev = create_jsonl_event(
-        "fire_detected", // event_type
-        1,               // has_file
-        NULL,            // class_type
-        0,               // has_class_type
-        350,             // feature
-        1                // has_feature
+        event_type,     // event_type
+        has_file,       // has_file
+        class_type,     // class_type
+        has_class_type, // has_class_type
+        feature,        // feature
+        has_feature     // has_feature
     );
 
     char *jsonlFile = make_jsonl_event(&ev);
     sendFile(jsonlFile, "JSON");
-    sendFile(data, "DATA");
+    if (data)
+        sendData(data, size, ext);
     free_jsonl_event(jsonlFile);
 }
 

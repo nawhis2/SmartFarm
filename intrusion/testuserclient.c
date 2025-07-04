@@ -19,6 +19,16 @@
 #define BUF_SIZE 1024
 
 int main(){
+    if(argc < 2){
+        fprintf(stderr, "FORMAT: %s <IP ADDRESS>\n", argv[0]);
+        return 1;
+    }
+    char *ip = argv[1];
+    if(!ip){
+        fprintf(stderr, "NO IP ADDRESS");
+        return 1;
+    }
+
     int num;
 	char buffer[BUF_SIZE];
 	
@@ -31,12 +41,12 @@ int main(){
 	init_openssl();
     SSL_CTX *ctx = create_context();
     
-    int sockfd = socketNetwork();
+    int sockfd = socketNetwork(ip);
 	SSL* sock_fd = network(sockfd, ctx);
 
-    handshakeClient(sock_fd, "USER", NULL);
+    handshakeClient("USER", NULL);
 
-	sendFile(sock_fd, "Intrusion\n", "TEXT");
+	sendFile("Intrusion\n", "TEXT");
     
     sleep(1);
     int n;

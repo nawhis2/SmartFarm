@@ -8,7 +8,9 @@
 #include <sys/socket.h> 
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+typedef unsigned char uchar;
 
 void sendFile(const char*, const char*);
+void sendData(const uchar*, int, const char*);
 
 #endif
