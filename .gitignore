@@ -9,6 +9,15 @@
 main
 userTest
 
+#cmake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+*.o
+*.o.d
+*.make
+*.internal
+
 #folder
 build/
 log/

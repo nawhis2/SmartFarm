@@ -42,9 +42,10 @@ void MainWindow::setupVideoPlayer()
     gst_init(nullptr, nullptr);
     // RTSP -> depay -> parse -> decodebin -> convert -> appsink
     const char *launch =
-        "rtspsrc location=rtsp://192.168.0.24:8554/test latency=0 ! "
-        "rtph264depay ! h264parse ! d3d11h264dec ! videoconvert ! "
-        "video/x-raw,format=RGB ! appsink name=sink sync=false max-buffers=1 drop=true";
+        "rtspsrc location=rtsp://192.168.0.41:8554/test latency=100 ! "
+        "rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! "
+        "video/x-raw,format=RGB ! appsink name=sink";
+
     GError *error = nullptr;
     pipeline = gst_parse_launch(launch, &error);
     if (!pipeline) {
