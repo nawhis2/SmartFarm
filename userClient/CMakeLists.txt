@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)  # <- Qt Meta-Object Compibler 자동 처리
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(GSTREAMER_ROOT "C:\\gstreamer\\1.0\\mingw_x86_64")
 
 
 # Qt 설정
@@ -19,12 +18,10 @@ include_directories(
     "${GSTREAMER_ROOT}/lib/glib-2.0/include"
 )
 
-
 link_directories("${GSTREAMER_ROOT}/lib")
 
-
 # GStreamer (Windows, MSVC)
-set(GSTREAMER_ROOT_X86_64 "C:/gstreamer/1.0/mingw_x86_64")
+set(GSTREAMER_ROOT_X86_64 "C:/gstreamer/1.0/msvc_x86_64")
 
 # 헤더 디렉터리 등록
 # 3-a) include 디렉토리

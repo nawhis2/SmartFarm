@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/veda/project/DetectionUtils.cpp" "CMakeFiles/demo.dir/DetectionUtils.cpp.o" "gcc" "CMakeFiles/demo.dir/DetectionUtils.cpp.o.d"
-  "/home/veda/project/main.cpp" "CMakeFiles/demo.dir/main.cpp.o" "gcc" "CMakeFiles/demo.dir/main.cpp.o.d"
+  "/home/veda/SmartFarm/detect/DetectionUtils.cpp" "CMakeFiles/demo.dir/DetectionUtils.cpp.o" "gcc" "CMakeFiles/demo.dir/DetectionUtils.cpp.o.d"
+  "/home/veda/SmartFarm/detect/main.cpp" "CMakeFiles/demo.dir/main.cpp.o" "gcc" "CMakeFiles/demo.dir/main.cpp.o.d"
   )
 
 # Targets to which this target links.

@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/veda/project
+CMAKE_SOURCE_DIR = /home/veda/SmartFarm/detect
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/veda/project
+CMAKE_BINARY_DIR = /home/veda/SmartFarm/detect
 
 # Include any dependencies generated for this target.
 include CMakeFiles/demo.dir/depend.make
@@ -72,30 +72,30 @@ include CMakeFiles/demo.dir/flags.make
 CMakeFiles/demo.dir/main.cpp.o: CMakeFiles/demo.dir/flags.make
 CMakeFiles/demo.dir/main.cpp.o: main.cpp
 CMakeFiles/demo.dir/main.cpp.o: CMakeFiles/demo.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/veda/project/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/demo.dir/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/demo.dir/main.cpp.o -MF CMakeFiles/demo.dir/main.cpp.o.d -o CMakeFiles/demo.dir/main.cpp.o -c /home/veda/project/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/veda/SmartFarm/detect/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/demo.dir/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/demo.dir/main.cpp.o -MF CMakeFiles/demo.dir/main.cpp.o.d -o CMakeFiles/demo.dir/main.cpp.o -c /home/veda/SmartFarm/detect/main.cpp
 
 CMakeFiles/demo.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/demo.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/veda/project/main.cpp > CMakeFiles/demo.dir/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/veda/SmartFarm/detect/main.cpp > CMakeFiles/demo.dir/main.cpp.i
 
 CMakeFiles/demo.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/demo.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/veda/project/main.cpp -o CMakeFiles/demo.dir/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/veda/SmartFarm/detect/main.cpp -o CMakeFiles/demo.dir/main.cpp.s
 
 CMakeFiles/demo.dir/DetectionUtils.cpp.o: CMakeFiles/demo.dir/flags.make
 CMakeFiles/demo.dir/DetectionUtils.cpp.o: DetectionUtils.cpp
 CMakeFiles/demo.dir/DetectionUtils.cpp.o: CMakeFiles/demo.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/veda/project/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/demo.dir/DetectionUtils.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/demo.dir/DetectionUtils.cpp.o -MF CMakeFiles/demo.dir/DetectionUtils.cpp.o.d -o CMakeFiles/demo.dir/DetectionUtils.cpp.o -c /home/veda/project/DetectionUtils.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/veda/SmartFarm/detect/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/demo.dir/DetectionUtils.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/demo.dir/DetectionUtils.cpp.o -MF CMakeFiles/demo.dir/DetectionUtils.cpp.o.d -o CMakeFiles/demo.dir/DetectionUtils.cpp.o -c /home/veda/SmartFarm/detect/DetectionUtils.cpp
 
 CMakeFiles/demo.dir/DetectionUtils.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/demo.dir/DetectionUtils.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/veda/project/DetectionUtils.cpp > CMakeFiles/demo.dir/DetectionUtils.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/veda/SmartFarm/detect/DetectionUtils.cpp > CMakeFiles/demo.dir/DetectionUtils.cpp.i
 
 CMakeFiles/demo.dir/DetectionUtils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/demo.dir/DetectionUtils.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/veda/project/DetectionUtils.cpp -o CMakeFiles/demo.dir/DetectionUtils.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/veda/SmartFarm/detect/DetectionUtils.cpp -o CMakeFiles/demo.dir/DetectionUtils.cpp.s
 
 # Object files for target demo
 demo_OBJECTS = \
@@ -164,7 +164,7 @@ demo: /usr/local/lib/libopencv_photo.so.4.12.0
 demo: /usr/local/lib/libopencv_imgproc.so.4.12.0
 demo: /usr/local/lib/libopencv_core.so.4.12.0
 demo: CMakeFiles/demo.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/veda/project/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable demo"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/veda/SmartFarm/detect/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable demo"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/demo.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -176,6 +176,6 @@ CMakeFiles/demo.dir/clean:
 .PHONY : CMakeFiles/demo.dir/clean
 
 CMakeFiles/demo.dir/depend:
-	cd /home/veda/project && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/veda/project /home/veda/project /home/veda/project /home/veda/project /home/veda/project/CMakeFiles/demo.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/veda/SmartFarm/detect && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/veda/SmartFarm/detect /home/veda/SmartFarm/detect /home/veda/SmartFarm/detect /home/veda/SmartFarm/detect /home/veda/SmartFarm/detect/CMakeFiles/demo.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/demo.dir/depend
 

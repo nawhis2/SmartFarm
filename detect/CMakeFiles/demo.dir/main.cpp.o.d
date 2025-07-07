@@ -1,4 +1,4 @@
-CMakeFiles/demo.dir/main.cpp.o: /home/veda/project/main.cpp \
+CMakeFiles/demo.dir/main.cpp.o: /home/veda/SmartFarm/detect/main.cpp \
  /usr/include/stdc-predef.h /usr/local/include/opencv4/opencv2/opencv.hpp \
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/local/include/opencv4/opencv2/core.hpp \
@@ -796,6 +796,4 @@ CMakeFiles/demo.dir/main.cpp.o: /home/veda/project/main.cpp \
  /usr/include/gstreamer-1.0/gst/app/gstappsrc.h \
  /usr/include/gstreamer-1.0/gst/app/app-prelude.h \
  /usr/include/gstreamer-1.0/gst/app/app-enumtypes.h \
- /usr/include/c++/12/thread /usr/include/c++/12/bits/std_thread.h \
- /usr/include/c++/12/bits/this_thread_sleep.h /usr/include/c++/12/atomic \
- /home/veda/project/DetectionUtils.h
+ /usr/include/c++/12/atomic /home/veda/SmartFarm/detect/DetectionUtils.h

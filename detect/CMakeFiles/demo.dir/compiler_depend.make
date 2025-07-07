@@ -1315,16 +1315,9 @@ CMakeFiles/demo.dir/main.cpp.o: main.cpp \
   /usr/include/gstreamer-1.0/gst/app/gstappsrc.h \
   /usr/include/gstreamer-1.0/gst/app/app-prelude.h \
   /usr/include/gstreamer-1.0/gst/app/app-enumtypes.h \
-  /usr/include/c++/12/thread \
-  /usr/include/c++/12/bits/std_thread.h \
-  /usr/include/c++/12/bits/this_thread_sleep.h \
   /usr/include/c++/12/atomic \
   DetectionUtils.h
 
-
-/usr/include/c++/12/bits/this_thread_sleep.h:
-
-/usr/include/c++/12/bits/std_thread.h:
 
 /usr/include/gstreamer-1.0/gst/rtsp-server/rtsp-onvif-client.h:
 
@@ -2431,8 +2424,6 @@ DetectionUtils.h:
 /usr/include/c++/12/bits/exception_defines.h:
 
 /usr/include/alloca.h:
-
-/usr/include/c++/12/thread:
 
 /usr/include/aarch64-linux-gnu/bits/endian.h:
 
