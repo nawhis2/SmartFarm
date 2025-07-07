@@ -1,5 +1,5 @@
 #include "rtspServer.h"
-#include "jsonlParse.h"
+#include "jsonlParse.h" 
 
 const vector<string> class_names = {"Deer", "Hog", "Raccoon", "person"};
 // ----------------------------
@@ -107,34 +107,15 @@ vector<DetectionResult> detectAndTrack(StreamContext &ctx, const Mat &frame)
 bool pushFrame(GstElement *appsrc, StreamContext &ctx)
 {
     Mat frame;
-    if (!ctx.cap->read(frame))
+    guint64 pts;
+
     {
-        this_thread::sleep_for(chrono::milliseconds(10));
-        return true;
-    }
-    // Process detection and tracking
-    detectAndTrack(ctx, frame);
+        std::lock_guard<std::mutex> lock(frame_mutex);
+        if (latest_frame.empty())
+            return false;
 
-    for (auto &tr : ctx.tracked)
-    {
-        // Draw tracked results on frame
-        rectangle(frame, tr.second.box, Scalar(0, 255, 0), 2);
-        string label = class_names[tr.second.class_id] + format(" ID %d", tr.first);
-        putText(frame, label, tr.second.box.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0), 2);
-    }
-
-    auto now = steady_clock::now();
-    if (!ctx.tracked.empty() &&
-        duration_cast<seconds>(now - ctx.last_snapshot_time).count() >= 10)
-    {
-        Mat snapshot = frame.clone();
-        vector<uchar> jpeg_buf;
-        vector<int> jpeg_params = {IMWRITE_JPEG_QUALITY, 90};
-        imencode(".jpg", snapshot, jpeg_buf, jpeg_params);
-
-        send_jsonl_event("intrusion_detected", 1, NULL, 0, 0, 0, jpeg_buf.data(), jpeg_buf.size(), ".jpeg");
-
-        ctx.last_snapshot_time = now;
+        frame = latest_frame.clone();
+        pts = latest_pts;
     }
 
     // Push to GStreamer appsrc
@@ -144,10 +125,16 @@ bool pushFrame(GstElement *appsrc, StreamContext &ctx)
     gst_buffer_map(buf, &info, GST_MAP_WRITE);
     memcpy(info.data, frame.data, size);
     gst_buffer_unmap(buf, &info);
-    GST_BUFFER_PTS(buf) = gst_util_uint64_scale(ctx.frame_count, GST_SECOND, ctx.fps);
+
+    GST_BUFFER_PTS(buf) = gst_util_uint64_scale(pts, GST_SECOND, ctx.fps);
     GST_BUFFER_DURATION(buf) = gst_util_uint64_scale_int(1, GST_SECOND, ctx.fps);
-    gst_app_src_push_buffer(GST_APP_SRC(appsrc), buf);
-    ctx.frame_count++;
+
+    GstFlowReturn ret = gst_app_src_push_buffer(GST_APP_SRC(appsrc), buf);
+    if (ret != GST_FLOW_OK) {
+        cerr << "Failed to push buffer to appsrc!" << endl;
+        return false;
+    }
+
     return true;
 }
 
@@ -230,4 +217,44 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
         return nullptr;
     }
     return server;
+}
+
+void inferenceLoop(StreamContext* ctx) {
+    while (running) {
+        Mat frame;
+        if (!ctx->cap->read(frame)) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            continue;
+        }
+
+        detectAndTrack(*ctx, frame);
+
+        for (auto& tr : ctx->tracked) {
+            rectangle(frame, tr.second.box, Scalar(0, 255, 0), 2);
+            string label = (*ctx->class_names)[tr.second.class_id] + format(" ID %d", tr.first);
+            putText(frame, label, tr.second.box.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0), 2);
+        }
+
+        auto now = steady_clock::now();
+        if (!ctx->tracked.empty() &&
+            duration_cast<seconds>(now - ctx->last_snapshot_time).count() >= 10) {
+            
+            Mat snapshot = frame.clone();
+            vector<uchar> jpeg_buf;
+            vector<int> jpeg_params = {IMWRITE_JPEG_QUALITY, 90};
+            imencode(".jpg", snapshot, jpeg_buf, jpeg_params);
+
+            send_jsonl_event("intrusion_detected", 1, NULL, 0, 0, 0, jpeg_buf.data(), jpeg_buf.size(), ".jpeg");
+
+            ctx->last_snapshot_time = now;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(frame_mutex);
+            latest_frame = frame.clone();
+            latest_pts = ctx->frame_count++;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(66));
+    }
 }

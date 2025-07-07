@@ -19,6 +19,9 @@ using namespace cv;
 using namespace std;
 using namespace std::chrono;
 
+inline static Mat latest_frame;
+inline static guint64 latest_pts = 0;
+inline static std::mutex frame_mutex;
 inline static atomic<bool> running(true);
 extern const vector<string> class_names;
 
@@ -38,5 +41,7 @@ struct StreamContext
 };
 
 GstRTSPServer *setupRtspServer(StreamContext &ctx);
+
+void inferenceLoop(StreamContext* ctx);
 
 #endif
