@@ -63,4 +63,5 @@ target_link_libraries(${PROJECT_NAME}
 
     # GStreamer (imported targets)
     ${GSTREAMER_LIBS}
+    ${GST_APP_LIBRARIES}
 )

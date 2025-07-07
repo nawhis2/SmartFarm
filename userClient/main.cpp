@@ -46,8 +46,17 @@ void updateFrame() {
     gst_sample_unref(sample);
 }
 
-int main(int argc, char *argv[]) {
+void init(void)
+{
     gst_init(nullptr, nullptr);
+    qputenv("GST_PLUGIN_PATH", "C:/gstreamer/1.0/msvc_x86_64/lib/gstreamer-1.0");
+    qputenv("GST_PLUGIN_SYSTEM_PATH", "C:/gstreamer/1.0/msvc_x86_64/lib/gstreamer-1.0");
+    qputenv("GST_PLUGIN_SCANNER", "C:/gstreamer/1.0/msvc_x86_64/libexec/gstreamer-1.0/gst-plugin-scanner.exe");
+    qputenv("PATH", qgetenv("PATH") + ";C:/gstreamer/1.0/msvc_x86_64/bin");
+}
+
+int main(int argc, char *argv[]) {
+    init();
     QApplication app(argc, argv);
     MainWindow w;
     w.setWindowTitle("🌱 스마트팜 통합 모니터링 시스템");

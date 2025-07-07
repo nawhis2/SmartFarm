@@ -1,6 +1,8 @@
 #pragma once
 #include <QMainWindow>
 #include <QImage>
+#include <QTimer>
+#include <QThread>
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
 

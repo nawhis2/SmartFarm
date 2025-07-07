@@ -5,6 +5,9 @@
 #include <QPixmap>
 #include <QDebug>
 
+int retryCount = 0;
+const int maxRetries = 5;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -43,7 +46,7 @@ void MainWindow::setupVideoPlayer()
 
     // RTSP -> depay -> parse -> decodebin -> convert -> appsink
     const char *launch =
-        "rtspsrc location=rtsp://192.168.0.119:8554/test latency=0 ! "
+        "rtspsrc location=rtsps://192.168.0.119:8555/test tls-validation-flags=0 latency=0  ! "
         "decodebin ! videoconvert ! video/x-raw,format=RGB ! appsink name=sink";
 
     GError *error = nullptr;
@@ -70,7 +73,22 @@ void MainWindow::setupVideoPlayer()
             Qt::QueuedConnection);
 
     auto ret = gst_element_set_state(pipeline, GST_STATE_PLAYING);
-    qDebug() << "GStreamer state change return:" << ret;
+    if (ret != GST_STATE_CHANGE_ASYNC) {
+        qDebug() << "GStreamer Streamer Data Loading ... \n";
+
+        if (++retryCount >= maxRetries) {
+            qWarning() << "재시도 한계 도달. 포기합니다.";
+            retryCount = 0;
+            return;
+        }
+        QTimer::singleShot(1000, this, [this]() {
+            setupVideoPlayer();  // 다시 시도
+        });
+        return;
+    }
+
+    retryCount = 0;  // 성공하면 초기화
+    qDebug() << "스트리밍 성공!";
 }
 
 GstFlowReturn MainWindow::onNewSample(GstAppSink *sink, gpointer user_data) {
