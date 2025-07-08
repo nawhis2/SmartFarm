@@ -6,7 +6,7 @@ StrawBerryWidget::StrawBerryWidget(QStackedWidget *stack, QWidget *parent)
     , ui(new Ui::StrawBerryWidget)
 {
     ui->setupUi(this);
-
+    type = "strawberry_detected";
     connect(ui->btnBackFromGrowth, &QPushButton::clicked, this, &StrawBerryWidget::showHomePage);
 }
 
