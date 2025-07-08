@@ -26,146 +26,16 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="pageMainMenu">
-     <widget class="QPushButton" name="btnFire">
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>70</y>
-        <width>61</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>🔥</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="btnGrowth">
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>110</y>
-        <width>61</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>🍓</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="btnIntrusion">
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>150</y>
-        <width>61</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>🚪</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="btnSensor">
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>190</y>
-        <width>61</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>📊</string>
-      </property>
-     </widget>
-     <widget class="QWidget" name="layoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>170</x>
-        <y>70</y>
-        <width>642</width>
-        <height>398</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="videoLayout">
-       <item>
-        <widget class="QLabel" name="videoLabel">
-         <property name="minimumSize">
-          <size>
-           <width>640</width>
-           <height>360</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="startCameraButton">
-         <property name="text">
-          <string>Start Camera</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="pageGrowth">
-     <widget class="QPushButton" name="btnBackFromGrowth">
-      <property name="geometry">
-       <rect>
-        <x>120</x>
-        <y>190</y>
-        <width>95</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string> home</string>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="pageIntrusion">
-     <widget class="QPushButton" name="btnBackFromIntrusion">
-      <property name="geometry">
-       <rect>
-        <x>130</x>
-        <y>190</y>
-        <width>95</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string> home</string>
-      </property>
-     </widget>
-    </widget>
+    <widget class="QWidget" name="pageMainMenu"/>
+    <widget class="QWidget" name="pageFire"/>
+    <widget class="QWidget" name="pageIntrusion"/>
+    <widget class="QWidget" name="pageGrowth"/>
     <widget class="QWidget" name="pageSensor">
      <widget class="QPushButton" name="btnBackFromSensor">
       <property name="geometry">
        <rect>
         <x>120</x>
         <y>180</y>
-        <width>95</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string> home</string>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="pageFire">
-     <widget class="QPushButton" name="btnBackFromFire">
-      <property name="geometry">
-       <rect>
-        <x>110</x>
-        <y>190</y>
         <width>95</width>
         <height>29</height>
        </rect>
@@ -183,7 +53,7 @@
      <x>0</x>
      <y>0</y>
      <width>968</width>
-     <height>25</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
