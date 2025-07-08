@@ -1,8 +1,8 @@
 #include "detectmainwidget.h"
 #include "ui_detectmainwidget.h"
 #include <QtConcurrent>
-#include <clientUtil.h>
-#include <network.h>
+#include "clientUtil.h"
+#include "network.h"
 #include <QPixmap>
 #include <QDebug>
 
@@ -30,8 +30,9 @@ DetectMainWidget::~DetectMainWidget()
 
 void DetectMainWidget::showFirePage()    { changePage(1); }
 void DetectMainWidget::showGrowthPage()  { changePage(3); }
-void DetectMainWidget::showIntrusionPage(){ //changePage(2);
-    sendFile("Intrusion\n", "TEXT");
+void DetectMainWidget::showIntrusionPage(){ changePage(2);
+    /*sendFile("Intrusion\n", "IP");
+    //sendFile("Strawberry\n", "IP");
     (void)QtConcurrent::run([this]() {
         char buffer[1024];
         int n = SSL_read(sock_fd, buffer, sizeof(buffer) - 1);
@@ -48,7 +49,7 @@ void DetectMainWidget::showIntrusionPage(){ //changePage(2);
         } else {
             qDebug() << "SSL_read failed or no data.";
         }
-    });
+    });*/
 }
 void DetectMainWidget::showSensorPage()  { /*ui->stackedWidget->setCurrentWidget(ui->pageSensor)*/; }
 

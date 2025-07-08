@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QStackedWidget>
+#include <QTableWidget>
 
 class DetectCoreWidget : public QWidget
 {
@@ -11,15 +12,19 @@ public:
     explicit DetectCoreWidget(QStackedWidget *stack, QWidget *parent = nullptr);
 
 private:
-    QString type;
     QStackedWidget *stackWidget;
+protected:
+    QString type;
+    QTableWidget *tableWidget;
 
 protected slots:
     // 페이지 전환
     void showHomePage();
+    void onPageChanged(int index);
 
 protected:
     void changePage(const int index);
+    virtual void pageChanged();
 };
 
 #endif // DETECTCOREWIDGET_H
