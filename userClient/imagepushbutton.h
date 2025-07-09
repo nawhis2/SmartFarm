@@ -19,6 +19,9 @@ private:
 
 public:
     void setImgUrl(const QString url) {imgUrl = url;}
+
+private:
+    void readImageFromSSL();
 };
 
 #endif // IMAGEPUSHBUTTON_H
