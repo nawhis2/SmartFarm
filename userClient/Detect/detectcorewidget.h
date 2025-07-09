@@ -16,6 +16,7 @@ private:
 protected:
     QString type;
     QTableWidget *tableWidget;
+    int myIndex;
 
 protected slots:
     // 페이지 전환
@@ -24,7 +25,7 @@ protected slots:
 
 protected:
     void changePage(const int index);
-    virtual void pageChanged();
+    virtual void pageChanged(const int index);
 };
 
 #endif // DETECTCOREWIDGET_H
