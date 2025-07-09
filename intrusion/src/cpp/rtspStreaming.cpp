@@ -8,7 +8,7 @@ int RtspStreaming(const int width, const int height, const int fps)
         "video/x-raw,width=" +
         to_string(width) + ",height=" + to_string(height) + ",framerate=" + to_string(fps) + "/1 ! "
                                                                                     "videoconvert ! videoscale ! appsink caps=video/x-raw,format=BGR,width=" +
-        to_string(height) + ",height=" + to_string(height);
+        to_string(width) + ",height=" + to_string(height);
     VideoCapture cap(pipeline, CAP_GSTREAMER);
     if (!cap.isOpened())
     {

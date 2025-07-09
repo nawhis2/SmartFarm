@@ -33,6 +33,8 @@ void imageSend(SSL *sock_fd, const char *file_path)
     fseek(fp, 0, SEEK_END);
     int file_size = ftell(fp);
     rewind(fp);
+    
+    SSL_write(sock_fd, &file_size, sizeof(int));
 
     // 3) DATA 전송
     char buf[4096];

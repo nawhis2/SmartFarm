@@ -49,7 +49,7 @@ SSL *clientNetwork(int sockfd, SSL_CTX *ctx)
     if (client_fd < 0)
     {
         close(client_fd);
-        perror("클라이언트 연결 실패");
+        perror("client can't discconect");
         return NULL;
     }
 
