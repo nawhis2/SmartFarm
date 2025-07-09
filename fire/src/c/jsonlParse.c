@@ -115,7 +115,8 @@ char *make_jsonl_event(const JSONLEvent *ev)
 {
     time_t now = time(NULL);
     // buffer size estimate
-    size_t needed = calculate_jsonl_event_size(ev);
+    // size_t needed = calculate_jsonl_event_size(ev);
+    size_t needed = 256;
     char *buf = (char *)malloc(needed);
     if (!buf)
         return NULL;

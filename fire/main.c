@@ -1,12 +1,12 @@
 /*
-    [기능 이름]: 침입 감지 client
-    [작성자]: 조찬우 (chanwoo)
-    [파일 설명]:
-      - 침입 감지 client 코드
+    [기능 이름]: 불 감지 RTSP cleint
+    [작성자]: 강시환 (sihwan)
+    [파일 설명]: 
+        - OpenSSL을 이용한 메인 서버 통신 및 RTSP over TLS 클라이언트
+        - RTSP 서버로서 qt 클라이언트로 비디오 스트리밍을 수신
+        - 메인 서버로 JSONL 파일 파싱 및 전송 기능 포함
 
     [TODO]:
-      - [ ] 침입 감지 추가
-      - [ ] while문 추가
 
     [참고 사항]:
 */
@@ -46,7 +46,7 @@ int main(int argc, char** argv){
         perror("SSL");
         exit(1);
     }
-    handshakeClient("CCTV", "Intrusion");
+    handshakeClient("CCTV", "fire");
 
 	sendFile("hi Server\n", "TEXT");
 

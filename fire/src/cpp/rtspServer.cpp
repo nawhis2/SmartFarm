@@ -1,7 +1,7 @@
 #include "rtspServer.h"
 #include "jsonlParse.h" 
 
-const vector<string> class_names = {"Deer", "Hog", "Raccoon", "person"};
+const vector<string> class_names = {"fire", "smoke"};
 // ----------------------------
 // Processing functions
 // ----------------------------
@@ -65,7 +65,7 @@ vector<DetectionResult> detectAndTrack(StreamContext &ctx, const Mat &frame)
         for (auto &d : dets)
         {
             string cls = (*ctx.class_names)[d.class_id];
-            if (cls == "Hog" || cls == "person")
+            if (cls == "fire" || cls == "smoke")
             {
                 for (auto &mb : motion_boxes)
                 {
@@ -270,24 +270,49 @@ void inferenceLoop(StreamContext* ctx) {
             continue;
         }
 
-        detectAndTrack(*ctx, frame);
+        // 객체 감지
+        std::vector<DetectionResult> results = detectAndTrack(*ctx, frame);
 
+        // 추적된 객체 표시
         for (auto& tr : ctx->tracked) {
             rectangle(frame, tr.second.box, Scalar(0, 255, 0), 2);
             string label = (*ctx->class_names)[tr.second.class_id] + format(" ID %d", tr.first);
             putText(frame, label, tr.second.box.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0), 2);
         }
-
+        
+        // 10초에 한 번씩 이벤트 전송
         auto now = steady_clock::now();
-        if (!ctx->tracked.empty() &&
-            duration_cast<seconds>(now - ctx->last_snapshot_time).count() >= 10) {
+        std::cout << results.size() << " objects detected at frame " << ctx->frame_count << std::endl;
+        if (!results.empty() &&
+        duration_cast<seconds>(now - ctx->last_snapshot_time).count() >= 10) {
             
+            // 스냅샷 생성
             Mat snapshot = frame.clone();
             vector<uchar> jpeg_buf;
             vector<int> jpeg_params = {IMWRITE_JPEG_QUALITY, 90};
             imencode(".jpg", snapshot, jpeg_buf, jpeg_params);
+            
+            // 감지된 객체들 중 fire/smoke에 대해 전송
+            for (const auto& det : results) {
+                std::string label = (*ctx->class_names)[det.class_id];
+                int conf = static_cast<int>(det.confidence * 100);
+                
+                if ((label == "fire" || label == "smoke") && conf > 1) {
+                    std::string event_type = label + "_detected";
 
-            send_jsonl_event("intrusion_detected", 1, NULL, 0, 0, 0, jpeg_buf.data(), jpeg_buf.size(), ".jpeg");
+                    send_jsonl_event(
+                        event_type.c_str(),  // "fire_detected" 또는 "smoke_detected"
+                        1,
+                        label.c_str(),       // "fire" 또는 "smoke"
+                        1,
+                        conf,                // confidence × 100
+                        1,
+                        jpeg_buf.data(),
+                        jpeg_buf.size(),
+                        ".jpeg"
+                    );
+                }
+            }
 
             ctx->last_snapshot_time = now;
         }

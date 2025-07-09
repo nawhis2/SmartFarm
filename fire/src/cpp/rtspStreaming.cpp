@@ -7,8 +7,8 @@ int RtspStreaming(const int width, const int height, const int fps)
         "libcamerasrc camera-name=/base/soc/i2c0mux/i2c@1/imx219@10 ! "
         "video/x-raw,width=" +
         to_string(width) + ",height=" + to_string(height) + ",framerate=" + to_string(fps) + "/1 ! "
-                                                                                    "videoconvert ! videoscale ! appsink caps=video/x-raw,format=BGR,width=" +
-        to_string(height) + ",height=" + to_string(height);
+        "videoconvert ! videoscale ! appsink caps=video/x-raw,format=BGR,width=" +
+        to_string(width) + ",height=" + to_string(height);
     VideoCapture cap(pipeline, CAP_GSTREAMER);
     if (!cap.isOpened())
     {
@@ -49,6 +49,5 @@ int RtspStreaming(const int width, const int height, const int fps)
 
     running = false;
     inference_thread.join();
-    
     return 0;
 }
