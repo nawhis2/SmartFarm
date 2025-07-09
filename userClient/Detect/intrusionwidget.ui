@@ -16,7 +16,7 @@
   <widget class="QPushButton" name="btnBackFromIntrusion">
    <property name="geometry">
     <rect>
-     <x>840</x>
+     <x>850</x>
      <y>540</y>
      <width>95</width>
      <height>29</height>
@@ -26,11 +26,11 @@
     <string> home</string>
    </property>
   </widget>
-  <widget class="QTableWidget" name="eventTable">
+  <widget class="QTableWidget" name="intrusionEventTable">
    <property name="geometry">
     <rect>
-     <x>35</x>
-     <y>31</y>
+     <x>40</x>
+     <y>40</y>
      <width>901</width>
      <height>491</height>
     </rect>

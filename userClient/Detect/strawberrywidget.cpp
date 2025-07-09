@@ -7,6 +7,7 @@ StrawBerryWidget::StrawBerryWidget(QStackedWidget *stack, QWidget *parent)
 {
     ui->setupUi(this);
     type = "strawberry_detected";
+    tableWidget = ui->strawEventTable;
     myIndex = 3;
     connect(ui->btnBackFromGrowth, &QPushButton::clicked, this, &StrawBerryWidget::showHomePage);
 }

@@ -24,7 +24,7 @@
 #define BUF_SIZE 1024
 
 int clientFdCnt = 0;
-int maxFdCnt = 4;
+int maxFdCnt = 10;
 
 void sigchld_handler(int sig)
 {
@@ -55,8 +55,8 @@ int main()
     SSL *ssl = NULL;
     while (1)
     {     
-        if(clientFdCnt >= maxFdCnt){
-            perror("클라이언트 수 초과");
+        if(clientFdCnt > maxFdCnt){
+            perror("client over");
             continue;
         }
 

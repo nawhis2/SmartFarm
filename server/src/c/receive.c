@@ -354,16 +354,19 @@ int receiveUserPacket(SSL *ssl)
     if (strncmp(type, "IP", 2) == 0)
     {
         ipSend(ssl, msg);
+        free(msg);
         return 0;
     }
     else if (strncmp(type, "DATA", 4) == 0)
     {
         jsonSend(ssl, msg);
+        free(msg);
         return 0;
     }
     else if (strncmp(type, "IMAGE", 5) == 0)
     {
         imageSend(ssl, msg);
+        free(msg);
         return 0;
     }
 

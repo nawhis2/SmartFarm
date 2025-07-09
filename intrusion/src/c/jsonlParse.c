@@ -66,7 +66,7 @@ size_t calculate_jsonl_event_size(const JSONLEvent *ev)
         strlen("\"timestamp\":,") +       // "timestamp":
         strlen("\"has_file\":,") +        // "has_file":
         strlen("\"data\":{") +            // "data":{
-        strlen("\"class_type\":,") +      // "class_type":
+        strlen("\"class_type\":\"\",") +      // "class_type":
         strlen("\"feature\":") +          // "feature":
         strlen("}}\n");                   // }}\n
 

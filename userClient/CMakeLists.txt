@@ -92,6 +92,7 @@ add_executable(${PROJECT_NAME}
     Detect/strawberrywidget.ui
     imagepushbutton.h
     imagepushbutton.cpp
+    imagedialog.h imagedialog.cpp imagedialog.ui
 )
 
 

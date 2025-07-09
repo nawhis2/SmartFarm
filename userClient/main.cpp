@@ -31,6 +31,18 @@ int main(int argc, char *argv[]) {
     w.resize(1000, 700);
     w.show();
 
+    QObject::connect(&w, &QObject::destroyed, [=]() {
+        if (sock_fd) {
+        #ifdef _WIN32
+            closesocket(sockfd);
+        #else
+            close(sockfd);
+        #endif
+            SSL_shutdown(sock_fd);
+            SSL_CTX_free(ctx);
+            SSL_free(sock_fd);
+        }
+    });
     return app.exec();
 }
 

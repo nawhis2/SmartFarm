@@ -244,7 +244,7 @@ void inferenceLoop(StreamContext* ctx) {
             vector<int> jpeg_params = {IMWRITE_JPEG_QUALITY, 90};
             imencode(".jpg", snapshot, jpeg_buf, jpeg_params);
 
-            send_jsonl_event("intrusion_detected", 1, NULL, 0, 0, 0, jpeg_buf.data(), jpeg_buf.size(), ".jpeg");
+            send_jsonl_event("intrusion_detected", 1, "intrusion", 1, 0, 0, jpeg_buf.data(), jpeg_buf.size(), ".jpeg");
 
             ctx->last_snapshot_time = now;
         }
