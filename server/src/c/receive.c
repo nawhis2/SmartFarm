@@ -350,7 +350,7 @@ int receiveUserPacket(SSL *ssl)
         received += n;
     }
     msg[size] = '\0';
-
+    printf("[Msg] : %s\n", msg);
     if (strncmp(type, "IP", 2) == 0)
     {
         ipSend(ssl, msg);
