@@ -90,6 +90,8 @@ add_executable(${PROJECT_NAME}
     Detect/intrusionwidget.ui
     Detect/firedetectwidget.ui
     Detect/strawberrywidget.ui
+    imagepushbutton.h
+    imagepushbutton.cpp
 )
 
 

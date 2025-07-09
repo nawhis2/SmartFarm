@@ -7,6 +7,8 @@ IntrusionWidget::IntrusionWidget(QStackedWidget *stack, QWidget *parent)
 {
     ui->setupUi(this);
     type = "intrusion_detected";
+    tableWidget = ui->eventTable;
+    myIndex = 2;
     connect(ui->btnBackFromIntrusion, &QPushButton::clicked, this, &IntrusionWidget::showHomePage);
 }
 

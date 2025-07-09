@@ -7,6 +7,7 @@ FireDetectWidget::FireDetectWidget(QStackedWidget *stack, QWidget *parent)
 {
     ui->setupUi(this);
     type = "fire_detected";
+    myIndex = 1;
     connect(ui->btnBackFromFire, &QPushButton::clicked, this, &FireDetectWidget::showHomePage);
 }
 
