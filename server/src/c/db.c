@@ -28,7 +28,7 @@ void init_mysql(const char *host,
 void query_and_send(SSL* sock_fd, const char *event_type) {
     char query[256];
     snprintf(query, sizeof(query),
-             "SELECT id, ts_epoch, class_type, image_url, created_at FROM smartfarm.events WHERE event_type = '%s'",
+             "SELECT image_url, id, class_type, created_at FROM smartfarm.events WHERE event_type = '%s'",
              event_type);
 
     if (mysql_query(g_conn, query)) {
@@ -41,9 +41,11 @@ void query_and_send(SSL* sock_fd, const char *event_type) {
 
     while ((row = mysql_fetch_row(result))) {
         char line[1024];
-        snprintf(line, sizeof(line), "%s|%s|%s|%s|%s\n", row[0], row[1], row[2], row[3], row[4]);
+        snprintf(line, sizeof(line), "%s|%s|%s|%s\n", row[0], row[1], row[2], row[3]);
         sendData(sock_fd, line);
     }
+
+    sendData(sock_fd, "END");
 
     mysql_free_result(result);
 }
