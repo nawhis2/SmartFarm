@@ -22,6 +22,11 @@ void DetectCoreWidget::showHomePage(){
 void DetectCoreWidget::onPageChanged(int index){
     if(index){
         if (myIndex == index) {
+            if(tableWidget)
+            {
+                tableWidget->clearContents();
+                tableWidget->setRowCount(0);
+            }
             pageChanged(index);
         }
     }
@@ -33,49 +38,47 @@ void DetectCoreWidget::changePage(const int index){
 }
 
 void DetectCoreWidget::pageChanged(const int index){
-    if(index == 1)
-        sendFile("fire_detected", "DATA");
+    (void)QtConcurrent::run([=]() {
+        if(index == 1)
+            sendFile("fire_detected", "DATA");
 
-    else if(index == 2)
-        sendFile("intrusion_detected", "DATA");
+        else if(index == 2)
+            sendFile("intrusion_detected", "DATA");
 
-    else if(index == 3)
-        sendFile("strawberry_detected", "DATA");
+        else if(index == 3)
+            sendFile("strawberry_detected", "DATA");
 
-    (void)QtConcurrent::run([this]() {
-        while(1){
+        while (1) {
             char buffer[1024];
             int n = SSL_read(sock_fd, buffer, sizeof(buffer) - 1);
             if (n > 0) {
                 buffer[n] = '\0';
 
-                if(strncmp(buffer, "END", 3) == 0){
-                    break;
-                }
+                if (strncmp(buffer, "END", 3) == 0) break;
 
                 QString json = QString::fromUtf8(buffer);
                 qDebug() << "[TEST] intrusion json:" << json;
 
                 QStringList fields = json.trimmed().split('|', Qt::SkipEmptyParts);
-                int row = tableWidget->rowCount();
-                if (tableWidget->columnCount() < fields.size()) {
-                    tableWidget->setColumnCount(fields.size());
-                }
-                tableWidget->insertRow(row);
 
                 QMetaObject::invokeMethod(this, [=]() {
+                    int row = tableWidget->rowCount();
+                    if (tableWidget->columnCount() < fields.size())
+                        tableWidget->setColumnCount(fields.size());
+
+                    tableWidget->insertRow(row);
+
                     ImagePushButton *imgBtn = new ImagePushButton();
                     imgBtn->setImgUrl(fields[0]);
                     tableWidget->setCellWidget(row, 0, imgBtn);
+
+                    for (int col = 1; col < fields.size(); ++col) {
+                        tableWidget->setItem(row, col, new QTableWidgetItem(fields[col]));
+                    }
+
+                    tableWidget->resizeColumnsToContents();
+                    tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
                 }, Qt::QueuedConnection);
-
-                for (int col = 1; col < fields.size(); ++col) {
-                    qDebug()<<fields[col]<<"\n";
-                    tableWidget->setItem(row, col, new QTableWidgetItem(fields[col]));
-                }
-                tableWidget->resizeColumnsToContents();
-                tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-
             } else {
                 qDebug() << "SSL_read failed or no data.";
                 break;
