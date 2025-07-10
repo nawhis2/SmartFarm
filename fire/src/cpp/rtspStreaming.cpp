@@ -4,7 +4,7 @@
 int RtspStreaming(const int width, const int height, const int fps)
 {
     string pipeline =
-        "libcamerasrc camera-name=/base/soc/i2c0mux/i2c@1/imx219@10 ! "
+        "libcamerasrc ! "
         "video/x-raw,width=" +
         to_string(width) + ",height=" + to_string(height) + ",framerate=" + to_string(fps) + "/1 ! "
         "videoconvert ! videoscale ! appsink caps=video/x-raw,format=BGR,width=" +
