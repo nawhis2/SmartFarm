@@ -46,7 +46,7 @@ int main(int argc, char** argv){
         perror("SSL");
         exit(1);
     }
-    handshakeClient("CCTV", "fire");
+    handshakeClient("CCTV", "Fire");
 
 	sendFile("hi Server\n", "TEXT");
 

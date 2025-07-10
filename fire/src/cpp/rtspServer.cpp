@@ -225,20 +225,15 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
 
     long bitrate = calculateBitrate(ctx.width, ctx.height, ctx.fps, 0.08) / 1000;
     std::string launch_desc =
-    "( appsrc name=video_src is-live=true format=time "
-    "! videoconvert ! video/x-raw,format=NV12 "
+    "( appsrc name=video_src is-live=true do-timestamp=true format=time "
+    "! videoconvert "
+    "! video/x-raw,format=NV12 "
     "! v4l2convert "
     "! v4l2h264enc extra-controls=\"controls,repeat_sequence_header=1,"
-    "video_bitrate=20000000,h264_i_frame_period=1,h264_profile=4\" "
+    "video_bitrate="+std::to_string(bitrate)+",h264_i_frame_period=1,h264_profile=4\" "
     "! video/x-h264,level=(string)4 "
     "! h264parse "
     "! rtph264pay name=pay0 pt=96 config-interval=1 )";
-    
-        // "( appsrc name=video_src is-live=true format=time "
-        // "! videoconvert ! video/x-raw,format=I420 "
-        // "! x264enc tune=zerolatency bitrate=" + std::to_string(bitrate) +
-        // " speed-preset=superfast "
-        // "! rtph264pay name=pay0 pt=96 )";
 
     gst_rtsp_media_factory_set_launch(factory, launch_desc.c_str());
     gst_rtsp_media_factory_set_shared(factory, TRUE);
@@ -307,10 +302,10 @@ void inferenceLoop(StreamContext* ctx) {
                 int conf = static_cast<int>(det.confidence * 100);
                 
                 if ((label == "fire" || label == "smoke") && conf > 1) {
-                    std::string event_type = label + "_detected";
+                    std::string event_type = "fire_detected";
 
                     send_jsonl_event(
-                        event_type.c_str(),  // "fire_detected" 또는 "smoke_detected"
+                        event_type.c_str(),  // "fire_detected" 고정
                         1,
                         label.c_str(),       // "fire" 또는 "smoke"
                         1,
