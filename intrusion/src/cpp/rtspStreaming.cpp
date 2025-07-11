@@ -4,11 +4,11 @@
 int RtspStreaming(const int width, const int height, const int fps)
 {
     string pipeline =
-        "libcamerasrc camera-name=/base/soc/i2c0mux/i2c@1/imx219@10 ! "
+        "libcamerasrc ! "
         "video/x-raw,width=" +
         to_string(width) + ",height=" + to_string(height) + ",framerate=" + to_string(fps) + "/1 ! "
-                                                                                    "videoconvert ! videoscale ! appsink caps=video/x-raw,format=BGR,width=" +
-        to_string(height) + ",height=" + to_string(height);
+        "videoconvert ! videoscale ! appsink caps=video/x-raw,format=BGR,width=" +
+        to_string(width) + ",height=" + to_string(height);
     VideoCapture cap(pipeline, CAP_GSTREAMER);
     if (!cap.isOpened())
     {
@@ -32,7 +32,7 @@ int RtspStreaming(const int width, const int height, const int fps)
     ctx.background_model = Mat();
 
     std::thread inference_thread(inferenceLoop, &ctx);
-
+    std::thread detect_thread(detectionLoop, &ctx);
     // ⬇️ RTSP 서버 설정
     GstRTSPServer *server = setupRtspServer(ctx);
     if (!server)
