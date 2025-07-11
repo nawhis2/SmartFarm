@@ -58,7 +58,7 @@ vector<DetectionResult> detectAndTrack(StreamContext &ctx, const Mat &frame)
 
     // Detection every 5 frames
     vector<DetectionResult> dets;
-    if (++ctx.frame_counter % 5 == 0)
+    if (++ctx.frame_counter % 10 == 0)
     {
         dets = runDetection(*ctx.net, frame, 0.6f, 0.4f, Size(640, 640));
         vector<DetectionResult> filtered;
@@ -228,10 +228,15 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
     "( appsrc name=video_src is-live=true do-timestamp=true format=time "
     "! videoconvert "
     "! video/x-raw,format=NV12 "
+    "! queue max-size-buffers=2 "
     "! v4l2convert "
-    "! v4l2h264enc extra-controls=\"controls,repeat_sequence_header=1,"
-    "video_bitrate="+std::to_string(bitrate)+",h264_i_frame_period=1,h264_profile=4\" "
+    "! v4l2h264enc "
+    "capture-io-mode=2 "
+    "extra-controls=\"controls,repeat_sequence_header=1,"
+    "video_bitrate=" + std::to_string(bitrate) + 
+    ",h264_i_frame_period=1,h264_profile=0\" "
     "! video/x-h264,level=(string)4 "
+    "! queue max-size-buffers=5 "
     "! h264parse "
     "! rtph264pay name=pay0 pt=96 config-interval=1 )";
 
@@ -250,7 +255,6 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
         NULL);
     gst_rtsp_media_factory_set_permissions(factory, fac_perms);
     gst_rtsp_permissions_unref(fac_perms);
-
 
     // mount point 등록
     gst_rtsp_mount_points_add_factory(mounts, "/test", factory);
