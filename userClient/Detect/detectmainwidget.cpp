@@ -12,6 +12,16 @@ DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
 {
     ui->setupUi(this);
     // UI 버튼
+    cctvNames.emplace(0, "Fire");
+    cctvNames.emplace(1, "Intrusion");
+    cctvNames.emplace(2, "Strawberry");
+    cctvNames.emplace(3, "cctv");
+
+    videoLabels[0] = ui->videoLabel1;
+    videoLabels[1] = ui->videoLabel2;
+    videoLabels[2] = ui->videoLabel3;
+    videoLabels[3] = ui->videoLabel3;
+
     connect(ui->btnFire,       &QPushButton::clicked, this, &DetectMainWidget::showFirePage);
     connect(ui->btnGrowth,     &QPushButton::clicked, this, &DetectMainWidget::showGrowthPage);
     connect(ui->btnIntrusion,  &QPushButton::clicked, this, &DetectMainWidget::showIntrusionPage);
@@ -21,50 +31,53 @@ DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
 
 DetectMainWidget::~DetectMainWidget()
 {
-    if (pipeline) {
-        gst_element_set_state(pipeline, GST_STATE_NULL);
-        gst_object_unref(pipeline);
-    }
     delete ui;
 }
 
 void DetectMainWidget::showFirePage()    { changePage(1); }
 void DetectMainWidget::showGrowthPage()  { changePage(3); }
-void DetectMainWidget::showIntrusionPage(){ changePage(2);
-    /*sendFile("Intrusion\n", "IP");
-    //sendFile("Strawberry\n", "IP");
-    (void)QtConcurrent::run([this]() {
-        char buffer[1024];
-        int n = SSL_read(sock_fd, buffer, sizeof(buffer) - 1);
-        if (n > 0) {
-            buffer[n] = '\0';
-            QString ip = QString::fromUtf8(buffer);
-            qDebug() << "[TEST] intrusion ip:" << ip;
-
-            // UI 업데이트는 메인 스레드에서
-            QMetaObject::invokeMethod(this, [this, ip]() {
-                ipAddress = ip.toStdString();
-                // 필요 시 라벨 갱신 등 UI 처리
-            }, Qt::QueuedConnection);
-        } else {
-            qDebug() << "SSL_read failed or no data.";
-        }
-    });*/
-}
+void DetectMainWidget::showIntrusionPage(){ changePage(2); }
 void DetectMainWidget::showSensorPage()  { /*ui->stackedWidget->setCurrentWidget(ui->pageSensor)*/; }
 
+void DetectMainWidget::setupStream(const char* cctvName, const int index){
+    sendFile(cctvName, "IP");
+    char buffer[1024];
+    int n = SSL_read(sock_fd, buffer, sizeof(buffer) - 1);
+    if (n > 0) {
+        buffer[n] = '\0';
+        QString ip = QString::fromUtf8(buffer);
+        if(ip == "NO")
+            return;
+        qDebug() << "[TEST]" << cctvName <<" ip:" << ip;
+        // UI 업데이트는 메인 스레드에서
+        QMetaObject::invokeMethod(this, [=]() {
+            ipAddress[index] = ip.toStdString();
+            QString ipStr = QString::fromStdString(ipAddress[index]);
+            QString url = "rtsps://" + ipStr + ":8555/test";
+            Streamers[index] = new VideoStreamHandler(index, url, videoLabels[index], this);
+            Streamers[index]->start();
+        }, Qt::QueuedConnection);
+    } else {
+        qDebug() << "SSL_read failed or no data.";
+    }
+
+}
 
 void DetectMainWidget::setupAllStreams()
 {
     qDebug() << "setupAllStreams() called";
-    fireStream = new VideoStreamHandler("rtsp://192.168.0.46:8554/test", ui->videoLabel1, this);
-    growthStream = new VideoStreamHandler("rtsps://192.168.0.119:8555/test", ui->videoLabel2, this);
-    intrusionStream = new VideoStreamHandler("rtsp://192.168.0.81:8554/test", ui->videoLabel3, this);
-    strawberryStream = new VideoStreamHandler("rtsp://<ip4>:8554/strawberry", ui->videoLabel4, this);
+    (void)QtConcurrent::run([=]() {
+        for(int i=0;i<3;i++){
+            if(ipAddress[i] == ""){
+                auto it = cctvNames.find(i);
+                if (it != cctvNames.end()) {
+                    std::string name = it->second;
+                    qDebug() << "cctv name: " << name;
 
-    fireStream->start();
-    growthStream->start();
-    intrusionStream->start();
-    strawberryStream->start();
+                    setupStream(name.c_str(), i);
+                }
+            }
+        }
+    });
 }
 

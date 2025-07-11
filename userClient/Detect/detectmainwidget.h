@@ -6,6 +6,8 @@
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
 #include "videostreamhandler.h"
+#include <map>
+#include <string>
 
 namespace Ui {
 class DetectMainWidget;
@@ -31,20 +33,21 @@ private slots:
 
     // 스트림 제어
     void setupAllStreams();
+    void setupStream(const char* cctvName, const int index);
 
 private:
-    Ui::DetectMainWidget *ui;
-    GstElement    *pipeline = nullptr;
-    std::string ipAddress;
     // appsink new-sample 콜백
     static GstFlowReturn onNewSample(GstAppSink *sink, gpointer user_data);
     // 버스 에러 메시지 콜백
     static void onBusMessage(GstBus *bus, GstMessage *msg, gpointer user_data);
-    //streaming
-    VideoStreamHandler *fireStream = nullptr;
-    VideoStreamHandler *growthStream = nullptr;
-    VideoStreamHandler *intrusionStream = nullptr;
-    VideoStreamHandler *strawberryStream = nullptr;
+
+private:
+    Ui::DetectMainWidget *ui;
+
+    QLabel* videoLabels[4];
+    std::map<int, std::string> cctvNames;
+    std::string ipAddress[4];
+    VideoStreamHandler *Streamers[4];
 };
 
 #endif // DETECTMAINWIDGET_H
