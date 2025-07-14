@@ -7,7 +7,7 @@ int RtspStreaming(const int width, const int height, const int fps)
         "libcamerasrc ! "
         "video/x-raw,width=" +
         to_string(width) + ",height=" + to_string(height) + ",framerate=" + to_string(fps) + "/1 ! "
-        "queue max-size-buffers=0 max-size-bytes=0 max-size-time=100000000 ! "
+        // "queue max-size-buffers=0 max-size-bytes=0 max-size-time=100000000 ! "
         "videoconvert ! videoscale ! appsink caps=video/x-raw,format=BGR,width=" +
         to_string(width) + ",height=" + to_string(height);
     VideoCapture cap(pipeline, CAP_GSTREAMER);

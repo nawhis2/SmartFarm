@@ -228,7 +228,7 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
     "( appsrc name=video_src is-live=true do-timestamp=true format=time "
     "! videoconvert "
     "! video/x-raw,format=NV12 "
-    "! queue max-size-buffers=2 "
+    //"! queue max-size-buffers=2 "
     "! v4l2convert "
     "! v4l2h264enc "
     "capture-io-mode=2 "
@@ -236,7 +236,7 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
     "video_bitrate=" + std::to_string(bitrate) + 
     ",h264_i_frame_period=1,h264_profile=0\" "
     "! video/x-h264,level=(string)4 "
-    "! queue max-size-buffers=5 "
+    //"! queue max-size-buffers=5 "
     "! h264parse "
     "! rtph264pay name=pay0 pt=96 config-interval=1 )";
 
