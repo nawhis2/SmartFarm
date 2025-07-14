@@ -275,9 +275,24 @@ void detectionLoop(StreamContext* ctx) {
             raw_frame = latest_raw_frame.clone();
         }
 
+        // 배경 모델 업데이트 + 모션 박스 추출
+        if (ctx->frame_count == 0)
+            raw_frame.convertTo(ctx->background_model, CV_32F);
+
+        Mat bg8u = updateBackground(raw_frame, ctx->background_model, 0.01);
+        Mat fg = getMotionMask(raw_frame, bg8u);
+        auto motion_boxes = extractMotionBoxes(fg);
+
+        // 감지 주기 제한
+        if (++ctx->frame_counter % 5 != 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
+
+        // YOLO 감지
         auto detections = runDetection(*ctx->net, raw_frame, 0.6f, 0.4f, Size(640, 640));
 
-        // tracking (IOU 기반)
+        // IOU 기반 tracking
         map<int, DetectionResult> updated;
         {
             std::lock_guard<std::mutex> lock(track_mutex);
@@ -298,7 +313,7 @@ void detectionLoop(StreamContext* ctx) {
             ctx->tracked = std::move(updated);
         }
 
-        // 박스 그리기 (저장/전송용)
+        // 박스 그리기
         Mat boxed_frame = raw_frame.clone();
         {
             std::lock_guard<std::mutex> lock(track_mutex);
