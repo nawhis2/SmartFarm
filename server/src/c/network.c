@@ -2,10 +2,9 @@
 #include <arpa/inet.h>      
 #include <sys/socket.h> 
 
-#define PORT 60000
 #define BACKLOG 10
 
-int serverNetwork()
+int serverNetwork(int port)
 {
     int sockfd;
     struct sockaddr_in server_addr;
@@ -23,7 +22,7 @@ int serverNetwork()
     }
 
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
+    server_addr.sin_port = htons(port);
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     memset(&(server_addr.sin_zero), '\0', 8);
     if (bind(sockfd, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) == -1)
