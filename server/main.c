@@ -16,11 +16,16 @@
 
 #include "main.h"
 #include "network.h"
-#include "storage.h" 
+#include "storage.h"
 #include "handshake.h"
 #include "receive.h"
 #include "db.h"
+#include "sensorUtil.h"
 
+#define PORT 60000
+#define CCTVPORT 60001
+#define SENSORPORT 60002
+#define USERPORT 60003
 #define BUF_SIZE 1024
 
 int clientFdCnt = 0;
@@ -35,65 +40,130 @@ void sigchld_handler(int sig)
 
 int main()
 {
+    mkfifo(SENSOR_PIPE, 0666);
+
     init_openssl();
     SSL_CTX *ctx = create_context();
     configure_context(ctx);
 
-    //daemonP();
+    // daemonP();
 
-    int server_fd = serverNetwork();
+    int handshake_fd = serverNetwork(PORT);
+    int cctv_fd = serverNetwork(CCTVPORT);
+    int sensor_fd = serverNetwork(SENSORPORT);
+    int user_fd = serverNetwork(USERPORT);
     signal(SIGCHLD, sigchld_handler);
 
     initStorage();
-    
-    init_mysql("localhost",
-           "sfapp",         // 새로 만든 계정
-           "StrongAppPass!",
-           "smartfarm",
-           3306);
 
-    SSL *ssl = NULL;
+    init_mysql("localhost",
+               "sfapp", // 새로 만든 계정
+               "StrongAppPass!",
+               "smartfarm",
+               3306);
+
     while (1)
-    {     
-        if(clientFdCnt > maxFdCnt){
+    {
+        if (clientFdCnt > maxFdCnt)
+        {
             perror("client over");
             continue;
         }
 
-        ssl = clientNetwork(server_fd, ctx);
+        SSL* ssl = clientNetwork(handshake_fd, ctx);
         if (!ssl)
         {
-            perror("ssl create");
-            continue;
+            fprintf(stderr, "ssl create fail");
+            return 1;
         }
 
         pid_t pid = fork();
         if (pid == 0)
-        {
-            char cam_name[32]={0};
-            Role role = handshakeRole(ssl, cam_name, sizeof(cam_name));
-            if (role==ROLE_CCTV) {
+        {    
+            SSL *sensor = NULL;
+
+            char camName[32] = {0};
+            Role role = handshakeRole(ssl, camName, sizeof(camName));
+            if (role == ROLE_CCTV)
+            {
+                SSL *cctv = clientNetwork(cctv_fd, ctx);
+                if (!cctv)
+                {
+                    fprintf(stderr, "cctv ssl create fail");
+                    return 1;
+                }
+
+                pthread_t tid;
+                int startThread = 0;
                 printf("CCTV\n");
-                registerCCTV(ssl, cam_name);
-                receiveCCTV(ssl);
-                removeActiveCCTV(cam_name);
+                registerCCTV(cctv, camName);
+                if (strncmp(camName, "Fire", 4) == 0)
+                {
+                    sensor = clientNetwork(sensor_fd, ctx);
+                    if (!sensor)
+                    {
+                        fprintf(stderr, "sensor ssl create fail");
+                        return 1;
+                    }
+
+                    tid = regisSensorUser(sensor);
+                    startThread = 1;
+                }
+
+                receiveCCTV(cctv);
+                removeActiveCCTV(camName);
+
+                if (startThread)
+                {
+                    pthread_join(tid, NULL);
+                    
+                    close(SSL_get_fd(sensor));
+                    SSL_free(sensor);
+                }
+
+                close(SSL_get_fd(cctv));
+                SSL_free(cctv);
             }
-            else if (role==ROLE_USER){
+            else if (role == ROLE_USER)
+            {
                 printf("User\n");
-                receiveUser(ssl);
+                SSL *user = clientNetwork(user_fd, ctx);
+                if (!user)
+                {
+                    fprintf(stderr, "ssl create fail");
+                    return 1;
+                }
+
+                sensor = clientNetwork(sensor_fd, ctx);
+                if (!sensor)
+                {
+                    fprintf(stderr, "sensor ssl create fail");
+                    return 1;
+                }
+                pthread_t tid = regisSensorUser(sensor);
+                receiveUser(user);
+
+                pthread_join(tid, NULL);
+                stop_pipe = 1;
+
+                close(SSL_get_fd(sensor));
+                close(SSL_get_fd(user));
+                SSL_free(sensor);
+                SSL_free(user);
             }
-            SSL_shutdown(ssl);
-            SSL_free(ssl);
             close(SSL_get_fd(ssl));
+            SSL_free(ssl);
             return 0;
         }
-        else if(pid > 0)  
+        else if (pid > 0)
             clientFdCnt++;
     }
 
     close_mysql();
-    SSL_free(ssl);
-    close(server_fd);
+    close(handshake_fd);
+    close(sensor_fd);
+    close(user_fd);
+    close(cctv_fd);
     SSL_CTX_free(ctx);
     EVP_cleanup();
     return 0;

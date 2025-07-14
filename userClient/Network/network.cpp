@@ -1,10 +1,9 @@
 #include "network.h"
 
-#define PORT "60000"  // 문자열 형태로 getaddrinfo에 넘김
 
 SSL* sock_fd = NULL;
 
-int socketNetwork(const char *ipAddress) {
+int socketNetwork(const char *ipAddress, const char *port) {
     int sockfd;
 
 #ifdef _WIN32
@@ -22,7 +21,7 @@ int socketNetwork(const char *ipAddress) {
     hints.ai_family = AF_INET;        // IPv4
     hints.ai_socktype = SOCK_STREAM;  // TCP
 
-    if ((rv = getaddrinfo(ipAddress, PORT, &hints, &res)) != 0) {
+    if ((rv = getaddrinfo(ipAddress, port, &hints, &res)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return -1;
     }
@@ -69,4 +68,31 @@ int network(int sockfd, SSL_CTX *ctx) {
 
     sock_fd = ssl;
     return 1;
+}
+
+SSL* sensorNetwork(int sockfd, SSL_CTX *ctx) {
+    SSL *ssl = SSL_new(ctx);
+    SSL_set_fd(ssl, sockfd);
+
+    if (SSL_connect(ssl) <= 0) {
+        ERR_print_errors_fp(stderr);
+#ifdef _WIN32
+        closesocket(sockfd);
+#else
+        close(sockfd);
+#endif
+        return 0;
+    }
+
+    return ssl;
+}
+
+void returnSocket(){
+    SSL_shutdown(sock_fd);
+#ifdef _WIN32
+    closesocket(SSL_get_fd(sock_fd));
+#else
+    close(sock_fd);
+#endif
+    SSL_free(sock_fd);
 }

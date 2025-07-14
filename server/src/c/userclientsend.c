@@ -12,7 +12,10 @@ void ipSend(SSL *sock_fd, const char *data)
         sendData(sock_fd, buf);
     }
     else
+    {
         printf("[TEXT] %s\n", data);
+        sendData(sock_fd, "NO");
+    }
 }
 
 void jsonSend(SSL *sock_fd, const char *event_type)
