@@ -7,10 +7,12 @@
 #include "main.h"
 #include "network.h"
 #include "handshake.h"
+#include "clientUtil.h"
 
-GstElement *pipeline = nullptr;
-GstElement *appsink = nullptr;
-QLabel *videoLabel = nullptr;
+#define IP "192.168.0.46"
+#define PORT "60000"  // 문자열 형태로 getaddrinfo에 넘김
+#define SENSORPORT "60002"  // 문자열 형태로 getaddrinfo에 넘김
+#define USERPORT "60003"  // 문자열 형태로 getaddrinfo에 넘김
 
 int main(int argc, char *argv[]) {
     gst_init(nullptr, nullptr);
@@ -18,12 +20,22 @@ int main(int argc, char *argv[]) {
     init_openssl();
     SSL_CTX *ctx = create_context();
 
-    int sockfd = socketNetwork("192.168.0.46");
+    int sockfd = socketNetwork(IP, PORT);
     if(network(sockfd, ctx) < 1){
         perror("SSL");
         exit(1);
     }
     handshakeClient("USER", NULL);
+    returnSocket();
+
+    int userfd = socketNetwork(IP, USERPORT);
+    if(network(userfd, ctx) < 1){
+        perror("SSL");
+        exit(1);
+    }
+
+    int sensorfd = socketNetwork(IP, SENSORPORT);
+    SSL* sensor = sensorNetwork(sensorfd, ctx);
 
     QApplication app(argc, argv);
     MainWindow w;
@@ -32,52 +44,23 @@ int main(int argc, char *argv[]) {
     w.show();
 
     QObject::connect(&w, &QObject::destroyed, [=]() {
-        if (sock_fd) {
-        #ifdef _WIN32
-            closesocket(sockfd);
-        #else
-            close(sockfd);
-        #endif
-            SSL_shutdown(sock_fd);
-            SSL_CTX_free(ctx);
-            SSL_free(sock_fd);
-        }
+        SSL_shutdown(sensor);
+    #ifdef _WIN32
+        closesocket(sockfd);
+        closesocket(userfd);
+        closesocket(sensorfd);
+        closesocket(SSL_get_fd(sensor));
+    #else
+        close(sockfd);
+        close(userfd);
+        close(sensorfd);
+        close(SSL_get_fd(sensor));
+    #endif
+        returnSocket();
+        SSL_free(sensor);
+        SSL_CTX_free(ctx);
     });
     return app.exec();
-}
-
-QImage gstSampleToQImage(GstSample *sample) {
-    if (!sample) return QImage();
-
-    GstBuffer *buffer = gst_sample_get_buffer(sample);
-    GstCaps *caps = gst_sample_get_caps(sample);
-    if (!buffer || !caps) return QImage();
-
-    GstStructure *s = gst_caps_get_structure(caps, 0);
-    int width, height;
-    gst_structure_get_int(s, "width", &width);
-    gst_structure_get_int(s, "height", &height);
-
-    GstMapInfo map;
-    if (!gst_buffer_map(buffer, &map, GST_MAP_READ)) return QImage();
-
-    QImage img((uchar *)map.data, width, height, QImage::Format_RGB888);
-    QImage copy = img.copy();
-
-    gst_buffer_unmap(buffer, &map);
-    return copy;
-}
-
-void updateFrame() {
-    GstSample *sample = gst_app_sink_try_pull_sample(GST_APP_SINK(appsink), 10000);
-    if (!sample) return;
-
-    QImage img = gstSampleToQImage(sample);
-    if (!img.isNull() && videoLabel) {
-        videoLabel->setPixmap(QPixmap::fromImage(img).scaled(videoLabel->size(), Qt::KeepAspectRatio));
-    }
-
-    gst_sample_unref(sample);
 }
 
 // OpenSSL 초기화
