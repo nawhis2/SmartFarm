@@ -5,6 +5,7 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include <queue>
 #include <map>
 
 #include <opencv2/opencv.hpp>

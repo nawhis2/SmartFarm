@@ -73,7 +73,7 @@ int main(int argc, char** argv){
     int sensorfd = socketNetwork(ip, SENSORPORT);
     SSL* sensor = sensorNetwork(sensorfd, ctx);
 
-    RtspStreaming(1920, 1080, 15);
+    RtspStreaming(1920, 1080, 30);
     sleep(1);
 
     while(1);

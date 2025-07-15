@@ -1,4 +1,5 @@
 #include "DetectionUtils.h"
+#include "rtspServer.h"
 
 // letterbox 좌표 → 원본 프레임 좌표로 변환하는 함수
 cv::Rect convertBoxFromLetterbox(const cv::Rect2f& box_in_letterbox, float scale, const cv::Point& pad, const cv::Size& original_size) {
@@ -55,7 +56,7 @@ std::vector<DetectionResult> runDetection(
 ) {
     float scale;
     cv::Point pad;
-
+    const std::vector<std::string>& allowed_classes = {"fire", "smoke"};
     // 1. Letterbox 전처리
     cv::Mat rgb;
     cv::cvtColor(frame, rgb, cv::COLOR_BGR2RGB);
@@ -85,6 +86,10 @@ std::vector<DetectionResult> runDetection(
             float confidence = obj_conf * class_conf;
 
             if (confidence > conf_threshold) {
+                const std::string &cls_name = class_names[class_id];
+                if (std::find(allowed_classes.begin(), allowed_classes.end(), cls_name) == allowed_classes.end())
+                    continue;
+
                 float cx = data[0];
                 float cy = data[1];
                 float w = data[2];

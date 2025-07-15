@@ -47,63 +47,6 @@ float calculateIoU(const Rect &a, const Rect &b)
     return uni > 0 ? static_cast<float>(inter) / uni : 0.0f;
 }
 
-vector<DetectionResult> detectAndTrack(StreamContext &ctx, const Mat &frame)
-{
-    // Background & motion initialization on first frame
-    if (ctx.frame_count == 0)
-        frame.convertTo(ctx.background_model, CV_32F);
-    Mat bg8u = updateBackground(frame, ctx.background_model, 0.01);
-    Mat fg = getMotionMask(frame, bg8u);
-    auto motion_boxes = extractMotionBoxes(fg);
-
-    // Detection every 5 frames
-    vector<DetectionResult> dets;
-    if (++ctx.frame_counter % 10 == 0)
-    {
-        dets = runDetection(*ctx.net, frame, 0.6f, 0.4f, Size(640, 640));
-        vector<DetectionResult> filtered;
-        for (auto &d : dets)
-        {
-            string cls = (*ctx.class_names)[d.class_id];
-            if (cls == "fire" || cls == "smoke")
-            {
-                for (auto &mb : motion_boxes)
-                {
-                    if ((d.box & mb).area() > 0)
-                    {
-                        filtered.push_back(d);
-                        break;
-                    }
-                }
-            }
-        }
-        // IOU-based tracking
-        map<int, DetectionResult> updated;
-        for (auto &d : filtered)
-        {
-            bool matched = false;
-            for (auto &tr : ctx.tracked)
-            {
-                if (calculateIoU(d.box, tr.second.box) > 0.3f)
-                {
-                    updated[tr.first] = d;
-                    matched = true;
-                    break;
-                }
-            }
-            if (!matched)
-                updated[ctx.next_id++] = d;
-        }
-        ctx.tracked = move(updated);
-        ctx.last_detections = filtered;
-    }
-    else
-    {
-        dets = ctx.last_detections;
-    }
-    return dets;
-}
-
 bool pushFrame(GstElement *appsrc, StreamContext &ctx)
 {
     Mat frame;
@@ -112,7 +55,10 @@ bool pushFrame(GstElement *appsrc, StreamContext &ctx)
     {
         std::lock_guard<std::mutex> lock(frame_mutex);
         if (latest_frame.empty())
+        {
+            std::cout << "[RTSP] appsrc에 푸쉬 안됨\n";
             return false;
+        }
 
         frame = latest_frame.clone();
         pts = latest_pts;
@@ -228,15 +174,12 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
     "( appsrc name=video_src is-live=true do-timestamp=true format=time "
     "! videoconvert "
     "! video/x-raw,format=NV12 "
-    "! queue max-size-buffers=2 "
     "! v4l2convert "
     "! v4l2h264enc "
-    "capture-io-mode=2 "
     "extra-controls=\"controls,repeat_sequence_header=1,"
     "video_bitrate=" + std::to_string(bitrate) + 
     ",h264_i_frame_period=1,h264_profile=0\" "
     "! video/x-h264,level=(string)4 "
-    "! queue max-size-buffers=5 "
     "! h264parse "
     "! rtph264pay name=pay0 pt=96 config-interval=1 )";
 
@@ -320,6 +263,7 @@ void inferenceLoop(StreamContext *ctx)
             latest_pts = ctx->frame_count++;
         }
 
+        std::cout << "[IL] InferenceLoop 실행중 ..." << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / ctx->fps));
     }
 }
@@ -415,5 +359,7 @@ void detectionLoop(StreamContext* ctx) {
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
+        std::cout << "[DL] detectionLoop 실행 중..." << std::endl;
+
     }
 }
