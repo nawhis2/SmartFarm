@@ -571,7 +571,6 @@ int receiveUserPacket(SSL *ssl)
         return 0;
     }
 
-
     free(msg);
     return -1;
 }

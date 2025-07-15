@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "sendData.h"
+<<<<<<< HEAD
 #include "userclientsend.h"
+=======
+>>>>>>> fc8433e (modify : server socker dividing)
 
 MYSQL *g_conn = NULL;
 
@@ -26,6 +29,31 @@ void init_mysql(const char *host,
                 mysql_error(g_conn));
         exit(EXIT_FAILURE);
     }
+}
+
+void query_and_send(SSL* sock_fd, const char *event_type) {
+    char query[256];
+    snprintf(query, sizeof(query),
+             "SELECT image_url, id, class_type, created_at FROM smartfarm.events WHERE event_type = '%s'",
+             event_type);
+
+    if (mysql_query(g_conn, query)) {
+        fprintf(stderr, "쿼리 실패: %s\n", mysql_error(g_conn));
+        return;
+    }
+
+    MYSQL_RES *result = mysql_store_result(g_conn);
+    MYSQL_ROW row;
+
+    while ((row = mysql_fetch_row(result))) {
+        char line[1024];
+        snprintf(line, sizeof(line), "%s|%s|%s|%s\n", row[0], row[1], row[2], row[3]);
+        sendData(sock_fd, line);
+    }
+
+    sendData(sock_fd, "END");
+
+    mysql_free_result(result);
 }
 
 void close_mysql(void)

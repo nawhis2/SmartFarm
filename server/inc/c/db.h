@@ -4,7 +4,6 @@
 #include <mysql/mysql.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-
 extern MYSQL *g_conn;
 
 typedef struct {
