@@ -1,10 +1,9 @@
 #include "network.h"
-#define PORT 60000
 #define BACKLOG 10
 
 SSL* sock_fd = NULL;
 
-int socketNetwork(const char *ipAddress){
+int socketNetwork(const char *ipAddress, const int port){
     int sockfd;
 	struct sockaddr_in socket_addr;
 
@@ -21,7 +20,7 @@ int socketNetwork(const char *ipAddress){
 	}
 
 	socket_addr.sin_family = AF_INET;
-	socket_addr.sin_port = htons(PORT);
+	socket_addr.sin_port = htons(port);
 	socket_addr.sin_addr = *((struct in_addr *)he->h_addr);
 	memset(&(socket_addr.sin_zero), '\0', 8);
 
@@ -48,4 +47,10 @@ int network(int sockfd, SSL_CTX *ctx)
     sock_fd = ssl;
 
 	return 1;
+}
+
+void returnSocket(){
+    SSL_shutdown(sock_fd);
+    close(SSL_get_fd(sock_fd));
+	SSL_free(sock_fd);
 }

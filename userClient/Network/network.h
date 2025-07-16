@@ -5,7 +5,9 @@
 
 extern SSL* sock_fd;
 
-int socketNetwork(const char*);
+int socketNetwork(const char*, const char*);
 int network(int, SSL_CTX *);
+SSL* sensorNetwork(int, SSL_CTX *);
+void returnSocket();
 
 #endif // NETWORK_H

@@ -5,7 +5,8 @@
 
 extern SSL* sock_fd;
 
-int socketNetwork(const char*);
+int socketNetwork(const char*, const int);
 int network(int, SSL_CTX *);
+void returnSocket();
 
 #endif
