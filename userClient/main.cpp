@@ -7,6 +7,7 @@
 #include "main.h"
 #include "network.h"
 #include "handshake.h"
+#include "clientUtil.h"
 
 #define IP "192.168.0.46"
 #define PORT "60000"        // 문자열 형태로 getaddrinfo에 넘김

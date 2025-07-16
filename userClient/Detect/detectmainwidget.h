@@ -3,6 +3,7 @@
 
 #include "detectcorewidget.h"
 #include <QImage>
+#include <QLabel>
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
 #include "videostreamhandler.h"
