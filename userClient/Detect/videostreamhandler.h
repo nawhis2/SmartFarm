@@ -3,20 +3,19 @@
 
 #include <QObject>
 #include <QTimer>
-#include <QtConcurrent>
+#include <QImage>
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
-#include <QFutureWatcher>
-#include <QCoreApplication>
+#include "streamthread.h"
 
-class VideoStreamHandler : public QObject
-{
+#define debugIdx(type, idx) type() << "["<< idx << "]"
+
+class VideoStreamHandler : public QObject {
     Q_OBJECT
 public:
     VideoStreamHandler(int idx, const QString &rtspUrl, QObject *parent = nullptr);
     ~VideoStreamHandler();
 
-    void initialize();
     void tryStart();
     void stop();
 
@@ -24,24 +23,24 @@ signals:
     void frameReady(int index, const QImage &frame);
 
 private slots:
-    static GstFlowReturn onNewSample(GstAppSink *sink, gpointer user_data);
-    static void onBusMessage(GstBus *bus, GstMessage *msg, gpointer user_data);
-    void onStall();
-    void restart();
     void onStreamThreadFinished();
     void onApplicationQuit();
+    void onStall();
+    void restart();
 
 private:
+    void initialize();
+    static GstFlowReturn onNewSample(GstAppSink *sink, gpointer user_data);
+    static void onBusMessage(GstBus *bus, GstMessage *msg, gpointer user_data);
+
+    int index;
     QString url;
     GstElement *pipeline;
     GMainLoop *loop;
-    int index;
     bool isFirstFrame;
     QTimer *retryTimer;
     QTimer *watchdogTimer;
-
-    QFuture<void>     streamFuture;
-    QFutureWatcher<void> *streamWatcher;
+    StreamThread *streamThread;
 };
 
 #endif // VIDEOSTREAMHANDLER_H

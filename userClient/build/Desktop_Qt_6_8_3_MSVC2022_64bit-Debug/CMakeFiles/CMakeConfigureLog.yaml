@@ -63,8 +63,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-t9aw3t"
-      binary: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-t9aw3t"
+      source: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-migny7"
+      binary: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-migny7"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "-DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
@@ -74,11 +74,11 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-t9aw3t'
+        Change Dir: 'D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-migny7'
         
-        Run Build Command(s): C:/PROGRA~1/MICROS~2/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_f6d90
-        [1/2] C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP   -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Zi /Ob0 /Od /RTC1 /showIncludes /FoCMakeFiles\\cmTC_f6d90.dir\\CMakeCXXCompilerABI.cpp.obj /FdCMakeFiles\\cmTC_f6d90.dir\\ /FS -c C:\\Qt\\Tools\\CMake_64\\share\\cmake-3.30\\Modules\\CMakeCXXCompilerABI.cpp
-        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_f6d90.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_f6d90.dir\\CMakeCXXCompilerABI.cpp.obj  /out:cmTC_f6d90.exe /implib:cmTC_f6d90.lib /pdb:cmTC_f6d90.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        Run Build Command(s): C:/PROGRA~1/MICROS~2/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_4fd62
+        [1/2] C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP   -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Zi /Ob0 /Od /RTC1 /showIncludes /FoCMakeFiles\\cmTC_4fd62.dir\\CMakeCXXCompilerABI.cpp.obj /FdCMakeFiles\\cmTC_4fd62.dir\\ /FS -c C:\\Qt\\Tools\\CMake_64\\share\\cmake-3.30\\Modules\\CMakeCXXCompilerABI.cpp
+        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_4fd62.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_4fd62.dir\\CMakeCXXCompilerABI.cpp.obj  /out:cmTC_4fd62.exe /implib:cmTC_4fd62.lib /pdb:cmTC_4fd62.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
         
       exitCode: 0
   -
@@ -128,8 +128,8 @@ events:
       - "build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/.qtc/package-manager/maintenance_tool_provider.cmake:297 (find_package)"
       - "CMakeLists.txt:13 (find_package)"
     directories:
-      source: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-3b94h4"
-      binary: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-3b94h4"
+      source: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-6ajhna"
+      binary: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-6ajhna"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "-DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
@@ -139,13 +139,13 @@ events:
       variable: "CMAKE_HAVE_LIBC_PTHREAD"
       cached: true
       stdout: |
-        Change Dir: 'D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-3b94h4'
+        Change Dir: 'D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-6ajhna'
         
-        Run Build Command(s): C:/PROGRA~1/MICROS~2/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_e1c89
-        [1/2] C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP -DCMAKE_HAVE_LIBC_PTHREAD  -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /showIncludes /FoCMakeFiles\\cmTC_e1c89.dir\\src.cxx.obj /FdCMakeFiles\\cmTC_e1c89.dir\\ /FS -c D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-3b94h4\\src.cxx
-        \x1b[31mFAILED: \x1b[0mCMakeFiles/cmTC_e1c89.dir/src.cxx.obj 
-        C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP -DCMAKE_HAVE_LIBC_PTHREAD  -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /showIncludes /FoCMakeFiles\\cmTC_e1c89.dir\\src.cxx.obj /FdCMakeFiles\\cmTC_e1c89.dir\\ /FS -c D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-3b94h4\\src.cxx
-        D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-3b94h4\\src.cxx(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'pthread.h': No such file or directory
+        Run Build Command(s): C:/PROGRA~1/MICROS~2/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_da196
+        [1/2] C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP -DCMAKE_HAVE_LIBC_PTHREAD  -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /showIncludes /FoCMakeFiles\\cmTC_da196.dir\\src.cxx.obj /FdCMakeFiles\\cmTC_da196.dir\\ /FS -c D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-6ajhna\\src.cxx
+        \x1b[31mFAILED: \x1b[0mCMakeFiles/cmTC_da196.dir/src.cxx.obj 
+        C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP -DCMAKE_HAVE_LIBC_PTHREAD  -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /showIncludes /FoCMakeFiles\\cmTC_da196.dir\\src.cxx.obj /FdCMakeFiles\\cmTC_da196.dir\\ /FS -c D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-6ajhna\\src.cxx
+        D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-6ajhna\\src.cxx(1): fatal error C1083: 포함 파일을 열 수 없습니다. 'pthread.h': No such file or directory
         ninja: build stopped: subcommand failed.
         
       exitCode: 1
@@ -167,8 +167,8 @@ events:
       - "build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/.qtc/package-manager/maintenance_tool_provider.cmake:297 (find_package)"
       - "CMakeLists.txt:13 (find_package)"
     directories:
-      source: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-0xg3bj"
-      binary: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-0xg3bj"
+      source: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-51fs84"
+      binary: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-51fs84"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "-DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
@@ -178,14 +178,14 @@ events:
       variable: "CMAKE_HAVE_PTHREADS_CREATE"
       cached: true
       stdout: |
-        Change Dir: 'D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-0xg3bj'
+        Change Dir: 'D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-51fs84'
         
-        Run Build Command(s): C:/PROGRA~1/MICROS~2/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_2ecd0
-        [1/2] C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP   -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc -DCHECK_FUNCTION_EXISTS=pthread_create /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /showIncludes /FoCMakeFiles\\cmTC_2ecd0.dir\\CheckFunctionExists.cxx.obj /FdCMakeFiles\\cmTC_2ecd0.dir\\ /FS -c D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-0xg3bj\\CheckFunctionExists.cxx
-        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_2ecd0.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_2ecd0.dir\\CheckFunctionExists.cxx.obj  /out:cmTC_2ecd0.exe /implib:cmTC_2ecd0.lib /pdb:cmTC_2ecd0.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  pthreads.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
-        \x1b[31mFAILED: \x1b[0mcmTC_2ecd0.exe 
-        C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_2ecd0.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_2ecd0.dir\\CheckFunctionExists.cxx.obj  /out:cmTC_2ecd0.exe /implib:cmTC_2ecd0.lib /pdb:cmTC_2ecd0.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  pthreads.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
-        LINK Pass 1: command "C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_2ecd0.dir\\CheckFunctionExists.cxx.obj /out:cmTC_2ecd0.exe /implib:cmTC_2ecd0.lib /pdb:cmTC_2ecd0.pdb /version:0.0 /machine:x64 /debug /INCREMENTAL /subsystem:console pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTFILE:CMakeFiles\\cmTC_2ecd0.dir/intermediate.manifest CMakeFiles\\cmTC_2ecd0.dir/manifest.res" failed (exit code 1104) with the following output:
+        Run Build Command(s): C:/PROGRA~1/MICROS~2/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_3eaee
+        [1/2] C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP   -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc -DCHECK_FUNCTION_EXISTS=pthread_create /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /showIncludes /FoCMakeFiles\\cmTC_3eaee.dir\\CheckFunctionExists.cxx.obj /FdCMakeFiles\\cmTC_3eaee.dir\\ /FS -c D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-51fs84\\CheckFunctionExists.cxx
+        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_3eaee.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_3eaee.dir\\CheckFunctionExists.cxx.obj  /out:cmTC_3eaee.exe /implib:cmTC_3eaee.lib /pdb:cmTC_3eaee.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  pthreads.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        \x1b[31mFAILED: \x1b[0mcmTC_3eaee.exe 
+        C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_3eaee.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_3eaee.dir\\CheckFunctionExists.cxx.obj  /out:cmTC_3eaee.exe /implib:cmTC_3eaee.lib /pdb:cmTC_3eaee.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  pthreads.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        LINK Pass 1: command "C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_3eaee.dir\\CheckFunctionExists.cxx.obj /out:cmTC_3eaee.exe /implib:cmTC_3eaee.lib /pdb:cmTC_3eaee.pdb /version:0.0 /machine:x64 /debug /INCREMENTAL /subsystem:console pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTFILE:CMakeFiles\\cmTC_3eaee.dir/intermediate.manifest CMakeFiles\\cmTC_3eaee.dir/manifest.res" failed (exit code 1104) with the following output:
         LINK : fatal error LNK1104: 'pthreads.lib' 파일을 열 수 없습니다.\x0d
         ninja: build stopped: subcommand failed.
         
@@ -208,8 +208,8 @@ events:
       - "build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/.qtc/package-manager/maintenance_tool_provider.cmake:297 (find_package)"
       - "CMakeLists.txt:13 (find_package)"
     directories:
-      source: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-nbimra"
-      binary: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-nbimra"
+      source: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-0wlsx2"
+      binary: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-0wlsx2"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "-DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
@@ -219,14 +219,14 @@ events:
       variable: "CMAKE_HAVE_PTHREAD_CREATE"
       cached: true
       stdout: |
-        Change Dir: 'D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-nbimra'
+        Change Dir: 'D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-0wlsx2'
         
-        Run Build Command(s): C:/PROGRA~1/MICROS~2/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_41974
-        [1/2] C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP   -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc -DCHECK_FUNCTION_EXISTS=pthread_create /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /showIncludes /FoCMakeFiles\\cmTC_41974.dir\\CheckFunctionExists.cxx.obj /FdCMakeFiles\\cmTC_41974.dir\\ /FS -c D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-nbimra\\CheckFunctionExists.cxx
-        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_41974.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_41974.dir\\CheckFunctionExists.cxx.obj  /out:cmTC_41974.exe /implib:cmTC_41974.lib /pdb:cmTC_41974.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  pthread.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
-        \x1b[31mFAILED: \x1b[0mcmTC_41974.exe 
-        C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_41974.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_41974.dir\\CheckFunctionExists.cxx.obj  /out:cmTC_41974.exe /implib:cmTC_41974.lib /pdb:cmTC_41974.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  pthread.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
-        LINK Pass 1: command "C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_41974.dir\\CheckFunctionExists.cxx.obj /out:cmTC_41974.exe /implib:cmTC_41974.lib /pdb:cmTC_41974.pdb /version:0.0 /machine:x64 /debug /INCREMENTAL /subsystem:console pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTFILE:CMakeFiles\\cmTC_41974.dir/intermediate.manifest CMakeFiles\\cmTC_41974.dir/manifest.res" failed (exit code 1104) with the following output:
+        Run Build Command(s): C:/PROGRA~1/MICROS~2/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_52c80
+        [1/2] C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP   -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc -DCHECK_FUNCTION_EXISTS=pthread_create /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /showIncludes /FoCMakeFiles\\cmTC_52c80.dir\\CheckFunctionExists.cxx.obj /FdCMakeFiles\\cmTC_52c80.dir\\ /FS -c D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-0wlsx2\\CheckFunctionExists.cxx
+        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_52c80.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_52c80.dir\\CheckFunctionExists.cxx.obj  /out:cmTC_52c80.exe /implib:cmTC_52c80.lib /pdb:cmTC_52c80.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  pthread.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        \x1b[31mFAILED: \x1b[0mcmTC_52c80.exe 
+        C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_52c80.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_52c80.dir\\CheckFunctionExists.cxx.obj  /out:cmTC_52c80.exe /implib:cmTC_52c80.lib /pdb:cmTC_52c80.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  pthread.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        LINK Pass 1: command "C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_52c80.dir\\CheckFunctionExists.cxx.obj /out:cmTC_52c80.exe /implib:cmTC_52c80.lib /pdb:cmTC_52c80.pdb /version:0.0 /machine:x64 /debug /INCREMENTAL /subsystem:console pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTFILE:CMakeFiles\\cmTC_52c80.dir/intermediate.manifest CMakeFiles\\cmTC_52c80.dir/manifest.res" failed (exit code 1104) with the following output:
         LINK : fatal error LNK1104: 'pthread.lib' 파일을 열 수 없습니다.\x0d
         ninja: build stopped: subcommand failed.
         
@@ -247,8 +247,8 @@ events:
     checks:
       - "Performing Test HAVE_STDATOMIC"
     directories:
-      source: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-te0429"
-      binary: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-te0429"
+      source: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-d7h73v"
+      binary: "D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-d7h73v"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "-DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
@@ -258,11 +258,11 @@ events:
       variable: "HAVE_STDATOMIC"
       cached: true
       stdout: |
-        Change Dir: 'D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-te0429'
+        Change Dir: 'D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/CMakeScratch/TryCompile-d7h73v'
         
-        Run Build Command(s): C:/PROGRA~1/MICROS~2/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_c79bc
-        [1/2] C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP -DHAVE_STDATOMIC  -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /showIncludes /FoCMakeFiles\\cmTC_c79bc.dir\\src.cxx.obj /FdCMakeFiles\\cmTC_c79bc.dir\\ /FS -c D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-te0429\\src.cxx
-        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_c79bc.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_c79bc.dir\\src.cxx.obj  /out:cmTC_c79bc.exe /implib:cmTC_c79bc.lib /pdb:cmTC_c79bc.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
+        Run Build Command(s): C:/PROGRA~1/MICROS~2/2022/COMMUN~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe -v cmTC_6f845
+        [1/2] C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\HostX64\\x64\\cl.exe  /nologo /TP -DHAVE_STDATOMIC  -DQT_QML_DEBUG /DWIN32 /D_WINDOWS /W3 /GR /EHsc  /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /showIncludes /FoCMakeFiles\\cmTC_6f845.dir\\src.cxx.obj /FdCMakeFiles\\cmTC_6f845.dir\\ /FS -c D:\\git\\SmartFarm\\userClient\\build\\Desktop_Qt_6_8_3_MSVC2022_64bit-Debug\\CMakeFiles\\CMakeScratch\\TryCompile-d7h73v\\src.cxx
+        [2/2] C:\\Windows\\system32\\cmd.exe /C "cd . && C:\\Qt\\Tools\\CMake_64\\bin\\cmake.exe -E vs_link_exe --intdir=CMakeFiles\\cmTC_6f845.dir --rc=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\rc.exe --mt=C:\\PROGRA~2\\WI3CF2~1\\10\\bin\\100261~1.0\\x64\\mt.exe --manifests  -- C:\\PROGRA~1\\MICROS~2\\2022\\COMMUN~1\\VC\\Tools\\MSVC\\1444~1.352\\bin\\Hostx64\\x64\\link.exe /nologo CMakeFiles\\cmTC_6f845.dir\\src.cxx.obj  /out:cmTC_6f845.exe /implib:cmTC_6f845.lib /pdb:cmTC_6f845.pdb /version:0.0 /machine:x64  /debug /INCREMENTAL /subsystem:console  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib && cd ."
         
       exitCode: 0
 ...
