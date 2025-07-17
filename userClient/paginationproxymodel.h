@@ -9,13 +9,23 @@ public:
     PaginationProxyModel(QObject* parent = nullptr)
         : QSortFilterProxyModel(parent), m_pageSize(10), m_currentPage(0) {}
 
-    void setPageSize(int sz) { m_pageSize = sz; invalidateFilter(); }
-    void setCurrentPage(int pg) { m_currentPage = pg; invalidateFilter(); }
+public:
+    void setPageSize(int sz) {
+        beginResetModel();           // 🔥 필수
+        m_pageSize = sz;
+        endResetModel();             // 🔥 필수
+    }
+    void setCurrentPage(int pg) {
+        beginResetModel();       // 👈 추가
+        m_currentPage = pg;
+        endResetModel();         // 👈 추가
+    }
     int  pageCount() const {
         int rows = sourceModel() ? sourceModel()->rowCount() : 0;
         return (rows + m_pageSize - 1) / m_pageSize;
     }
     int  currentPage() const { return m_currentPage; }
+    int pageSize() const { return m_pageSize; }
 
 protected:
     bool filterAcceptsRow(int srcRow, const QModelIndex&) const override {
