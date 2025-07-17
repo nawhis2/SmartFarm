@@ -2,9 +2,11 @@
 #define CUSTOMTABLEWIDGET_H
 
 #include <QWidget>
+#include <QVector>
 
 class QStandardItemModel;
 class PaginationProxyModel;
+class ImagePushButton;
 
 namespace Ui {
 class CustomTableWidget;
@@ -23,12 +25,15 @@ public:
 private slots:
     void on_prevButton_clicked();
     void on_nextButton_clicked();
+    void refreshPage();
 
 private:
     Ui::CustomTableWidget* ui;
 
     QStandardItemModel*    m_sourceModel;
     PaginationProxyModel*  m_proxy;
+
+    QVector<QPixmap> m_pixmaps;
     std::string detectStr;
 
 private:

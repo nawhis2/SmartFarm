@@ -54,9 +54,13 @@ void VideoStreamHandler::initialize() {
         loop = nullptr;
     }
 
-    std::string launch = "rtspsrc location=" + url.toStdString() +
-                         " tls-validation-flags=0 latency=100 ! decodebin ! "
-                         "videoconvert ! video/x-raw,format=RGB ! appsink name=sink";
+    std::string launch = "rtspsrc location=" + url.toStdString() + " tls-validation-flags=0 latency=100 protocols=udp retry=3 timeout=5000000 "
+                                                                   "! queue ! rtph264depay  "
+                                                                   "! queue ! h264parse "
+                                                                   "! queue ! d3d11h264dec "
+                                                                   "! videoconvert "
+                                                                   "! video/x-raw,format=RGB "
+                                                                   "! appsink name=sink";
     GError *error = nullptr;
     pipeline = gst_parse_launch(launch.c_str(), &error);
     if (!pipeline) {
