@@ -26,7 +26,7 @@
     <string> home</string>
    </property>
   </widget>
-  <widget class="QTableWidget" name="strawEventTable">
+  <widget class="CustomTableWidget" name="strawEventTable" native="true">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -35,39 +35,16 @@
      <height>491</height>
     </rect>
    </property>
-   <property name="font">
-    <font>
-     <pointsize>20</pointsize>
-    </font>
-   </property>
-   <property name="editTriggers">
-    <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
-   </property>
-   <attribute name="verticalHeaderVisible">
-    <bool>false</bool>
-   </attribute>
-   <column>
-    <property name="text">
-     <string>Image</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>Num</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>EventName</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>Time</string>
-    </property>
-   </column>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CustomTableWidget</class>
+   <extends>QWidget</extends>
+   <header>customtablewidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

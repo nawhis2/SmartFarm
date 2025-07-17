@@ -20,6 +20,6 @@ void ImageDialog::setImg(const QPixmap &pix) {
 
     QPixmap scaled = pix.scaled(targetSize, Qt::KeepAspectRatio);
     ui->labelImg->setPixmap(scaled);
-    ui->labelImg->resize(pix.size());
+    ui->labelImg->resize(scaled.size());
     resize(scaled.size());
 }
