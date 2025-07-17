@@ -52,9 +52,17 @@ void imageSend(SSL *sock_fd, const char *file_path)
                 fclose(fp);
                 return;
             }
-            sent += n;
+            sent += n;  
         }
     }
 
     fclose(fp);
+}
+
+void graphDailySend(SSL *sock_fd, const char *event_type){
+    query_and_send_daily(sock_fd, event_type);
+}
+
+void graphWeeklySend(SSL *sock_fd, const char *event_type){
+    query_and_send_weekly(sock_fd, event_type);
 }

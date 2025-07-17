@@ -21,7 +21,7 @@ void *sensorFire(void *arg){
 }
 
 void *sensorUser(void *arg){
-    int fd = open(SENSOR_PIPE, O_RDONLY);
+    int fd = open(SENSOR_PIPE, O_RDONLY | O_NONBLOCK);
     if (fd < 0) return NULL;
 
     SSL* sesnor = (SSL*)arg;

@@ -363,9 +363,21 @@ int receiveUserPacket(SSL *ssl)
         free(msg);
         return 0;
     }
-    else if (strncmp(type, "IMAGE", 5) == 0)
+    // else if (strncmp(type, "IMAGE", 5) == 0)
+    // {
+    //     imageSend(ssl, msg);
+    //     free(msg);
+    //     return 0;
+    // }
+    else if (strncmp(type, "DAILY", 5) == 0)
     {
-        imageSend(ssl, msg);
+        graphDailySend(ssl, msg);
+        free(msg);
+        return 0;
+    }
+    else if (strncmp(type, "WEEKLY", 6) == 0)
+    {
+        graphWeeklySend(ssl, msg);
         free(msg);
         return 0;
     }
