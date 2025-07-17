@@ -96,6 +96,8 @@ add_executable(${PROJECT_NAME}
     imagepushbutton.cpp
     imagedialog.h imagedialog.cpp imagedialog.ui
     streamthread.h
+    customtablewidget.h customtablewidget.cpp customtablewidget.ui
+    paginationproxymodel.h
 )
 
 

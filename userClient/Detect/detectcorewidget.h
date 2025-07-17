@@ -3,7 +3,8 @@
 
 #include <QWidget>
 #include <QStackedWidget>
-#include <QTableWidget>
+
+class CustomTableWidget;
 
 class DetectCoreWidget : public QWidget
 {
@@ -13,9 +14,10 @@ public:
 
 private:
     QStackedWidget *stackWidget;
+
 protected:
-    QString type;
-    QTableWidget *tableWidget;
+    std::string type;
+    CustomTableWidget *tableWidget;
     int myIndex;
 
 protected slots:
@@ -25,7 +27,8 @@ protected slots:
 
 protected:
     void changePage(const int index);
-    virtual void pageChanged(const int index);
+    void pageChanged(const int index);
+    virtual void pageChangedIdx(const int index);
 };
 
 #endif // DETECTCOREWIDGET_H
