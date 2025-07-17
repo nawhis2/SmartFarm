@@ -4,6 +4,7 @@
 #include <mysql/mysql.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+
 extern MYSQL *g_conn;
 
 void init_mysql(const char *host,
@@ -13,4 +14,7 @@ void init_mysql(const char *host,
                 unsigned int port);
 void close_mysql(void);
 void query_and_send(SSL*, const char *);
+void query_and_send_daily(SSL *, const char *);
+void query_and_send_weekly(SSL *, const char *);
+
 #endif
