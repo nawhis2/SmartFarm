@@ -1,5 +1,0 @@
-D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/SmartFarmDashboard.dir
-D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/edit_cache.dir
-D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/rebuild_cache.dir
-D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/SmartFarmDashboard_autogen_timestamp_deps.dir
-D:/git/SmartFarm/userClient/build/Desktop_Qt_6_8_3_MSVC2022_64bit-Debug/CMakeFiles/SmartFarmDashboard_autogen.dir

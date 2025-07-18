@@ -2,6 +2,11 @@
 #define INTRUSIONWIDGET_H
 
 #include "detectcorewidget.h"
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QChart>
+#include <QtCharts/QPieSeries>
+#include <QtCharts/QDateTimeAxis>
 
 namespace Ui {
 class IntrusionWidget;

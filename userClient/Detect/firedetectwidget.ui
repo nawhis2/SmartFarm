@@ -10,64 +10,144 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QPushButton" name="btnBackFromFire">
-   <property name="geometry">
-    <rect>
-     <x>850</x>
-     <y>540</y>
-     <width>95</width>
-     <height>29</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string> home</string>
-   </property>
-  </widget>
-  <widget class="QTableWidget" name="fireEventTable">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>40</y>
-     <width>901</width>
-     <height>491</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>20</pointsize>
-    </font>
-   </property>
-   <property name="editTriggers">
-    <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
-   </property>
-   <attribute name="verticalHeaderVisible">
-    <bool>false</bool>
-   </attribute>
-   <column>
-    <property name="text">
-     <string>Image</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>Num</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>EventName</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>Time</string>
-    </property>
-   </column>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0" columnstretch="0,0,0,0,0,0,0,0">
+   <item row="2" column="6">
+    <widget class="QWidget" name="widget_3" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QWidget {
+color: #90ee90;
+border: 0.5px #1de9b6;
+font-family: 'Segoe UI';
+font-size: 16px;
+qproperty-alignment: AlignCenter;
+}</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2" colspan="5">
+    <widget class="QLabel" name="label">
+     <property name="layoutDirection">
+      <enum>Qt::LayoutDirection::LeftToRight</enum>
+     </property>
+     <property name="text">
+      <string>FIRE MONITORING               </string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="5">
+    <widget class="QWidget" name="widget_2" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QWidget {
+color: #90ee90;
+border: 0.5px #1de9b6;
+font-family: 'Segoe UI';
+font-size: 16px;
+qproperty-alignment: AlignCenter;
+}</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4" colspan="3">
+    <widget class="QChartView" name="chartView" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QPushButton" name="btnBackFromFire">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LayoutDirection::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string> home</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QWidget" name="widget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QWidget {
+color: #90ee90;
+border: 0.5px #1de9b6;
+font-family: 'Segoe UI';
+font-size: 16px;
+qproperty-alignment: AlignCenter;
+}</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" rowspan="2" colspan="3">
+    <widget class="CustomTableWidget" name="fireEventTable" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>1000</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QWidget</extends>
+   <header>qchartview.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CustomTableWidget</class>
+   <extends>QWidget</extends>
+   <header>customtablewidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

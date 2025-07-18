@@ -1,14 +1,14 @@
 #include "imagepushbutton.h"
-#include "clientUtil.h"
-#include "network.h"
 #include "imagedialog.h"
-#include <QtConcurrent>
+#include <QIcon>
+#include <QResizeEvent>
+#include <QDebug>
 
 ImagePushButton::ImagePushButton(QWidget *parent)
     : QPushButton(parent)
 {
-    setText("image");
-    setStyleSheet("QPushButton { background-color: transparent; border: none; text-decoration: underline; color: blue}");
+    setFlat(true);
+    setText(QString());
     connect(this, &QPushButton::clicked, this, &ImagePushButton::clickedButton);
 }
 
@@ -16,39 +16,38 @@ ImagePushButton::~ImagePushButton()
 {
 }
 
-void ImagePushButton::clickedButton(){
-    readImageFromSSL();
+void ImagePushButton::setPixmap(const QPixmap& pix) {
+    // preview 와 full 을 모두 저장해 두면, click 시 빠르게 띄울 수 있음
+    m_full    = pix;
+    m_preview = pix;
+    updateImage();
 }
 
-void ImagePushButton::readImageFromSSL() {
-    (void)QtConcurrent::run([this](){
-        QByteArray pathBytes = imgUrl.toUtf8();
-        const char* cPath = pathBytes.constData();
-        sendFile(cPath, "IMAGE");
+void ImagePushButton::resizeEvent(QResizeEvent* event) {
+    QPushButton::resizeEvent(event);
+    updateImage();
+}
 
-        int file_size = 0;
-        SSL_read(sock_fd, &file_size, sizeof(int));
+void ImagePushButton::updateImage() {
+    if (m_preview.isNull()) return;
 
-        QByteArray imgData;
-        char buffer[1024];
-        int bytesRead = 0;
+    // 버튼 크기에서 약간 여백 제외
+    QSize target = size() - QSize(4,4);
+    QPixmap scaled = m_preview.scaled(
+        target,
+        Qt::KeepAspectRatio,
+        Qt::SmoothTransformation
+        );
+    setIcon(QIcon(scaled));
+    setIconSize(scaled.size());
+}
 
-        while (bytesRead < file_size) {
-            int to_read = qMin(file_size - bytesRead, (int)sizeof(buffer));
-            int n = SSL_read(sock_fd, buffer, to_read);
-            if (n <= 0) break;
-            imgData.append(buffer, n);
-            bytesRead += n;
-        }
-
-        QMetaObject::invokeMethod(this, [=]() {
-            QPixmap pix;
-            if (pix.loadFromData(imgData)) {
-                ImageDialog* dlg = new ImageDialog(this);
-
-                dlg->setImg(pix);
-                dlg->show();
-            }
-        }, Qt::QueuedConnection);
-    });
+void ImagePushButton::clickedButton() {
+    if (m_full.isNull()) {
+        qWarning() << "ImagePushButton: no full image to show";
+        return;
+    }
+    ImageDialog* dlg = new ImageDialog(this);
+    dlg->setImg(m_full);
+    dlg->show();
 }

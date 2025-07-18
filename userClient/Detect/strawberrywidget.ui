@@ -10,64 +10,55 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QPushButton" name="btnBackFromGrowth">
-   <property name="geometry">
-    <rect>
-     <x>850</x>
-     <y>540</y>
-     <width>95</width>
-     <height>29</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string> home</string>
-   </property>
-  </widget>
-  <widget class="QTableWidget" name="strawEventTable">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>40</y>
-     <width>901</width>
-     <height>491</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>20</pointsize>
-    </font>
-   </property>
-   <property name="editTriggers">
-    <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
-   </property>
-   <attribute name="verticalHeaderVisible">
-    <bool>false</bool>
-   </attribute>
-   <column>
-    <property name="text">
-     <string>Image</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>Num</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>EventName</string>
-    </property>
-   </column>
-   <column>
-    <property name="text">
-     <string>Time</string>
-    </property>
-   </column>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QPushButton" name="btnBackFromGrowth">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LayoutDirection::RightToLeft</enum>
+     </property>
+     <property name="text">
+      <string> home</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="CustomTableWidget" name="strawEventTable" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CustomTableWidget</class>
+   <extends>QWidget</extends>
+   <header>customtablewidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

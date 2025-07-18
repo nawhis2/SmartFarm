@@ -23,6 +23,11 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+#include <QImage>
+
+QImage gstSampleToQImage(GstSample *sample);
+void updateFrame();
+
 void init_openssl();
 SSL_CTX *create_context();
 

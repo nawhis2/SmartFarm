@@ -12,13 +12,47 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+    qDebug() << "🟢 ui setup 시작";
     ui->setupUi(this);
-    QWidget* detectMainWdiget = new DetectMainWidget(ui->stackedWidget, ui->pageMainMenu);
-    QWidget* firedWdiget = new FireDetectWidget(ui->stackedWidget, ui->pageFire);
-    QWidget* intrusionWdiget = new IntrusionWidget(ui->stackedWidget, ui->pageIntrusion);
-    QWidget* strawWdiget = new StrawBerryWidget(ui->stackedWidget, ui->pageGrowth);
+    qDebug() << "✅ ui setup 완료";
+
+    qDebug() << "🟢 DetectMainWidget 생성";
+    DetectMainWidget* detectMainWidget = new DetectMainWidget(ui->stackedWidget);
+    qDebug() << "✅ DetectMainWidget 생성됨";
+
+    QVBoxLayout* mainMenuLayout = new QVBoxLayout();
+    mainMenuLayout->addWidget(detectMainWidget);
+    ui->pageMainMenu->setLayout(mainMenuLayout);
+    qDebug() << "✅ mainMenu layout 연결 완료";
+
+    FireDetectWidget* fireWidget = new FireDetectWidget(ui->stackedWidget);
+    qDebug() << "✅ fire 생성 완료";
+    QVBoxLayout* fireLayout = new QVBoxLayout();
+    fireLayout->addWidget(fireWidget);
+    ui->pageFire->setLayout(fireLayout);
+
+    IntrusionWidget* intrusionWidget = new IntrusionWidget(ui->stackedWidget);
+    QVBoxLayout* intrusionLayout = new QVBoxLayout();
+    intrusionLayout->addWidget(intrusionWidget);
+    ui->pageIntrusion->setLayout(intrusionLayout);
+    qDebug() << "✅ intrusion 생성 완료";
+
+    StrawBerryWidget* strawWidget = new StrawBerryWidget(ui->stackedWidget);
+    QVBoxLayout* growthLayout = new QVBoxLayout();
+    growthLayout->addWidget(strawWidget);
+    ui->pageGrowth->setLayout(growthLayout);
+    qDebug() << "✅ growth 생성 완료";
 }
 
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+    if (event->key() == Qt::Key_Escape) {
+        if (isFullScreen()) {
+            showNormal();
+        } else {
+            showFullScreen();
+        }
+    }
+}
 MainWindow::~MainWindow() {
     delete ui;
 }

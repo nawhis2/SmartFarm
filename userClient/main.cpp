@@ -10,9 +10,9 @@
 #include "clientUtil.h"
 
 #define IP "192.168.0.46"
-#define PORT "60000"        // 문자열 형태로 getaddrinfo에 넘김
+#define PORT "60000"  // 문자열 형태로 getaddrinfo에 넘김
 #define SENSORPORT "60002"  // 문자열 형태로 getaddrinfo에 넘김
-#define USERPORT "60003"    // 문자열 형태로 getaddrinfo에 넘김
+#define USERPORT "60003"  // 문자열 형태로 getaddrinfo에 넘김
 
 int main(int argc, char *argv[]) {
     gst_init(nullptr, nullptr);
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     returnSocket();
 
     int userfd = socketNetwork(IP, USERPORT);
-    if(network(sockfd, ctx) < 1){
+    if(network(userfd, ctx) < 1){
         perror("SSL");
         exit(1);
     }
@@ -44,23 +44,21 @@ int main(int argc, char *argv[]) {
     w.show();
 
     QObject::connect(&w, &QObject::destroyed, [=]() {
-        if (sock_fd) {
-            SSL_shutdown(sensor);
-        #ifdef _WIN32
-            closesocket(sockfd);
-            closesocket(userfd);
-            closesocket(sensorfd);
-            closesocket(SSL_get_fd(sensor));
-        #else
-            close(sockfd);
-            close(userfd);
-            close(sensorfd);
-            close(SSL_get_fd(sensor));
-        #endif
-            SSL_free(sensor);
-            SSL_CTX_free(ctx);
-            returnSocket();
-        }
+        SSL_shutdown(sensor);
+    #ifdef _WIN32
+        closesocket(sockfd);
+        closesocket(userfd);
+        closesocket(sensorfd);
+        closesocket(SSL_get_fd(sensor));
+    #else
+        close(sockfd);
+        close(userfd);
+        close(sensorfd);
+        close(SSL_get_fd(sensor));
+    #endif
+        returnSocket();
+        SSL_free(sensor);
+        SSL_CTX_free(ctx);
     });
     return app.exec();
 }
