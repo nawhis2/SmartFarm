@@ -9,6 +9,7 @@
 #include <QtCharts/QValueAxis>
 #include <QDateTime>
 #include <QtGlobal>
+#include <QTimer>
 #include <QRandomGenerator>
 
 namespace Ui {
@@ -30,7 +31,7 @@ private:
     QDateTimeAxis *axisX;
     QValueAxis *axisY;
     void setupChart();
-    void simulateData();
+    void onSensorDataReceived(const QString& data);
 };
 
 #endif // FIREDETECTWIDGET_H
