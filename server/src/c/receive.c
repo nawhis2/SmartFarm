@@ -327,7 +327,7 @@ int receiveUserPacket(SSL *ssl)
     int size = 0;
 
     // [1] TYPE 수신
-    if (SSL_read(ssl, type, 5) <= 0)
+    if (SSL_read(ssl, type, 10) <= 0)
         return -1;
 
     // [2] SIZE 수신
@@ -363,12 +363,6 @@ int receiveUserPacket(SSL *ssl)
         free(msg);
         return 0;
     }
-    // else if (strncmp(type, "IMAGE", 5) == 0)
-    // {
-    //     imageSend(ssl, msg);
-    //     free(msg);
-    //     return 0;
-    // }
     else if (strncmp(type, "DAILY", 5) == 0)
     {
         graphDailySend(ssl, msg);
