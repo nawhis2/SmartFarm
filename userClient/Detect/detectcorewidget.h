@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QStackedWidget>
+#include <QFuture>
 
 class CustomTableWidget;
 
@@ -14,6 +15,11 @@ public:
 
 private:
     QStackedWidget *stackWidget;
+    int                   m_currentProcessingPage;
+    int                   m_pendingPage;
+
+    static QFuture<void>        m_loadFuture;
+    static QFutureWatcher<void> m_loadWatcher;
 
 protected:
     std::string type;
@@ -28,6 +34,7 @@ protected slots:
 protected:
     void changePage(const int index);
     void pageChanged(const int index);
+    void startPageChanged(const int index);
     virtual void pageChangedIdx();
 };
 
