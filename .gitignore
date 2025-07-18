@@ -5,11 +5,11 @@
 *.lib
 *.xml
 *.pem
-*.user
 *.zip
 *.tar
 main
 userTest
+CMakeLists.txt.user
 
 #cmake
 CMakeFiles/

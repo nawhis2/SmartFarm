@@ -105,7 +105,7 @@ void query_and_send_daily(SSL *sock_fd, const char *event_type) {
         sendData(sock_fd, line);
     }
     mysql_free_result(res);
-    sendData(sock_fd, "END\n");
+    sendData(sock_fd, "END");
 }
 
 // 일주일치 통계 전송 (그래프용: YYYY-MM-DD|class_type|cnt)
@@ -137,6 +137,8 @@ void query_and_send_weekly(SSL *sock_fd, const char *event_type) {
     }
 
     MYSQL_RES *res = mysql_store_result(g_conn);
+    if(!res)
+        printf("nodata\n");
     MYSQL_ROW row;
 
     while ((row = mysql_fetch_row(res))) {
@@ -148,7 +150,7 @@ void query_and_send_weekly(SSL *sock_fd, const char *event_type) {
         sendData(sock_fd, line);
     }
     mysql_free_result(res);
-    sendData(sock_fd, "END\n");
+    sendData(sock_fd, "END");
 }
 
 void close_mysql(void)
