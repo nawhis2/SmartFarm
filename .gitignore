@@ -14,7 +14,6 @@ userTest
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
-*.user
 *.o
 *.o.d
 *.make
