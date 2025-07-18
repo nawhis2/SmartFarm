@@ -25,6 +25,7 @@ public:
 private slots:
     void on_prevButton_clicked();
     void on_nextButton_clicked();
+    void on_eventTable_clicked(const QModelIndex &index);
     void refreshPage();
 
 private:

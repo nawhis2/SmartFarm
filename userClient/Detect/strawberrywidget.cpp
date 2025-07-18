@@ -45,13 +45,10 @@ void StrawBerryWidget::appendData(const QString &newDateStr,
 
 }
 
-void StrawBerryWidget::pageChangedIdx(const int index){
-    DetectCoreWidget::pageChangedIdx(index);
+void StrawBerryWidget::pageChangedIdx(){
+    DetectCoreWidget::pageChangedIdx();
 
-    if(index == 2)
-        sendFile("strawberry_detected", "WEEKLY");
-    else
-        return;
+    sendFile(type.c_str(), "WEEKLY");
 
     while (1) {
         char buffer[1024];

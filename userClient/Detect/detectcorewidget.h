@@ -28,7 +28,7 @@ protected slots:
 protected:
     void changePage(const int index);
     void pageChanged(const int index);
-    virtual void pageChangedIdx(const int index);
+    virtual void pageChangedIdx();
 };
 
 #endif // DETECTCOREWIDGET_H

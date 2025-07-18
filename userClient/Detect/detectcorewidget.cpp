@@ -33,9 +33,11 @@ void DetectCoreWidget::changePage(const int index){
 }
 
 void DetectCoreWidget::pageChanged(const int index){
-    pageChangedIdx(index);
+    (void)QtConcurrent::run([this]() {
+        pageChangedIdx();
+    });
 }
 
-void DetectCoreWidget::pageChangedIdx(const int index){
+void DetectCoreWidget::pageChangedIdx(){
     tableWidget->initModelAndView();
 }
