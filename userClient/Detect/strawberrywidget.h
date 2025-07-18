@@ -16,7 +16,7 @@ public:
     ~StrawBerryWidget();
 
 protected:
-    virtual void pageChangedIdx(const int index) override;
+    virtual void pageChangedIdx() override;
 
 private:
     Ui::StrawBerryWidget *ui;

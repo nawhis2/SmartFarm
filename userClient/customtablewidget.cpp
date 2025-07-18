@@ -1,11 +1,37 @@
 #include "CustomTableWidget.h"
 #include "ui_CustomTableWidget.h"
 #include "paginationproxymodel.h"
-#include "imagepushbutton.h"
 #include "clientUtil.h"
 #include "network.h"
+#include "imagedialog.h"
 #include <QStandardItemModel>
-#include <QtConcurrent>
+#include <QStyledItemDelegate>
+#include <QLabel>
+#include <QPainter>
+
+// Delegate that fills the first row cell (spanned across columns) with the pixmap
+class FullRowImageDelegate : public QStyledItemDelegate {
+public:
+    FullRowImageDelegate(QObject* parent = nullptr)
+        : QStyledItemDelegate(parent) {}
+    void paint(QPainter* painter,
+               const QStyleOptionViewItem& option,
+               const QModelIndex& index) const override {
+        if (index.row() == 0 && index.column() == 0) {
+            QVariant var = index.data(Qt::DecorationRole);
+            if (var.canConvert<QPixmap>()) {
+                QPixmap pm = var.value<QPixmap>();
+                if (!pm.isNull()) {
+                    QRect rect = option.rect;
+                    pm = pm.scaled(rect.size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+                    painter->drawPixmap(rect, pm);
+                    return;
+                }
+            }
+        }
+        QStyledItemDelegate::paint(painter, option, index);
+    }
+};
 
 CustomTableWidget::CustomTableWidget(QWidget* parent)
     : QWidget(parent)
@@ -15,48 +41,64 @@ CustomTableWidget::CustomTableWidget(QWidget* parent)
 {
     ui->setupUi(this);
     ui->eventTable->verticalHeader()->hide();
+    ui->eventTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->eventTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->eventTable->setItemDelegateForColumn(0, new FullRowImageDelegate(this));
+
+    ui->eventTable->setIconSize(QSize(80,45));
+    ui->eventTable->verticalHeader()->setDefaultSectionSize(45);
+    ui->eventTable->setColumnWidth(0, 80);
 }
 
-CustomTableWidget::~CustomTableWidget(){
+CustomTableWidget::~CustomTableWidget() {
     delete ui;
 }
 
 void CustomTableWidget::initModelAndView() {
-    m_pixmaps.clear();
+    // Initialize UI components on main thread
+    QMetaObject::invokeMethod(this, [this] {
+        m_pixmaps.clear();
 
-    m_sourceModel = new QStandardItemModel(this);
-    m_sourceModel->setColumnCount(4);
-    m_sourceModel->setHorizontalHeaderLabels(
-        QStringList() << "Image" << "Num" << "Eventname" << "Date"
-        );
+        delete m_sourceModel;
+        m_sourceModel = new QStandardItemModel(this);
+        m_sourceModel->setColumnCount(4);
+        m_sourceModel->setHorizontalHeaderLabels(
+            QStringList() << "Image" << "Num" << "Eventname" << "Date"
+            );
 
-    m_proxy = new PaginationProxyModel(this);
-    m_proxy->setSourceModel(m_sourceModel);
-    m_proxy->setPageSize(10);
+        delete m_proxy;
+        m_proxy = new PaginationProxyModel(this);
+        m_proxy->setSourceModel(m_sourceModel);
+        m_proxy->setPageSize(10);
+        connect(m_proxy, &PaginationProxyModel::layoutChanged,
+                this, &CustomTableWidget::refreshPage);
 
-    connect(m_proxy, &PaginationProxyModel::layoutChanged,
-            this, &CustomTableWidget::refreshPage);
+        ui->eventTable->setModel(m_proxy);
+        updateButtons();
 
-    ui->eventTable->setModel(m_proxy);
+        // Span first row across all columns
+        int cols = m_sourceModel->columnCount();
+        ui->eventTable->setSpan(0, 0, 1, cols);
+    }, Qt::QueuedConnection);
 
-    updateButtons();
+    // Directly load data (no QtConcurrent)
     loadData();
 }
 
 void CustomTableWidget::on_prevButton_clicked() {
     int pg = m_proxy->currentPage();
-    if (pg > 0 && pg <= m_proxy->pageCount()) {
+    if (pg > 0) {
         m_proxy->setCurrentPage(pg - 1);
-        updateButtons();
     }
+    updateButtons();
 }
 
 void CustomTableWidget::on_nextButton_clicked() {
     int pg = m_proxy->currentPage();
     if (pg + 1 < m_proxy->pageCount()) {
         m_proxy->setCurrentPage(pg + 1);
-        updateButtons();
     }
+    updateButtons();
 }
 
 void CustomTableWidget::updateButtons() {
@@ -66,103 +108,100 @@ void CustomTableWidget::updateButtons() {
 }
 
 void CustomTableWidget::onNewData(const QStringList& fields) {
-    int neededCols = fields.size();
-    if (m_sourceModel->columnCount() < neededCols) {
-        m_sourceModel->setColumnCount(neededCols);
-    }
-
+    int oldPageCount = m_proxy ? m_proxy->pageCount() : 0;
     QList<QStandardItem*> items;
     items.append(new QStandardItem());
-    for (const auto& f : fields) {
+    for (const QString& f : fields) {
         items.append(new QStandardItem(f));
     }
-
-    int oldPageCount = m_proxy->pageCount();
     m_sourceModel->appendRow(items);
     int newPageCount = m_proxy->pageCount();
-
     if (newPageCount != oldPageCount) {
         updateButtons();
     }
 }
 
 void CustomTableWidget::loadData() {
-    (void)QtConcurrent::run([this]() {
-        sendFile(detectStr.c_str(), "DATA");
+    // Reset model and UI before loading
+    QMetaObject::invokeMethod(this, [this] {
+        m_sourceModel->removeRows(0, m_sourceModel->rowCount());
+        m_pixmaps.clear();
+        m_proxy->setCurrentPage(0);
+        updateButtons();
+    }, Qt::QueuedConnection);
 
-        QMetaObject::invokeMethod(this, [this]() {
-            m_sourceModel->removeRows(0, m_sourceModel->rowCount());
-            m_pixmaps.clear();
-            m_proxy->setCurrentPage(0);
-            updateButtons();
-        }, Qt::QueuedConnection);
+    // Perform network I/O synchronously (caller thread)
+    sendFile(detectStr.c_str(), "DATA");
+    while (true) {
+        int fileSize;
+        if (SSL_read(sock_fd, &fileSize, sizeof(fileSize)) <= 0 || fileSize == -1)
+            break;
 
-        while (1) {
-            int fileSize = 0;
-            int n = SSL_read(sock_fd, &fileSize, sizeof(fileSize));
-            if (n <= 0 || fileSize == -1) break;
-
-            QByteArray imgData;
-            imgData.reserve(fileSize);
-            char buf[4096];
-            int bytesRead = 0;
-            while (bytesRead < fileSize) {
-                int toRead = qMin(fileSize - bytesRead, (int)sizeof(buf));
-                int r = SSL_read(sock_fd, buf, toRead);
-                if (r <= 0) break;
-                imgData.append(buf, r);
-                bytesRead += r;
-            }
-
-            QPixmap pixmap;
-            if (!pixmap.loadFromData(imgData)) {
-                qWarning() << "이미지 로드 실패, size=" << fileSize;
-                continue;
-            }
-
-            char textBuf[1024];
-            int tn = SSL_read(sock_fd, textBuf, sizeof(textBuf) - 1);
-            if (tn <= 0) break;
-            textBuf[tn] = '\0';
-            if (!strncmp(textBuf, "END", 3)) break;
-
-            QStringList fields = QString::fromUtf8(textBuf).trimmed().split('|', Qt::SkipEmptyParts);
-
-            QMetaObject::invokeMethod(this, [this, fields, pixmap]() {
-                onNewData(fields);
-                m_pixmaps.append(pixmap);
-            }, Qt::QueuedConnection);
+        QByteArray imgData;
+        imgData.reserve(fileSize);
+        int readBytes = 0;
+        char buf[4096];
+        while (readBytes < fileSize) {
+            int r = SSL_read(sock_fd, buf, qMin((int)sizeof(buf), fileSize - readBytes));
+            if (r <= 0) break;
+            imgData.append(buf, r);
+            readBytes += r;
         }
-    });
+
+        QPixmap pix;
+        if (!pix.loadFromData(imgData)) {
+            qWarning() << "이미지 로드 실패, size=" << fileSize;
+            continue;
+        }
+
+        char textBuf[1024];
+        int tn = SSL_read(sock_fd, textBuf, sizeof(textBuf)-1);
+        if (tn <= 0) break;
+        textBuf[tn] = '\0';
+        if (!strncmp(textBuf, "END", 3)) break;
+
+        QStringList fields = QString::fromUtf8(textBuf)
+                                 .trimmed()
+                                 .split('|', Qt::SkipEmptyParts);
+
+        QMetaObject::invokeMethod(this, [this, fields, pix]() {
+            onNewData(fields);
+            m_pixmaps.append(pix);
+            refreshPage();
+        }, Qt::QueuedConnection);
+    }
 }
 
-void CustomTableWidget::refreshPage()
-{
-    // 기존 위젯 정리
-    for (int row = 0; row < m_proxy->rowCount(); ++row) {
-        QModelIndex pIdx = m_proxy->index(row, 0);
-        if (!pIdx.isValid()) continue;
-
-        QWidget* existing = ui->eventTable->indexWidget(pIdx);
-        if (existing) {
-            ui->eventTable->setIndexWidget(pIdx, nullptr);
-            delete existing;
-        }
-    }
-
-    // 새로 셀에 맞게 버튼 생성해서 넣기
-    for (int row = 0; row < m_proxy->rowCount(); ++row) {
-        QModelIndex pIdx = m_proxy->index(row, 0);
+void CustomTableWidget::refreshPage() {
+    for (int r = 0; r < m_proxy->rowCount(); ++r) {
+        QModelIndex pIdx = m_proxy->index(r, 0);
         QModelIndex sIdx = m_proxy->mapToSource(pIdx);
-        int srcRow = sIdx.row();
-
-        if (!pIdx.isValid() || srcRow < 0 || srcRow >= m_pixmaps.size())
+        int src = sIdx.row();
+        if (!pIdx.isValid() || src < 0 || src >= m_pixmaps.size())
             continue;
-
-        auto* btn = new ImagePushButton(ui->eventTable);
-        btn->setFixedSize(80, 45);
-        btn->setPixmap(m_pixmaps[srcRow]);
-
-        ui->eventTable->setIndexWidget(pIdx, btn);
+        m_sourceModel->setData(
+            m_sourceModel->index(src, 0),
+            m_pixmaps[src],
+            Qt::DecorationRole
+            );
     }
+}
+
+void CustomTableWidget::on_eventTable_clicked(const QModelIndex &index) {
+    int viewRow = index.row();
+    QModelIndex proxyIdx = m_proxy->index(viewRow, 0);
+    QModelIndex srcIdx   = m_proxy->mapToSource(proxyIdx);
+    int srcRow = srcIdx.row();
+    if (srcRow < 0 || srcRow >= m_pixmaps.size()) {
+        qDebug() << "Clicked row:" << viewRow << "no pixmap.";
+        return;
+    }
+    const QPixmap &pm = m_pixmaps[srcRow];
+    qDebug() << "Clicked row:" << viewRow << "pixmap size:" << pm.size();
+    // e.g. display in QLabel
+    // ui->previewLabel->setPixmap(pm);
+
+    ImageDialog* dlg = new ImageDialog(this);
+    dlg->setImg(pm);
+    dlg->show();
 }
