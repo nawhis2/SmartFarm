@@ -192,9 +192,6 @@ void CustomTableWidget::on_eventTable_clicked(const QModelIndex &index) {
         return;
     }
     const QPixmap &pm = m_pixmaps[srcRow];
-    qDebug() << "Clicked row:" << viewRow << "pixmap size:" << pm.size();
-    // e.g. display in QLabel
-    // ui->previewLabel->setPixmap(pm);
 
     ImageDialog* dlg = new ImageDialog(this);
     dlg->setImg(pm);

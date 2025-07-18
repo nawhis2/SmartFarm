@@ -73,6 +73,8 @@ add_executable(${PROJECT_NAME}
     Network/handshake.h
     Network/clientUtil.cpp
     Network/clientUtil.h
+    Network/sensorreceive.h
+    Network/sensorreceive.cpp
 
     # Detect Widget
     Detect/intrusionwidget.h
