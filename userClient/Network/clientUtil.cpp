@@ -1,6 +1,6 @@
 #include "clientUtil.h"
 #include "network.h"
-
+#include <QDebug>
 void sendFile(const char *filepath_or_data, const char *type)
 {
     //int size = strlen(filepath_or_data);

@@ -7,5 +7,7 @@
 void ipSend(SSL*, const char*);
 void jsonSend(SSL*, const char*);
 void imageSend(SSL*, const char*);
+void graphDailySend(SSL*, const char*);
+void graphWeeklySend(SSL*, const char*);
 
 #endif

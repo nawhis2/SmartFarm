@@ -28,14 +28,16 @@
 #define USERPORT 60003
 #define BUF_SIZE 1024
 
-int clientFdCnt = 0;
+volatile sig_atomic_t clientFdCnt = 0;
 int maxFdCnt = 10;
 
 void sigchld_handler(int sig)
 {
     // 좀비 프로세스 방지
-    while (waitpid(-1, NULL, WNOHANG) > 0)
+    while (waitpid(-1, NULL, WNOHANG) > 0){
         clientFdCnt--;
+        fprintf(stderr, "[SIGCHLD] clientFdCnt-- → now: %d\n", clientFdCnt);
+    }
 }
 
 int main()
@@ -52,7 +54,17 @@ int main()
     int cctv_fd = serverNetwork(CCTVPORT);
     int sensor_fd = serverNetwork(SENSORPORT);
     int user_fd = serverNetwork(USERPORT);
-    signal(SIGCHLD, sigchld_handler);
+
+    struct sigaction sa;
+    sa.sa_handler = sigchld_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    if (sigaction(SIGCHLD, &sa, NULL) == -1)
+    {
+        perror("sigaction");
+        exit(1);
+    }
+    signal(SIGPIPE, SIG_IGN);
 
     initStorage();
 
@@ -64,22 +76,25 @@ int main()
 
     while (1)
     {
+        SSL *ssl = clientNetwork(handshake_fd, ctx);
+        if (!ssl)
+        {
+            fprintf(stderr, "ssl create fail");
+            exit(0);
+        }
+
         if (clientFdCnt > maxFdCnt)
         {
+            SSL_shutdown(ssl);
+            close(SSL_get_fd(ssl));
+            SSL_free(ssl);
             perror("client over");
             continue;
         }
 
-        SSL* ssl = clientNetwork(handshake_fd, ctx);
-        if (!ssl)
-        {
-            fprintf(stderr, "ssl create fail");
-            return 1;
-        }
-
         pid_t pid = fork();
         if (pid == 0)
-        {    
+        {
             SSL *sensor = NULL;
 
             char camName[32] = {0};
@@ -90,7 +105,7 @@ int main()
                 if (!cctv)
                 {
                     fprintf(stderr, "cctv ssl create fail");
-                    return 1;
+                    exit(0);
                 }
 
                 pthread_t tid;
@@ -103,10 +118,10 @@ int main()
                     if (!sensor)
                     {
                         fprintf(stderr, "sensor ssl create fail");
-                        return 1;
+                        exit(0);
                     }
 
-                    tid = regisSensorUser(sensor);
+                    tid = regisSensorFire(sensor);
                     startThread = 1;
                 }
 
@@ -116,11 +131,13 @@ int main()
                 if (startThread)
                 {
                     pthread_join(tid, NULL);
-                    
+
+                    SSL_shutdown(sensor);
                     close(SSL_get_fd(sensor));
                     SSL_free(sensor);
                 }
 
+                SSL_shutdown(cctv);
                 close(SSL_get_fd(cctv));
                 SSL_free(cctv);
             }
@@ -131,29 +148,32 @@ int main()
                 if (!user)
                 {
                     fprintf(stderr, "ssl create fail");
-                    return 1;
+                    exit(0);
                 }
 
                 sensor = clientNetwork(sensor_fd, ctx);
                 if (!sensor)
                 {
                     fprintf(stderr, "sensor ssl create fail");
-                    return 1;
+                    exit(0);
                 }
                 pthread_t tid = regisSensorUser(sensor);
                 receiveUser(user);
-
-                pthread_join(tid, NULL);
                 stop_pipe = 1;
+                pthread_join(tid, NULL);
 
+                SSL_shutdown(sensor);
+                SSL_shutdown(user);
                 close(SSL_get_fd(sensor));
                 close(SSL_get_fd(user));
                 SSL_free(sensor);
                 SSL_free(user);
             }
+
+            SSL_shutdown(ssl);
             close(SSL_get_fd(ssl));
             SSL_free(ssl);
-            return 0;
+            exit(0);
         }
         else if (pid > 0)
             clientFdCnt++;

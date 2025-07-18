@@ -1,4 +1,3 @@
-// CustomTableWidget.cpp
 #include "CustomTableWidget.h"
 #include "ui_CustomTableWidget.h"
 #include "paginationproxymodel.h"
@@ -8,7 +7,6 @@
 #include "imagedialog.h"
 #include <QStandardItemModel>
 #include <QLabel>
-#include <QPainter>
 
 CustomTableWidget::CustomTableWidget(QWidget* parent)
     : QWidget(parent)
@@ -20,6 +18,7 @@ CustomTableWidget::CustomTableWidget(QWidget* parent)
     ui->eventTable->verticalHeader()->hide();
     ui->eventTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->eventTable->verticalHeader()->setDefaultSectionSize(75);  // 행 높이 기본값
+
     ui->eventTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->eventTable->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->eventTable->setItemDelegateForColumn(0, new FullRowImageDelegate(this));
@@ -52,7 +51,6 @@ void CustomTableWidget::initModelAndView() {
         connect(m_proxy, &PaginationProxyModel::layoutChanged,
                 this, &CustomTableWidget::refreshPage);
 
-        // 헤더 정렬
         QHeaderView *header = ui->eventTable->horizontalHeader();
         header->setDefaultAlignment(Qt::AlignCenter);               // 헤더 텍스트 가운데 정렬
         header->setSectionsMovable(false);                          // 드래그로 열 순서 못 바꾸게
@@ -77,7 +75,6 @@ void CustomTableWidget::initModelAndView() {
     // Directly load data (no QtConcurrent)
     loadData();
 }
-
 
 void CustomTableWidget::on_prevButton_clicked(){
     int pg = m_proxy->currentPage();
@@ -112,7 +109,6 @@ void CustomTableWidget::onNewData(const QStringList& fields) {
         item->setForeground(QColor("#b8f1cc"));   // 텍스트 색상
         items.append(item);
     }
-
     m_sourceModel->appendRow(items);
     int newPageCount = m_proxy->pageCount();
     if (newPageCount != oldPageCount) {
@@ -170,7 +166,6 @@ void CustomTableWidget::loadData() {
         }, Qt::QueuedConnection);
     }
 }
-
 
 void CustomTableWidget::refreshPage() {
     for (int r = 0; r < m_proxy->rowCount(); ++r) {
