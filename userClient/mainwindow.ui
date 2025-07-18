@@ -10,42 +10,179 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">/* ===== 전체 배경 ===== */
+QMainWindow, QAbstractScrollArea {
+    background-color: #0d1e1e;
+}
+
+/* ===== 공통 QLabel ===== */
+QLabel {
+    background-color: #112424;
+    color: #90ee90;
+    border: 0.5px dashed #1de9b6;
+    font-family: 'Segoe UI';
+    font-size: 16px;
+    qproperty-alignment: AlignCenter;
+}
+
+/* ===== QPushButton 공통 ===== */
+QPushButton {
+    background-color: #143d35;
+    color: #aef3c0;
+    border: 1px solid #1de9b6;
+    border-radius: 6px;
+    padding: 6px;
+    font-family: 'Segoe UI';
+    font-size: 12pt;
+}
+QPushButton:hover { background-color: #1b5247; }
+QPushButton:pressed { background-color: #0e2924; }
+
+/* ===== 사이드 버튼 (아이콘 전용) ===== */
+QPushButton#btnFire,
+QPushButton#btnGrowth,
+QPushButton#btnIntrusion,
+QPushButton#btnMap,
+QPushButton#btnSync {
+    min-width: 50px;
+    min-height: 50px;
+    border-radius: 10px;
+    qproperty-iconSize: 24px;
+}
+
+/* ===== Start Camera 전용 ===== */
+QPushButton#startCameraButton {
+    background-color: #0d3c32;
+    font-weight: bold;
+    font-size: 14pt;
+}
+
+/* ===== QTableWidget ===== */
+QTableWidget {
+    background-color: #0d1e1e;
+    color: #b8f1cc;
+    gridline-color: #1de9b6;
+    font-family: 'Segoe UI';
+    font-size: 12pt;
+    alternate-background-color: #112424;
+    border: 1px solid #33aa88;
+
+    /* ✅ 선택 효과 제거 */
+    selection-background-color: transparent;
+    selection-color: #b8f1cc;
+}
+
+/* 헤더 */
+QHeaderView::section {
+    background-color: #223333;
+    color: #b8f1cc;
+    font-size: 13pt;
+    font-weight: bold;
+    border: 1px solid #33aa88;
+    padding: 4px;
+}
+
+/* 셀 내부 */
+QTableWidget::item {
+    padding: 8px 10px;
+}
+
+/* ✅ hover 제거: 이거 삭제 또는 주석처리하면 됨 */
+// QTableWidget::item:hover {
+//     font-size: 13pt;
+//     background-color: #1b5247;
+// }
+
+
+/* 스크롤바 */
+QScrollBar:vertical {
+    background: #112222;
+    width: 12px;
+}
+QScrollBar::handle:vertical {
+    background: #33aa88;
+    min-height: 20px;
+}
+
+/* ===== QChartView ===== */
+QChartView {
+    background-color: transparent;
+    border: none;
+}
+</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QStackedWidget" name="stackedWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>971</width>
-      <height>581</height>
-     </rect>
-    </property>
-    <property name="currentIndex">
-     <number>0</number>
-    </property>
-    <widget class="QWidget" name="pageMainMenu"/>
-    <widget class="QWidget" name="pageFire"/>
-    <widget class="QWidget" name="pageIntrusion"/>
-    <widget class="QWidget" name="pageGrowth"/>
-    <widget class="QWidget" name="pageSensor">
-     <widget class="QPushButton" name="btnBackFromSensor">
-      <property name="geometry">
-       <rect>
-        <x>120</x>
-        <y>180</y>
-        <width>95</width>
-        <height>29</height>
-       </rect>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="text">
-       <string> home</string>
+      <property name="currentIndex">
+       <number>0</number>
       </property>
+      <widget class="QWidget" name="pageMainMenu">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+      <widget class="QWidget" name="pageFire">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+      <widget class="QWidget" name="pageIntrusion">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+      <widget class="QWidget" name="pageGrowth">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+      <widget class="QWidget" name="pageSensor">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </widget>
-    </widget>
-   </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -53,7 +190,7 @@
      <x>0</x>
      <y>0</y>
      <width>968</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

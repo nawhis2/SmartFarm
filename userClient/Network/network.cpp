@@ -91,11 +91,8 @@ void returnSocket(){
 #ifdef _WIN32
     closesocket(SSL_get_fd(sock_fd));
 #else
-<<<<<<< HEAD
     close(sock_fd);
-=======
-    close(sockfd);
->>>>>>> 0edd1a978378722cd14ed5ed8a30bc360e904c75
+
 #endif
     SSL_free(sock_fd);
 }

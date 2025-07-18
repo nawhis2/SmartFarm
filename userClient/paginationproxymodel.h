@@ -8,7 +8,6 @@ class PaginationProxyModel : public QSortFilterProxyModel {
 public:
     PaginationProxyModel(QObject* parent = nullptr)
         : QSortFilterProxyModel(parent), m_pageSize(10), m_currentPage(0) {}
-
 public:
     void setPageSize(int sz) {
         beginResetModel();           // 🔥 필수
@@ -32,7 +31,6 @@ protected:
         int start = m_currentPage * m_pageSize;
         return srcRow >= start && srcRow < start + m_pageSize;
     }
-
 private:
     int m_pageSize;
     int m_currentPage;

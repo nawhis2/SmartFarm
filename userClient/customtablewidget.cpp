@@ -3,35 +3,10 @@
 #include "paginationproxymodel.h"
 #include "clientUtil.h"
 #include "network.h"
+#include "fullrowimagedelegate.h"
 #include "imagedialog.h"
 #include <QStandardItemModel>
-#include <QStyledItemDelegate>
 #include <QLabel>
-#include <QPainter>
-
-// Delegate that fills the first row cell (spanned across columns) with the pixmap
-class FullRowImageDelegate : public QStyledItemDelegate {
-public:
-    FullRowImageDelegate(QObject* parent = nullptr)
-        : QStyledItemDelegate(parent) {}
-    void paint(QPainter* painter,
-               const QStyleOptionViewItem& option,
-               const QModelIndex& index) const override {
-        if (index.row() == 0 && index.column() == 0) {
-            QVariant var = index.data(Qt::DecorationRole);
-            if (var.canConvert<QPixmap>()) {
-                QPixmap pm = var.value<QPixmap>();
-                if (!pm.isNull()) {
-                    QRect rect = option.rect;
-                    pm = pm.scaled(rect.size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-                    painter->drawPixmap(rect, pm);
-                    return;
-                }
-            }
-        }
-        QStyledItemDelegate::paint(painter, option, index);
-    }
-};
 
 CustomTableWidget::CustomTableWidget(QWidget* parent)
     : QWidget(parent)
@@ -41,6 +16,9 @@ CustomTableWidget::CustomTableWidget(QWidget* parent)
 {
     ui->setupUi(this);
     ui->eventTable->verticalHeader()->hide();
+    ui->eventTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->eventTable->verticalHeader()->setDefaultSectionSize(75);  // 행 높이 기본값
+
     ui->eventTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->eventTable->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->eventTable->setItemDelegateForColumn(0, new FullRowImageDelegate(this));
@@ -50,7 +28,7 @@ CustomTableWidget::CustomTableWidget(QWidget* parent)
     ui->eventTable->setColumnWidth(0, 80);
 }
 
-CustomTableWidget::~CustomTableWidget() {
+CustomTableWidget::~CustomTableWidget(){
     delete ui;
 }
 
@@ -73,6 +51,19 @@ void CustomTableWidget::initModelAndView() {
         connect(m_proxy, &PaginationProxyModel::layoutChanged,
                 this, &CustomTableWidget::refreshPage);
 
+        QHeaderView *header = ui->eventTable->horizontalHeader();
+        header->setDefaultAlignment(Qt::AlignCenter);               // 헤더 텍스트 가운데 정렬
+        header->setSectionsMovable(false);                          // 드래그로 열 순서 못 바꾸게
+        header->setStretchLastSection(false);                       // 마지막 열 자동 확장 비활성화
+        header->setSectionResizeMode(QHeaderView::Stretch);         // 전체를 Stretch로 설정
+
+        // 필요한 경우, 열별로 비율 다르게 하고 싶다면 아래 코드 참고
+        // (Stretch 상태에서는 비율 조절은 직접적으로 불가. Fixed로 바꿔야 함)
+        // header->setSectionResizeMode(0, QHeaderView::Stretch); // Image
+        // header->setSectionResizeMode(1, QHeaderView::Stretch); // Num
+        // header->setSectionResizeMode(2, QHeaderView::Stretch); // Eventname
+        // header->setSectionResizeMode(3, QHeaderView::Stretch); // Date
+
         ui->eventTable->setModel(m_proxy);
         updateButtons();
 
@@ -85,20 +76,20 @@ void CustomTableWidget::initModelAndView() {
     loadData();
 }
 
-void CustomTableWidget::on_prevButton_clicked() {
+void CustomTableWidget::on_prevButton_clicked(){
     int pg = m_proxy->currentPage();
-    if (pg > 0) {
+    if(pg > 0){
         m_proxy->setCurrentPage(pg - 1);
+        updateButtons();
     }
-    updateButtons();
 }
 
-void CustomTableWidget::on_nextButton_clicked() {
+void CustomTableWidget::on_nextButton_clicked(){
     int pg = m_proxy->currentPage();
-    if (pg + 1 < m_proxy->pageCount()) {
+    if(pg + 1 < m_proxy->pageCount()){
         m_proxy->setCurrentPage(pg + 1);
+        updateButtons();
     }
-    updateButtons();
 }
 
 void CustomTableWidget::updateButtons() {
@@ -112,7 +103,11 @@ void CustomTableWidget::onNewData(const QStringList& fields) {
     QList<QStandardItem*> items;
     items.append(new QStandardItem());
     for (const QString& f : fields) {
-        items.append(new QStandardItem(f));
+        QStandardItem* item = new QStandardItem(f);
+        item->setTextAlignment(Qt::AlignCenter);
+        //item->setBackground(QColor("#0d1e1e"));   // 메인 배경색
+        item->setForeground(QColor("#b8f1cc"));   // 텍스트 색상
+        items.append(item);
     }
     m_sourceModel->appendRow(items);
     int newPageCount = m_proxy->pageCount();

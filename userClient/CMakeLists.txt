@@ -10,8 +10,7 @@ add_definitions(-D__restrict= -DOSSL_CRYPTO_ALLOC=)
 
 
 # Qt 설정
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Concurrent)
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Concurrent Charts Charts)
 find_package(OpenSSL REQUIRED)
 
 include_directories(
@@ -98,11 +97,9 @@ add_executable(${PROJECT_NAME}
     streamthread.h
     customtablewidget.h customtablewidget.cpp customtablewidget.ui
     paginationproxymodel.h
+    fullrowimagedelegate.h
 )
 
-
-target_link_libraries(SmartFarmDashboard PRIVATE Qt6::Widgets)
-# include 경로 자동 추가됨
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
     Qt6::Core
@@ -110,6 +107,7 @@ target_link_libraries(${PROJECT_NAME}
     Qt6::Gui
     Qt6::Widgets
     Qt6::Concurrent
+    Qt6::Charts
     # OpenSSL
     ${OPENSSL_LIBS}
 

@@ -1,7 +1,16 @@
 #ifndef FIREDETECTWIDGET_H
 #define FIREDETECTWIDGET_H
-
 #include "detectcorewidget.h"
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QChart>
+#include <QtCharts/QPieSeries>
+#include <QtCharts/QDateTimeAxis>
+#include <QtCharts/QValueAxis>
+#include <QDateTime>
+#include <QtGlobal>
+#include <QRandomGenerator>
+
 namespace Ui {
 class FireDetectWidget;
 }
@@ -16,6 +25,12 @@ public:
 
 private:
     Ui::FireDetectWidget *ui;
+    QChartView *chartView;
+    QLineSeries *co2Series;
+    QDateTimeAxis *axisX;
+    QValueAxis *axisY;
+    void setupChart();
+    void simulateData();
 };
 
 #endif // FIREDETECTWIDGET_H
