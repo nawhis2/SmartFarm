@@ -2,22 +2,40 @@
 #include <QtConcurrent>
 #include <QHeaderView>
 #include "customtablewidget.h"
+#include <QFutureWatcher>
 
-DetectCoreWidget::DetectCoreWidget(QStackedWidget *stack,QWidget *parent)
-    : QWidget{parent}
+// Static member definitions
+QFuture<void> DetectCoreWidget::m_loadFuture;
+QFutureWatcher<void> DetectCoreWidget::m_loadWatcher;
+
+DetectCoreWidget::DetectCoreWidget(QStackedWidget *stack, QWidget *parent)
+    : QWidget(parent)
     , stackWidget(stack)
     , type("")
     , tableWidget(nullptr)
     , myIndex(-1)
+    , m_currentProcessingPage(-1)
+    , m_pendingPage(-1)
 {
-    connect(stackWidget, &QStackedWidget::currentChanged, this, &DetectCoreWidget::onPageChanged);
+    connect(stackWidget, &QStackedWidget::currentChanged,
+            this, &DetectCoreWidget::onPageChanged);
+
+    // When previous loadFuture finishes, handle any pending page
+    connect(&m_loadWatcher, &QFutureWatcher<void>::finished, this, [this]() {
+        m_currentProcessingPage = -1;
+        if (m_pendingPage != -1) {
+            int next = m_pendingPage;
+            m_pendingPage = -1;
+            startPageChanged(next);
+        }
+    });
 }
 
-void DetectCoreWidget::showHomePage(){
+void DetectCoreWidget::showHomePage() {
     changePage(0);
 }
 
-void DetectCoreWidget::onPageChanged(int index){
+void DetectCoreWidget::onPageChanged(int index) {
     if(index){
         if (myIndex == index) {
             pageChanged(index);
@@ -25,16 +43,30 @@ void DetectCoreWidget::onPageChanged(int index){
     }
 }
 
-void DetectCoreWidget::changePage(const int index){
-    if(stackWidget)
+void DetectCoreWidget::changePage(const int index) {
+    if (stackWidget)
         stackWidget->setCurrentIndex(index);
 }
-void DetectCoreWidget::pageChanged(const int index){
-    (void)QtConcurrent::run([this]() {
-        pageChangedIdx();
-    });
+
+void DetectCoreWidget::pageChanged(int index) {
+    if (m_loadFuture.isRunning()) {
+        if (index == m_currentProcessingPage)
+            return;
+        m_pendingPage = index;
+        return;
+    }
+    startPageChanged(index);
 }
 
-void DetectCoreWidget::pageChangedIdx(){
+void DetectCoreWidget::startPageChanged(int index) {
+    m_currentProcessingPage = index;
+    m_loadFuture = QtConcurrent::run([this]() {
+        pageChangedIdx();
+    });
+    m_loadWatcher.setFuture(m_loadFuture);
+}
+
+void DetectCoreWidget::pageChangedIdx() {
+    if (!tableWidget) return;
     tableWidget->initModelAndView();
 }

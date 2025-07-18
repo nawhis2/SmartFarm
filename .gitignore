@@ -9,7 +9,6 @@
 *.tar
 main
 userTest
-CMakeLists.txt.user
 
 #cmake
 CMakeFiles/
@@ -19,6 +18,7 @@ cmake_install.cmake
 *.o.d
 *.make
 *.internal
+*.user
 
 #folder
 build/
