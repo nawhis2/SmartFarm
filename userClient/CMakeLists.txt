@@ -91,8 +91,6 @@ add_executable(${PROJECT_NAME}
     Detect/strawberrywidget.ui
     Detect/videostreamhandler.h
     Detect/videostreamhandler.cpp
-    imagepushbutton.h
-    imagepushbutton.cpp
     imagedialog.h imagedialog.cpp imagedialog.ui
     streamthread.h
     customtablewidget.h customtablewidget.cpp customtablewidget.ui
