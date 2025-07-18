@@ -137,8 +137,6 @@ void query_and_send_weekly(SSL *sock_fd, const char *event_type) {
     }
 
     MYSQL_RES *res = mysql_store_result(g_conn);
-    if(!res)
-        printf("nodata\n");
     MYSQL_ROW row;
 
     while ((row = mysql_fetch_row(res))) {

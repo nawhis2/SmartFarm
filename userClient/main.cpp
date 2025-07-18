@@ -3,11 +3,12 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QThread>
 #include <mainwindow.h>
 #include "main.h"
 #include "network.h"
 #include "handshake.h"
-#include "clientUtil.h"
+#include "sensorreceive.h"
 
 #define IP "192.168.0.46"
 #define PORT "60000"  // 문자열 형태로 getaddrinfo에 넘김
@@ -36,6 +37,7 @@ int main(int argc, char *argv[]) {
 
     int sensorfd = socketNetwork(IP, SENSORPORT);
     SSL* sensor = sensorNetwork(sensorfd, ctx);
+    QThread* recvThread = startReceiveSensorThread(sensor);
 
     QApplication app(argc, argv);
     MainWindow w;
@@ -44,6 +46,11 @@ int main(int argc, char *argv[]) {
     w.show();
 
     QObject::connect(&w, &QObject::destroyed, [=]() {
+        sensorStop = 1;
+        // 2) 쓰레드가 끝나기를 대기
+        recvThread->quit();
+        recvThread->wait();
+
         SSL_shutdown(sensor);
     #ifdef _WIN32
         closesocket(sockfd);
