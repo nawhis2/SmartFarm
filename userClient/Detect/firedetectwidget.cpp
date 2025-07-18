@@ -11,7 +11,15 @@ FireDetectWidget::FireDetectWidget(QStackedWidget *stack, QWidget *parent)
     tableWidget->SetDetectStr(type);
     myIndex = 1;
     setupChart();
-    simulateData();
+    // 🔁 랜덤 센서 시뮬레이션 (3초 간격)
+    QTimer* simTimer = new QTimer(this);
+    connect(simTimer, &QTimer::timeout, this, [=]() {
+        double co2 = 400 + QRandomGenerator::global()->bounded(400);   // 400~800 ppm
+        double temp = 20 + QRandomGenerator::global()->bounded(10);    // 20~30℃
+        QString data = QString("%1 %2").arg(co2).arg(temp);
+        onSensorDataReceived(data);
+    });
+    simTimer->start(3000);  // 3초마다
     connect(ui->btnBackFromFire, &QPushButton::clicked, this, &FireDetectWidget::showHomePage);
 }
 void FireDetectWidget::setupChart()
@@ -57,18 +65,31 @@ void FireDetectWidget::setupChart()
     ui->chartView->setRenderHint(QPainter::Antialiasing);
     ui->chartView->setStyleSheet("background-color: transparent; border: none;");
 }
+void FireDetectWidget::onSensorDataReceived(const QString& data) {
+    // 예: "738 23.4"
+    QStringList parts = data.split(" ");
+    if (parts.size() >= 2) {
+        double co2 = parts[0].toDouble();
+        double temp = parts[1].toDouble();
 
+        // 1. QLabel에 실시간 표시
+        ui->label_co2->setText(
+            QString("<span style='font-size:32pt; font-weight:bold;'>%1</span><br>"
+                    "<span style='font-size:12pt;'>ppm</span>").arg((int)co2));
+        ui->label_temp->setText(
+            QString("<span style='font-size:32pt; font-weight:bold;'>%1</span><br>"
+                    "<span style='font-size:12pt;'>℃</span>").arg(temp, 0, 'f', 1));
 
+        // 2. 그래프에 추가
+        QDateTime now = QDateTime::currentDateTime();
+        co2Series->append(now.toMSecsSinceEpoch(), co2);
 
-void FireDetectWidget::simulateData() {
-    // 예시 하드코딩된 CO₂ 값
-    QDateTime now = QDateTime::currentDateTime();
-    for (int i = 0; i < 10; ++i) {
-        qreal value = 400 + QRandomGenerator::global()->bounded(500);  // 0~99
-        co2Series->append(now.addSecs(i * 60).toMSecsSinceEpoch(), value);
+        // X축 시간 범위 업데이트
+        axisX->setRange(now.addSecs(-600), now);  // 최근 10분만 보기
     }
-    axisX->setRange(now, now.addSecs(600));
 }
+
+
 
 FireDetectWidget::~FireDetectWidget()
 {
