@@ -13,6 +13,7 @@
 #include "receive.h"
 #include "db.h"
 #include "userclientsend.h"
+#include "mapUtil.h"
 
 // 클라이언트가 보낸 단일 JSONL 한 줄을 버퍼에 저장
 static char *jsonl_buf = NULL;
@@ -372,6 +373,12 @@ int receiveUserPacket(SSL *ssl)
     else if (strncmp(type, "WEEKLY", 6) == 0)
     {
         graphWeeklySend(ssl, msg);
+        free(msg);
+        return 0;
+    }
+    else if (strncmp(type, "CMD", 3) == 0)
+    {
+        wirteStrawFromUser(msg);
         free(msg);
         return 0;
     }

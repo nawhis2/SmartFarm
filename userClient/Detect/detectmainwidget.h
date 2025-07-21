@@ -31,6 +31,7 @@ private slots:
     void showGrowthPage();
     void showIntrusionPage();
     void showSensorPage();
+    void on_btnSync_clicked();
 
     // 스트림 제어
     void setupAllStreams();
