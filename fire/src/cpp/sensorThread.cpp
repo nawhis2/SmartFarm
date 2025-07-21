@@ -14,7 +14,13 @@ static std::string latest_data;
 static std::mutex m;
 static std::atomic<bool> running(true);
 
-std::vector<std::string> parseSensorData(std::string uartData) {
+static void handleSigint(int)
+{
+    std::cout << "\n[INFO] Signal received, stopping threads..." << std::endl;
+    running = false; // Stop the threads
+}
+
+static std::vector<std::string> parseSensorData(std::string uartData) {
     std::vector<std::string> sensorData;
     size_t pos = 0;
     while ((pos = uartData.find(',')) != std::string::npos) {
@@ -27,14 +33,8 @@ std::vector<std::string> parseSensorData(std::string uartData) {
     return sensorData;
 }
 
-void handleSigint(int)
-{
-    std::cout << "\n[INFO] Signal received, stopping threads..." << std::endl;
-    running = false; // Stop the threads
-}
-
-void *uartReceiveLoop(void* arg) {
-    char buffer[256];
+static void *uartReceiveLoop(void* arg) {
+    char buffer[64];
     UARTdevice uartDevice;
     if (uartDevice.getFd() < 0) {
         std::cerr << "UART device not initialized." << std::endl;
@@ -56,7 +56,7 @@ void *uartReceiveLoop(void* arg) {
     pthread_exit(NULL); // Exit the thread
 }
 
-void *sendEveryMinute(void* arg) {
+static void *sendEveryMinute(void* arg) {
     SSL* sensor = (SSL*)arg;
     while (running) {
         std::this_thread::sleep_for(std::chrono::minutes(1));

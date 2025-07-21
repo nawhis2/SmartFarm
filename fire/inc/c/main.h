@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include "sensorThread.h"
 
 void init_openssl();
 SSL_CTX *create_context();
