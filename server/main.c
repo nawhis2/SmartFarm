@@ -21,11 +21,13 @@
 #include "receive.h"
 #include "db.h"
 #include "sensorUtil.h"
+#include "mapUtil.h"
 
 #define PORT 60000
 #define CCTVPORT 60001
 #define SENSORPORT 60002
 #define USERPORT 60003
+#define MAPPORT 60004
 #define BUF_SIZE 1024
 
 volatile sig_atomic_t clientFdCnt = 0;
@@ -43,6 +45,7 @@ void sigchld_handler(int sig)
 int main()
 {
     mkfifo(SENSOR_PIPE, 0666);
+    mkfifo(MAP_PIPE, 0666);
 
     init_openssl();
     SSL_CTX *ctx = create_context();
@@ -54,6 +57,7 @@ int main()
     int cctv_fd = serverNetwork(CCTVPORT);
     int sensor_fd = serverNetwork(SENSORPORT);
     int user_fd = serverNetwork(USERPORT);
+    int map_fd = serverNetwork(MAPPORT);
 
     struct sigaction sa;
     sa.sa_handler = sigchld_handler;
@@ -108,8 +112,10 @@ int main()
                     exit(0);
                 }
 
-                pthread_t tid;
-                int startThread = 0;
+                pthread_t fireTid;
+                pthread_t mapTid;
+                int startFireThread = 0;
+                int startMapThread = 0;
                 printf("CCTV\n");
                 registerCCTV(cctv, camName);
                 if (strncmp(camName, "Fire", 4) == 0)
@@ -121,25 +127,37 @@ int main()
                         exit(0);
                     }
 
-                    tid = regisSensorFire(sensor);
-                    startThread = 1;
+                    fireTid = regisSensorFire(sensor);
+                    startFireThread = 1;
+                }
+                else if (strncmp(camName, "Strawberry", 10) == 0)
+                {
+                    mapTid = regisReadStraw(cctv);
+                    startMapThread = 1;
+                }
+                else if (strncmp(camName, "Map", 3) == 0)
+                {
+                    mapTid = regisReadMap(cctv);
+                    startMapThread = 1;
                 }
 
                 receiveCCTV(cctv);
                 removeActiveCCTV(camName);
+                stopStrawPipe = 1;
+                stopMapPipe = 1;
 
-                if (startThread)
+                if (startFireThread)
                 {
-                    pthread_join(tid, NULL);
-
-                    SSL_shutdown(sensor);
-                    close(SSL_get_fd(sensor));
-                    SSL_free(sensor);
+                    pthread_join(fireTid, NULL);
+                    returnSocket(sensor);
                 }
 
-                SSL_shutdown(cctv);
-                close(SSL_get_fd(cctv));
-                SSL_free(cctv);
+                if (startMapThread)
+                {
+                    pthread_join(mapTid, NULL);
+                }
+
+                returnSocket(cctv);
             }
             else if (role == ROLE_USER)
             {
@@ -157,22 +175,28 @@ int main()
                     fprintf(stderr, "sensor ssl create fail");
                     exit(0);
                 }
-                pthread_t tid = regisSensorUser(sensor);
-                receiveUser(user);
-                stop_pipe = 1;
-                pthread_join(tid, NULL);
 
-                SSL_shutdown(sensor);
-                SSL_shutdown(user);
-                close(SSL_get_fd(sensor));
-                close(SSL_get_fd(user));
-                SSL_free(sensor);
-                SSL_free(user);
+                SSL *mapfd = clientNetwork(map_fd, ctx);
+                if (!mapfd)
+                {
+                    fprintf(stderr, "map ssl create fail");
+                    exit(0);
+                }
+                pthread_t sensorTid = regisSensorUser(sensor);
+                pthread_t mapTid = regisReadClient(mapfd);
+                receiveUser(user);
+
+                stop_pipe = 1;
+                stopClientPipe = 1;
+                pthread_join(sensorTid, NULL);
+                pthread_join(mapTid, NULL);
+
+                returnSocket(sensor);
+                returnSocket(user);
+                returnSocket(mapfd);
             }
 
-            SSL_shutdown(ssl);
-            close(SSL_get_fd(ssl));
-            SSL_free(ssl);
+            returnSocket(ssl);
             exit(0);
         }
         else if (pid > 0)
@@ -184,6 +208,7 @@ int main()
     close(sensor_fd);
     close(user_fd);
     close(cctv_fd);
+    close(map_fd);
     SSL_CTX_free(ctx);
     EVP_cleanup();
     return 0;

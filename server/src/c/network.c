@@ -72,3 +72,9 @@ SSL *clientNetwork(int sockfd, SSL_CTX *ctx)
 
     return ssl;
 }
+
+void returnSocket(SSL* ssl){
+    SSL_shutdown(ssl);
+    close(SSL_get_fd(ssl));
+    SSL_free(ssl);
+}

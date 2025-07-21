@@ -5,5 +5,6 @@
 
 int serverNetwork(int);
 SSL *clientNetwork(int, SSL_CTX*);
+void returnSocket(SSL*);
 
 #endif
