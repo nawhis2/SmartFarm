@@ -9,11 +9,13 @@
 #include "network.h"
 #include "handshake.h"
 #include "sensorreceive.h"
+#include "mapactivereceive.h"
 
 #define IP "192.168.0.46"
 #define PORT "60000"  // 문자열 형태로 getaddrinfo에 넘김
 #define SENSORPORT "60002"  // 문자열 형태로 getaddrinfo에 넘김
 #define USERPORT "60003"  // 문자열 형태로 getaddrinfo에 넘김
+#define MAPPORT "60004"  // 문자열 형태로 getaddrinfo에 넘김
 
 int main(int argc, char *argv[]) {
     gst_init(nullptr, nullptr);
@@ -39,6 +41,11 @@ int main(int argc, char *argv[]) {
     SSL* sensor = sensorNetwork(sensorfd, ctx);
     QThread* recvThread = startReceiveSensorThread(sensor);
 
+
+    int mapfd = socketNetwork(IP, MAPPORT);
+    SSL* mapSSL = sensorNetwork(mapfd, ctx);
+    QThread* mapRecvThread = startReceiveMapThread(mapSSL);
+
     QApplication app(argc, argv);
     MainWindow w;
     w.setWindowTitle("🌱 스마트팜 통합 모니터링 시스템");
@@ -47,24 +54,33 @@ int main(int argc, char *argv[]) {
 
     QObject::connect(&w, &QObject::destroyed, [=]() {
         sensorStop = 1;
+        mapActiveStop = 1;
         // 2) 쓰레드가 끝나기를 대기
         recvThread->quit();
         recvThread->wait();
+
+        mapRecvThread->quit();
+        mapRecvThread->wait();
 
         SSL_shutdown(sensor);
     #ifdef _WIN32
         closesocket(sockfd);
         closesocket(userfd);
         closesocket(sensorfd);
+        closesocket(mapfd);
         closesocket(SSL_get_fd(sensor));
+        closesocket(SSL_get_fd(mapSSL));
     #else
         close(sockfd);
         close(userfd);
         close(sensorfd);
+        close(mapfd);
         close(SSL_get_fd(sensor));
+        close(SSL_get_fd(mapSSL));
     #endif
         returnSocket();
         SSL_free(sensor);
+        SSL_free(mapSSL);
         SSL_CTX_free(ctx);
     });
     return app.exec();

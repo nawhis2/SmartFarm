@@ -98,6 +98,8 @@ add_executable(${PROJECT_NAME}
     customtablewidget.h customtablewidget.cpp customtablewidget.ui
     paginationproxymodel.h
     fullrowimagedelegate.h
+    network/mapactivereceive.h
+    network/mapactivereceive.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
