@@ -32,19 +32,36 @@ UARTdevice::~UARTdevice() {
         close(fd);
 }
 
-int UARTdevice::sendCommand(const char* command) {
+
+int UARTdevice::receiveResponse(char* buffer, size_t bufferSize) {
     if (fd < 0) {
-        std::cerr << "Failed to open UART device: " << strerror(errno) << std::endl;
+        std::cerr << "UART device not initialized." << std::endl;
         return -1;
     }
 
-    ssize_t bytesWritten = write(fd, command, strlen(command));
-    if (bytesWritten < 0) {
-        std::cerr << "Failed to write to UART device: " << strerror(errno) << std::endl;
-        close(fd);
+    ssize_t bytesRead = read(fd, buffer, bufferSize - 1);
+    if (bytesRead < 0) {
+        std::cerr << "Failed to read from UART device: " << strerror(errno) << std::endl;
         return -1;
     }
 
-    close(fd);
-    return 0;
+    buffer[bytesRead] = '\0'; // Null-terminate the string
+    return bytesRead;
+}
+
+int UARTdevice::getFd() const {
+    return fd;
+}
+
+std::vector<std::string> UARTdevice::parseSensorData(std::string uartData) {
+    std::vector<std::string> sensorData;
+    size_t pos = 0;
+    while ((pos = uartData.find(',')) != std::string::npos) {
+        sensorData.push_back(uartData.substr(0, pos));
+        uartData.erase(0, pos + 1);
+    }
+    if (!uartData.empty()) {
+        sensorData.push_back(uartData); // Add the last part
+    }
+    return sensorData;
 }

@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <termios.h>
+#include <vector>
 
 class UARTdevice {
     const char* uartDev = "/dev/serial0";
@@ -15,10 +16,11 @@ class UARTdevice {
 public:
     UARTdevice();
     ~UARTdevice();
+    UARTdevice(const UARTdevice&) = delete; // Disable copy constructor
+    UARTdevice& operator=(const UARTdevice&) = delete; // Disable copy assignment operator
 
-    int sendCommand(const char* command);
     int receiveResponse(char* buffer, size_t bufferSize);
-    int getFd() const { return fd; }
+    int getFd() const;
 
 };
 
