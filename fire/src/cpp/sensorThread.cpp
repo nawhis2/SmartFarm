@@ -14,80 +14,117 @@ static std::string latest_data;
 static std::mutex m;
 static std::atomic<bool> running(true);
 
-static void handleSigint(int)
-{
-    std::cout << "\n[INFO] Signal received, stopping threads..." << std::endl;
-    running = false; // Stop the threads
-}
 
 static std::vector<std::string> parseSensorData(std::string uartData) {
     std::vector<std::string> sensorData;
     size_t pos = 0;
-    while ((pos = uartData.find(',')) != std::string::npos) {
+
+    std::cout << "Parsing sensor data: " << uartData << std::endl;
+    while ((pos = uartData.find('|')) != std::string::npos) 
+    {
         sensorData.push_back(uartData.substr(0, pos));
         uartData.erase(0, pos + 1);
     }
     if (!uartData.empty()) {
         sensorData.push_back(uartData); // Add the last part
     }
+    std::cout << "Parsed sensor data size: " << sensorData.size() << std::endl;
+    for (auto e : sensorData) {
+        std::cout << e << " ";
+    }
+    std::cout << std::endl;
     return sensorData;
 }
 
 static void *uartReceiveLoop(void* arg) {
-    char buffer[64];
+    char buffer[128];
     UARTdevice uartDevice;
     if (uartDevice.getFd() < 0) {
         std::cerr << "UART device not initialized." << std::endl;
-        return;
+        {
+            std::lock_guard<std::mutex> lock(m);
+            running = false;    
+        }
+        return nullptr;
     }   
-
+    
+    std::cout << "UART receive loop started." << std::endl;
     while (running) {
         ssize_t bytesRead = read(uartDevice.getFd(), buffer, sizeof(buffer) - 1);
         if (bytesRead > 0) {
             buffer[bytesRead] = '\0'; // Null-terminate the string
             std::lock_guard<std::mutex> lock(m);
             latest_data = std::string(buffer, bytesRead);
-            //std::cout << "Received data: " << buffer << std::endl;
+            std::cout << "Received data: " << buffer << std::endl;
         }
+        
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     std::cout << "UART receive loop finished." << std::endl;
     pthread_exit(NULL); // Exit the thread
+    return nullptr; // Exit the thread
 }
 
 static void *sendEveryMinute(void* arg) {
     SSL* sensor = (SSL*)arg;
+    std::cout << "Sensor data sending thread started." << std::endl;
     while (running) {
-        std::this_thread::sleep_for(std::chrono::minutes(1));
+        std::this_thread::sleep_for(std::chrono::seconds(3));
         std::vector<std::string> parsedData;
         {
             std::lock_guard<std::mutex> lock(m);
             parsedData = parseSensorData(latest_data); // Parse the latest data
         }
 
+        std::cout << "Parsed sensor data: ";
+        for (const auto& data : parsedData) {
+            std::cout << data << " ";
+        }
+        std::cout << std::endl;
+
         // copy한 최신 데이터로 SensorData 구조체 생성
-        SensorData sensorData = makeSensorData(std::stof(parsedData.at(0)),
-                                            std::stof(parsedData.at(1)),
-                                            std::stof(parsedData.at(2))); // 예시 데이터
-        sendSensorData(sensor, sensorData); // 센서 데이터 전송
+        if (parsedData.size() < 3) {
+            std::cerr << "Invalid sensor data received." << std::endl;
+            continue; // Skip if data is not valid
+        }
+
+        try {
+            SensorData sensorData = makeSensorData(
+                std::stof(parsedData.at(0)),
+                std::stof(parsedData.at(1)),
+                std::stof(parsedData.at(2)));
+            std::cout << "**** SensorData created: "
+                      << "CO2: " << sensorData.co2Value
+                      << ", Humidity: " << sensorData.humidValue
+                      << ", Temperature: " << sensorData.tempValue
+                      << std::endl;
+            sendSensorData(sensor, sensorData);
+            std::cout << "SENDING complete in try block!" << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Exception parsing sensor data: " << e.what() << std::endl;
+            continue;
+        }
+        // 데이터 전송 후 로그 출력
+        std::cout << "sending completed !" << std::endl;
     }
     
     std::cout << "Sensor data sending thread finished." << std::endl;
     pthread_exit(NULL); // 스레드 종료
+    return nullptr; // 스레드 종료
 }
 
 // SSL* 데이터
 void *sensorThreadFunc(void* arg) 
 {
     // 주어진 인자를 해석가능하게 형 변환
-    signal(SIGINT, handleSigint); // SIGINT 핸들러 설정
+    //signal(SIGINT, handleSigint); // SIGINT 핸들러 설정
     if (arg == nullptr) {
         std::cerr << "Invalid argument passed to sensorThreadFunc." << std::endl;
         pthread_exit(NULL);
     }
     SSL* sensor = (SSL*)arg;
-
+    std::cout << "[SSL*] " << sensor << std::endl;
     // UART 데이터를 수신하는 로직
     pthread_t uartThread;
     pthread_t sensorSendThread;
@@ -108,4 +145,5 @@ void *sensorThreadFunc(void* arg)
     // close(uartDevice.getFd()); // UART 디바이스는 소멸자에서 자동으로 닫히므로 필요 없음
     std::cout << "Sensor thread finished." << std::endl;
     pthread_exit(NULL); // 스레드 종료  
+    return nullptr; // 스레드 종료
 }

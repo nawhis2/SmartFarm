@@ -74,10 +74,11 @@ int main(int argc, char** argv){
     SSL* sensor = sensorNetwork(sensorfd, ctx);
     
     pthread_t sensorThread;
-    if(pthread_create(&sensorThread, NULL, sensorThreadFunc, (void*)&sensor) != 0){
+    if(pthread_create(&sensorThread, NULL, sensorThreadFunc, (void*)sensor) != 0){
         perror("Sensor Thread Create");
         exit(1);
     }
+    
 
     RtspStreaming(1920, 1080, 30);
     sleep(1);

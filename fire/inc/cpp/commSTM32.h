@@ -10,7 +10,7 @@
 
 class UARTdevice {
     const char* uartDev = "/dev/serial0";
-    int fd;
+    int fd = -1;
     struct termios options;
 
 public:

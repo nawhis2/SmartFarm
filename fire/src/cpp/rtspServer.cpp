@@ -263,7 +263,7 @@ void inferenceLoop(StreamContext *ctx)
             latest_pts = ctx->frame_count++;
         }
 
-        std::cout << "[IL] InferenceLoop 실행중 ..." << std::endl;
+        //std::cout << "[IL] InferenceLoop 실행중 ..." << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / ctx->fps));
     }
 }

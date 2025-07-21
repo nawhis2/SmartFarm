@@ -10,11 +10,20 @@ SensorData makeSensorData(const float co2, const float humid, const float temp){
 }
 
 void sendSensorData(SSL *sensor, const SensorData sensorData){
+    printf("[Sensor] , %p\n", sensor);
+    if (!sensor) {
+        fprintf(stderr, "SSL connection is not established.\n");
+        return;
+    }   
+
     const char *buf = (const char *)&sensorData;
     size_t total    = sizeof(SensorData);
     size_t sent     = 0;
 
+    printf("sizeof(SensorData): %zu\n", sizeof(SensorData));  // → 12 나와야 정상
+
     while (sent < total) {
+        printf("sent : %d \n", (int)sent);
         int n = SSL_write(sensor, buf + sent, (int)(total - sent));
         if (n <= 0) {
             int err = SSL_get_error(sensor, n);
@@ -23,4 +32,5 @@ void sendSensorData(SSL *sensor, const SensorData sensorData){
         }
         sent += (size_t)n;
     }
+    printf("\n");
 }
