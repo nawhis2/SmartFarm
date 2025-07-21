@@ -38,7 +38,8 @@ void receiveMapActive(SSL* ssl) {
         char buf[10];
 
         int n;
-        if((n = SSL_read(ssl, buf, strlen(buf))) < 0){
+        if((n = SSL_read(ssl, buf, strlen(buf))) > 0){
+            qDebug() << buf;
             continue;
         }
         int err = SSL_get_error(ssl, n);
@@ -51,5 +52,8 @@ void receiveMapActive(SSL* ssl) {
             QThread::msleep(10);
             continue;
         }
+
+        qWarning() << "SSL_read fatal error or connection closed, err=" << err;
+        return;
     }
 }

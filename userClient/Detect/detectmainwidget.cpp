@@ -36,6 +36,8 @@ DetectMainWidget::~DetectMainWidget()
     delete ui;
 }
 
+void DetectMainWidget::on_btnSync_clicked(){ sendFile("start", "CMD"); }
+
 void DetectMainWidget::showFirePage()     { changePage(1); }
 void DetectMainWidget::showGrowthPage()   { changePage(3); }
 void DetectMainWidget::showIntrusionPage(){ changePage(2); }
