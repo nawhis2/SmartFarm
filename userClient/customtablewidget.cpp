@@ -8,6 +8,7 @@
 #include <QStandardItemModel>
 #include <QLabel>
 
+
 CustomTableWidget::CustomTableWidget(QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::CustomTableWidget)

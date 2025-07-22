@@ -27,13 +27,24 @@ QMainWindow, QAbstractScrollArea {
 
 /* ===== 공통 QLabel ===== */
 QLabel {
+   background-color: transparent;
+    color: #90ee90;
+    border: 0.5px dashed #1de9b6;
+    font-family: 'Segoe UI';
+    font-size: 20px;
+    qproperty-alignment: AlignCenter;
+}
+
+/*색있는 Label*/
+QLabel#label_fire {
     background-color: #112424;
     color: #90ee90;
     border: 0.5px dashed #1de9b6;
     font-family: 'Segoe UI';
-    font-size: 16px;
+    font-size: 20px;
     qproperty-alignment: AlignCenter;
 }
+
 
 /* ===== QPushButton 공통 ===== */
 QPushButton {
@@ -82,6 +93,18 @@ QTableWidget {
     selection-color: #b8f1cc;
 }
 
+QFrame#frame_Max,
+QFrame#frame_Cur,
+QFrame#frame_Temp {
+	background-color: #102222;
+    border: 5px solid #33aa88;
+    border-radius: 10px;
+	padding: 8px;        /* 내부 여백 */
+    margin: 8px;         /* 외부 여백 → 부모 위젯 기준 */
+
+    /* 🔥 핵심: border 그리기 보장용 코드 */
+    outline: none;
+}
 /* 헤더 */
 QHeaderView::section {
     background-color: #223333;
@@ -98,10 +121,10 @@ QTableWidget::item {
 }
 
 /* ✅ hover 제거: 이거 삭제 또는 주석처리하면 됨 */
-// QTableWidget::item:hover {
+/*// QTableWidget::item:hover {
 //     font-size: 13pt;
 //     background-color: #1b5247;
-// }
+// }*/
 
 
 /* 스크롤바 */
@@ -190,7 +213,7 @@ QChartView {
      <x>0</x>
      <y>0</y>
      <width>968</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/temperature_icon.png</file>
+        <file>icons/temperature_icon3.png</file>
+    </qresource>
+</RCC>
