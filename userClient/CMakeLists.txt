@@ -57,6 +57,7 @@ set(OPENSSL_LIBS
     "${OPENSSL_CONF}/lib/VC/x64/MD/libssl.lib"
     "${OPENSSL_CONF}/lib/VC/x64/MD/libcrypto.lib"
 )
+qt_add_resources(APP_RESOURCES resources.qrc)
 
 # 실행 파일 설정
 add_executable(${PROJECT_NAME}
@@ -100,6 +101,11 @@ add_executable(${PROJECT_NAME}
     fullrowimagedelegate.h
     network/mapactivereceive.h
     network/mapactivereceive.cpp
+)
+
+target_sources(${PROJECT_NAME}
+    PRIVATE
+    ${APP_RESOURCES}
 )
 
 target_link_libraries(${PROJECT_NAME}

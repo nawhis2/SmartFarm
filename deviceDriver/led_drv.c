@@ -55,5 +55,5 @@ static void __exit led_exit(void) {
 module_init(led_init);
 module_exit(led_exit);
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("샤니캉");
+MODULE_AUTHOR("수빈");
 MODULE_DESCRIPTION("Simple LED device interface for user UART control");

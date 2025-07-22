@@ -1,8 +1,12 @@
 #include "sensorreceive.h"
+#include "firedetectwidget.h" //추가
 #include <winsock2.h>
 #include <windows.h>
 #include <QDebug>
 #include <QThread>
+#include <QMetaObject>  // invokeMethod
+
+extern FireDetectWidget* fireWidget;
 
 int sensorStop = 0;
 
@@ -72,6 +76,14 @@ void receiveSensor(SSL* ssl) {
 
         // 4) 온전히 한 덩어리 다 읽었을 때만 처리
         if (received == total) {
+            float co2 = sensorData.co2Value;
+            float temp = sensorData.tempValue;
+
+            QString data = QString("%1 %2").arg(co2).arg(temp);
+
+            if (fireWidget) {
+                QMetaObject::invokeMethod(fireWidget, "onSensorDataReceivedWrapper", Qt::QueuedConnection);
+            }
             qDebug() << "co2   =" << sensorData.co2Value
                      << "humid =" << sensorData.humidValue
                      << "temp  =" << sensorData.tempValue;

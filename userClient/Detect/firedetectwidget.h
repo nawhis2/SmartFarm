@@ -1,5 +1,6 @@
 #ifndef FIREDETECTWIDGET_H
 #define FIREDETECTWIDGET_H
+#define NOMINMAX
 #include "detectcorewidget.h"
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
@@ -11,6 +12,9 @@
 #include <QtGlobal>
 #include <QTimer>
 #include <QRandomGenerator>
+#include <QPixmap>
+#include <algorithm>
+
 
 namespace Ui {
 class FireDetectWidget;
@@ -22,7 +26,13 @@ class FireDetectWidget : public DetectCoreWidget
 
 public:
     explicit FireDetectWidget(QStackedWidget *stack, QWidget *parent = nullptr);
+    Q_INVOKABLE void onSensorDataReceivedWrapper();
+    void onSensorDataReceived(const QString& data); //private에서 여기로 옮김
     ~FireDetectWidget();
+
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 
 private:
     Ui::FireDetectWidget *ui;
@@ -31,7 +41,8 @@ private:
     QDateTimeAxis *axisX;
     QValueAxis *axisY;
     void setupChart();
-    void onSensorDataReceived(const QString& data);
-};
 
+    double maxCo2 = 0;
+};
+extern FireDetectWidget* fireWidget; // 전역 포인터 추가
 #endif // FIREDETECTWIDGET_H
