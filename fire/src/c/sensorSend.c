@@ -17,7 +17,9 @@ void sendSensorData(SSL *sensor, const SensorData sensorData){
     }   
 
     const char *buf = (const char *)&sensorData;
-    size_t total    = sizeof(SensorData);
+    size_t total    = sizeof(SensorData); // +2 for newline and null terminator
+//     buf[total] = '\n';
+// buf[total + 1] = '\0';
     size_t sent     = 0;
 
     printf("sizeof(SensorData): %zu\n", sizeof(SensorData));  // → 12 나와야 정상

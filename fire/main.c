@@ -79,7 +79,7 @@ int main(int argc, char** argv){
         exit(1);
     }
     
-
+    printf("Sensor thread created.\n");
     RtspStreaming(1920, 1080, 30);
     sleep(1);
 
