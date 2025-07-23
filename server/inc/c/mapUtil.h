@@ -12,13 +12,13 @@ extern int stopClientPipe;
 extern int stopStrawPipe;
 extern int stopMapPipe;
 
-void wirteClientFromStraw(const char*);
+void wirteToStraw(const char*);
 void *readClient(void*);
 
-void wirteStrawFromUser(const char*);
+void wirteToUser(const char*);
 void *readStraw(void*);
 
-void wirteMapFromStraw(const char*);
+void wirteToMap(const char*);
 void *readMap(void*);
 
 pthread_t regisReadClient(SSL*);
