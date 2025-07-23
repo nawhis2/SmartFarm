@@ -24,6 +24,8 @@
 
 #define BUF_SIZE 1024
 
+std::atomic<bool> ledState = false; // LED 상태
+
 int main(int argc, char** argv){
     if(argc < 2){
         fprintf(stderr, "FORMAT: %s <IP ADDRESS>\n", argv[0]);

@@ -1,6 +1,7 @@
 #ifndef SENSORSEND_H
 #define SENSORSEND_H
 
+#include <atomic>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 

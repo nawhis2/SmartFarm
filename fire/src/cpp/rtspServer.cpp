@@ -2,6 +2,8 @@
 #include "jsonlParse.h" 
 
 const vector<string> class_names = {"fire", "smoke"};
+extern bool ledState; // LED 상태
+
 // ----------------------------
 // Processing functions
 // ----------------------------
@@ -148,7 +150,7 @@ static void push_dummy(GstElement* appsrc, StreamContext *ctx)
     Mat dummy_frameRGB;
     cvtColor(dummy_frame, dummy_frameRGB, COLOR_BGR2RGB);
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 5; i++)
     {
         if (!push_frame_to_appsrc(appsrc, dummy_frameRGB))
         {
@@ -358,7 +360,16 @@ void detectionLoop(StreamContext* ctx) {
         }
 
         // YOLO 감지
-        auto detections = runDetection(*ctx->net, raw_frame, 0.6f, 0.4f, Size(640, 640));
+        auto detections = runDetection(*ctx->net, raw_frame, 0.3f, 0.4f, Size(640, 640));
+        // 여기에 로그 출력 추가
+        for (const auto& det : detections) {
+            std::string label = (*ctx->class_names)[det.class_id];
+            int conf = static_cast<int>(det.confidence * 100);
+            if (label == "fire" || label == "smoke") {
+                std::cout << "[DETECT] " << label << " detected with confidence " << conf << "%" << std::endl;
+            }
+        }
+
 
         // IOU 기반 tracking
         map<int, DetectionResult> updated;
@@ -407,7 +418,7 @@ void detectionLoop(StreamContext* ctx) {
                 std::string label = (*ctx->class_names)[det.class_id];
                 int conf = static_cast<int>(det.confidence * 100);
                 
-                if ((label == "fire" || label == "smoke") && conf > 1) {
+                if ((label == "fire" || label == "smoke") && ledState && conf > 1) {
                     std::string event_type = "fire_detected";
 
                     send_jsonl_event(

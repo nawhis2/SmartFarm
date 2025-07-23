@@ -13,7 +13,8 @@
 static std::string latest_data;
 static std::mutex m;
 static std::atomic<bool> running(true);
-
+static UARTdevice uartDevice;
+extern bool ledState; // LED 상태
 
 static std::vector<std::string> parseSensorData(std::string uartData) {
     std::vector<std::string> sensorData;
@@ -32,7 +33,6 @@ static std::vector<std::string> parseSensorData(std::string uartData) {
 
 static void *uartReceiveLoop(void* arg) {
     char buffer[128];
-    UARTdevice uartDevice;
     if (uartDevice.getFd() < 0) {
         std::cerr << "UART device not initialized." << std::endl;
         {
@@ -64,6 +64,7 @@ static void *sendEveryMinute(void* arg) {
         std::vector<std::string> parsedData;
         {
             std::lock_guard<std::mutex> lock(m);
+            std::cout << latest_data << std::endl;
             parsedData = parseSensorData(latest_data); // Parse the latest data
         }
 
@@ -74,10 +75,29 @@ static void *sendEveryMinute(void* arg) {
         }
 
         try {
+            float co2Value = std::stof(parsedData.at(0));
+            float humidValue = std::stof(parsedData.at(1));
+            float tempValue = std::stof(parsedData.at(2));
+
+            if (co2Value > 1000 && !ledState)
+            {
+                std::cout << "High CO2 level detected: " << co2Value << " ppm" << std::endl;
+                ledState = true; // LED 상태 변경
+
+                write(uartDevice.getFd(), "L1", 2);
+            }
+            else if (co2Value <= 1000 && ledState)
+            {
+                std::cout << "CO2 level back to normal: " << co2Value << " ppm" << std::endl;
+                ledState = false; // LED 상태 변경
+                write(uartDevice.getFd(), "L0", 2);
+            }
+
             SensorData sensorData = makeSensorData(
-                std::stof(parsedData.at(0)),
-                std::stof(parsedData.at(1)),
-                std::stof(parsedData.at(2)));
+                co2Value,
+                humidValue,
+                tempValue
+            );
             sendSensorData(sensor, sensorData);
         } catch (const std::exception& e) {
             std::cerr << "Exception parsing sensor data: " << e.what() << std::endl;
