@@ -10,6 +10,7 @@
 #include "handshake.h"
 #include "sensorreceive.h"
 #include "mapactivereceive.h"
+#include "LogSystemManager.h"
 
 #define IP "192.168.0.46"
 #define PORT "60000"  // 문자열 형태로 getaddrinfo에 넘김
@@ -45,6 +46,8 @@ int main(int argc, char *argv[]) {
     int mapfd = socketNetwork(IP, MAPPORT);
     SSL* mapSSL = sensorNetwork(mapfd, ctx);
     QThread* mapRecvThread = startReceiveMapThread(mapSSL);
+
+    LogSystemManager::instance().loadLogData();
 
     QApplication app(argc, argv);
     MainWindow w;
@@ -82,6 +85,8 @@ int main(int argc, char *argv[]) {
         SSL_free(sensor);
         SSL_free(mapSSL);
         SSL_CTX_free(ctx);
+
+        LogSystemManager::instance().saveLogData();
     });
     return app.exec();
 }

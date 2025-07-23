@@ -1,20 +1,19 @@
 #ifndef DETECTCOREWIDGET_H
 #define DETECTCOREWIDGET_H
 
-#include <QWidget>
+#include "corestackwidget.h"
 #include <QStackedWidget>
 #include <QFuture>
 
 class CustomTableWidget;
 
-class DetectCoreWidget : public QWidget
+class DetectCoreWidget : public CoreStackWidget
 {
     Q_OBJECT
 public:
     explicit DetectCoreWidget(QStackedWidget *stack, QWidget *parent = nullptr);
 
 private:
-    QStackedWidget *stackWidget;
     int                   m_currentProcessingPage;
     int                   m_pendingPage;
 
@@ -22,17 +21,13 @@ private:
     static QFutureWatcher<void> m_loadWatcher;
 
 protected:
-    std::string type;
     CustomTableWidget *tableWidget;
     int myIndex;
 
 protected slots:
-    // 페이지 전환
-    void showHomePage();
     void onPageChanged(int index);
 
 protected:
-    void changePage(const int index);
     void pageChanged(const int index);
     void startPageChanged(const int index);
     virtual void pageChangedIdx();

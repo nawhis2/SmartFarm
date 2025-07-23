@@ -197,7 +197,7 @@ QChartView {
         </sizepolicy>
        </property>
       </widget>
-      <widget class="QWidget" name="pageSensor">
+      <widget class="QWidget" name="pageLog">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -215,7 +215,7 @@ QChartView {
      <x>0</x>
      <y>0</y>
      <width>968</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

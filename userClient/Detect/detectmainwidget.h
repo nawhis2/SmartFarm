@@ -30,7 +30,7 @@ private slots:
     void showFirePage();
     void showGrowthPage();
     void showIntrusionPage();
-    void showSensorPage();
+    void showLogPage();
     void on_btnSync_clicked();
 
     // 스트림 제어
