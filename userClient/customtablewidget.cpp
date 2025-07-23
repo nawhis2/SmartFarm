@@ -244,3 +244,7 @@ void CustomTableWidget::on_eventTable_clicked(const QModelIndex &index) {
     dlg->setImg(pm);
     dlg->show();
 }
+
+QTableView* CustomTableWidget::getInnerTable() const {
+    return ui->eventTable;  // QTableView
+}

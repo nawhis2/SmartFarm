@@ -1,8 +1,16 @@
 #ifndef STRAWBERRYWIDGET_H
 #define STRAWBERRYWIDGET_H
+#define NOMINMAX
 
 #include "detectcorewidget.h"
 #include <map>
+#include <QtCharts>
+#include <QtCharts/QPieSeries>
+#include <QtCharts/QChart>
+#include <QtCharts/QChartView>
+#include <QTableWidget>
+#include <algorithm>
+
 namespace Ui {
 class StrawBerryWidget;
 }
@@ -20,12 +28,19 @@ protected:
 
 private:
     Ui::StrawBerryWidget *ui;
-    std::map<QDate, std::map<QString,int>> data;
+    QMap<QDate, QMap<QString, int>> data;
+    QLineSeries* rapeSeries;
+    QCategoryAxis* axisX;
+    QValueAxis* axisY;
+
 
 private:
     void appendData(const QString &newDateStr,
                     const QString &newCountsStr,
                     const int &newCountsInt);
+    void updatePieChartFromTable();
+    void setupLineChart();
+    void updateLineChartFromData();
 };
 
 #endif // STRAWBERRYWIDGET_H

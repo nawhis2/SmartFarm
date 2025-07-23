@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include <QVector>
+#include <QTableWidget>
+#include "customtablewidget.h"
+#include "ui_customtablewidget.h"
 
 class QStandardItemModel;
 class PaginationProxyModel;
@@ -21,6 +24,7 @@ public:
 public:
     void SetDetectStr(const std::string& detectStr){ this->detectStr = detectStr;}
     void initModelAndView();
+    QTableView* getInnerTable() const;
 
 private slots:
     void on_prevButton_clicked();

@@ -14,6 +14,7 @@
 #include <QRandomGenerator>
 #include <QPixmap>
 #include <algorithm>
+#include <QShowEvent>
 
 
 namespace Ui {
@@ -32,6 +33,7 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
 
 private:
