@@ -46,7 +46,6 @@ void CustomTableWidget::initModelAndView() {
 
         delete m_sourceModel;
         m_sourceModel = new QStandardItemModel(this);
-        m_sourceModel->setColumnCount(3);
         m_sourceModel->setColumnCount(4);
         m_sourceModel->setHorizontalHeaderLabels(
             QStringList() << "Num" << "Date" << "Eventname" << "Image"
