@@ -26,45 +26,55 @@ void init_mysql(const char *host,
     }
 }
 
-void query_and_send(SSL* sock_fd, const char *event_type) {
+void query_and_send(SSL* sock_fd, const char *payload) {
+    char event_type[128];
+    int limit, offset;
+    // payload 파싱
+    sscanf(payload, "%127[^|]|%d|%d",
+           event_type, &limit, &offset);
+
     // event_type 이스케이프
     char evt_esc[128];
     mysql_real_escape_string(g_conn,
-                         evt_esc,
-                         event_type,
-                         strlen(event_type));
-    
-    char query[256];
+                             evt_esc,
+                             event_type,
+                             strlen(event_type));
+
+    // LIMIT+1: 실제 클라이언트에 보여줄 limit보다 1개 더 읽어서
+    // 다음 페이지 존재 여부를 판단
+    int fetchSize = limit + 1;
+    char query[512];
     snprintf(query, sizeof(query),
-    "SELECT created_at, class_type, image_url "
-    "FROM smartfarm.events "
-    "WHERE event_type = '%s' "
-    "ORDER BY created_at DESC;",
-    evt_esc);
+      "SELECT created_at, class_type, image_url "
+      "FROM smartfarm.events "
+      "WHERE event_type = '%s' "
+      "ORDER BY created_at DESC "
+      "LIMIT %d OFFSET %d;",
+      evt_esc, fetchSize, offset);
 
     if (mysql_query(g_conn, query)) {
         fprintf(stderr, "쿼리 실패: %s\n", mysql_error(g_conn));
         return;
     }
 
-    MYSQL_RES *result = mysql_store_result(g_conn);
-    MYSQL_ROW row;
+    MYSQL_RES *res = mysql_store_result(g_conn);
+    int rows = mysql_num_rows(res);
+    bool hasNext = (rows == fetchSize);
+    int sendRows = hasNext ? limit : rows;
 
-    while ((row = mysql_fetch_row(result))) {
+    // 실제로 보여줄 부분만 보내고
+    MYSQL_ROW row;
+    for (int i = 0; i < sendRows; ++i) {
+        row = mysql_fetch_row(res);
         char line[1024];
         snprintf(line, sizeof(line), "%s|%s\n", row[0], row[1]);
         sendData(sock_fd, line);
         imageSend(sock_fd, row[2]);
     }
+    mysql_free_result(res);
 
-    // {
-    //     // 종료 신호
-    //     int end_flag = -1;
-    //     SSL_write(sock_fd, &end_flag, sizeof(end_flag));
-    // }
-    sendData(sock_fd, "END");
-
-    mysql_free_result(result);
+    // 마지막으로 플래그만 보내면 클라이언트가 바로 알 수 있음
+    sendData(sock_fd, hasNext ? "HAS_NEXT" : "NO_MORE");
 }
 
 // 하루치 통계 전송 (파이 그래프용: YYYY-MM-DD|class_type|cnt)
