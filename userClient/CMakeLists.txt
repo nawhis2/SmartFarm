@@ -34,7 +34,7 @@ include_directories(
     "."
     "./Detect"
     "./Network"
-    "./log"
+    "./LogSystem"
     "${GSTREAMER_ROOT_X86_64}/include/gstreamer-1.0"
     "${GSTREAMER_ROOT_X86_64}/include/glib-2.0"
     "${GSTREAMER_ROOT_X86_64}/lib/glib-2.0/include"
@@ -107,7 +107,7 @@ add_executable(${PROJECT_NAME}
     network/mapactivereceive.cpp
     logsystemmanager.h logsystemmanager.cpp
     logcustomtablewidget.h logcustomtablewidget.cpp
-    log/logwidget.h log/logwidget.cpp log/logwidget.ui
+    LogSystem/logwidget.h LogSystem/logwidget.cpp LogSystem/logwidget.ui
     corestackwidget.h corestackwidget.cpp
 
 )
