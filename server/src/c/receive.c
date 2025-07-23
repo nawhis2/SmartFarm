@@ -378,7 +378,7 @@ int receiveUserPacket(SSL *ssl)
     }
     else if (strncmp(type, "CMD", 3) == 0)
     {
-        wirteStrawFromUser(msg);
+        wirteToMap(msg);
         free(msg);
         return 0;
     }

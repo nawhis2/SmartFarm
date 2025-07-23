@@ -36,7 +36,7 @@ void query_and_send(SSL* sock_fd, const char *event_type) {
     
     char query[256];
     snprintf(query, sizeof(query),
-    "SELECT image_url, id, class_type, created_at "
+    "SELECT created_at, class_type, image_url "
     "FROM smartfarm.events "
     "WHERE event_type = '%s' "
     "ORDER BY created_at DESC;",
@@ -51,17 +51,18 @@ void query_and_send(SSL* sock_fd, const char *event_type) {
     MYSQL_ROW row;
 
     while ((row = mysql_fetch_row(result))) {
-        imageSend(sock_fd, row[0]);
         char line[1024];
-        snprintf(line, sizeof(line), "%s|%s|%s\n", row[1], row[2], row[3]);
+        snprintf(line, sizeof(line), "%s|%s\n", row[0], row[1]);
         sendData(sock_fd, line);
+        imageSend(sock_fd, row[2]);
     }
 
-    {
-        // 종료 신호
-        int end_flag = -1;
-        SSL_write(sock_fd, &end_flag, sizeof(end_flag));
-    }
+    // {
+    //     // 종료 신호
+    //     int end_flag = -1;
+    //     SSL_write(sock_fd, &end_flag, sizeof(end_flag));
+    // }
+    sendData(sock_fd, "END");
 
     mysql_free_result(result);
 }

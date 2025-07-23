@@ -16,7 +16,6 @@ CustomTableWidget::CustomTableWidget(QWidget* parent)
     , m_proxy(nullptr)
 {
     ui->setupUi(this);
-    ui->eventTable->verticalHeader()->hide();
     ui->eventTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->eventTable->verticalHeader()->setDefaultSectionSize(75);  // 행 높이 기본값
 
@@ -40,9 +39,9 @@ void CustomTableWidget::initModelAndView() {
 
         delete m_sourceModel;
         m_sourceModel = new QStandardItemModel(this);
-        m_sourceModel->setColumnCount(4);
+        m_sourceModel->setColumnCount(3);
         m_sourceModel->setHorizontalHeaderLabels(
-            QStringList() << "Image" << "Num" << "Eventname" << "Date"
+            QStringList() << "Date" << "Eventname" << "Image"
             );
 
         delete m_proxy;
@@ -102,7 +101,6 @@ void CustomTableWidget::updateButtons() {
 void CustomTableWidget::onNewData(const QStringList& fields) {
     int oldPageCount = m_proxy ? m_proxy->pageCount() : 0;
     QList<QStandardItem*> items;
-    items.append(new QStandardItem());
     for (const QString& f : fields) {
         QStandardItem* item = new QStandardItem(f);
         item->setTextAlignment(Qt::AlignCenter);
@@ -110,6 +108,7 @@ void CustomTableWidget::onNewData(const QStringList& fields) {
         item->setForeground(QColor("#b8f1cc"));   // 텍스트 색상
         items.append(item);
     }
+    items.append(new QStandardItem());
     m_sourceModel->appendRow(items);
     int newPageCount = m_proxy->pageCount();
     if (newPageCount != oldPageCount) {
@@ -129,6 +128,16 @@ void CustomTableWidget::loadData() {
     // Perform network I/O synchronously (caller thread)
     sendFile(detectStr.c_str(), "DATA");
     while (true) {
+        char textBuf[1024];
+        int tn = SSL_read(sock_fd, textBuf, sizeof(textBuf)-1);
+        if (tn <= 0) break;
+        textBuf[tn] = '\0';
+        if (!strncmp(textBuf, "END", 3)) break;
+
+        QStringList fields = QString::fromUtf8(textBuf)
+                                 .trimmed()
+                                 .split('|', Qt::SkipEmptyParts);
+
         int fileSize;
         if (SSL_read(sock_fd, &fileSize, sizeof(fileSize)) <= 0 || fileSize == -1)
             break;
@@ -150,16 +159,6 @@ void CustomTableWidget::loadData() {
             continue;
         }
 
-        char textBuf[1024];
-        int tn = SSL_read(sock_fd, textBuf, sizeof(textBuf)-1);
-        if (tn <= 0) break;
-        textBuf[tn] = '\0';
-        if (!strncmp(textBuf, "END", 3)) break;
-
-        QStringList fields = QString::fromUtf8(textBuf)
-                                 .trimmed()
-                                 .split('|', Qt::SkipEmptyParts);
-
         QMetaObject::invokeMethod(this, [this, fields, pix]() {
             onNewData(fields);
             m_pixmaps.append(pix);
@@ -170,13 +169,13 @@ void CustomTableWidget::loadData() {
 
 void CustomTableWidget::refreshPage() {
     for (int r = 0; r < m_proxy->rowCount(); ++r) {
-        QModelIndex pIdx = m_proxy->index(r, 0);
+        QModelIndex pIdx = m_proxy->index(r, 2);
         QModelIndex sIdx = m_proxy->mapToSource(pIdx);
         int src = sIdx.row();
         if (!pIdx.isValid() || src < 0 || src >= m_pixmaps.size())
             continue;
         m_sourceModel->setData(
-            m_sourceModel->index(src, 0),
+            m_sourceModel->index(src, 2),
             m_pixmaps[src],
             Qt::DecorationRole
             );

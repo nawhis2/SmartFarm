@@ -95,6 +95,70 @@ static void onNeedData(GstElement *appsrc, guint, gpointer user_data)
     }
 }
 
+bool push_frame_to_appsrc(GstElement *appsrc, const cv::Mat &frame, int fps = 30) {
+    // 1. 프레임 유효성 검사
+    if (frame.empty()) {
+        std::cerr << "[push_frame_to_appsrc] 빈 프레임입니다." << std::endl;
+        return false;
+    }
+
+    // 2. GStreamer 버퍼 생성
+    GstBuffer *buffer = gst_buffer_new_allocate(nullptr, frame.total() * frame.elemSize(), nullptr);
+    if (!buffer) {
+        std::cerr << "[push_frame_to_appsrc] GstBuffer 생성 실패" << std::endl;
+        return false;
+    }
+
+    // 3. 버퍼에 데이터 복사
+    GstMapInfo map;
+    if (!gst_buffer_map(buffer, &map, GST_MAP_WRITE)) {
+        std::cerr << "[push_frame_to_appsrc] 버퍼 매핑 실패" << std::endl;
+        gst_buffer_unref(buffer);
+        return false;
+    }
+    memcpy(map.data, frame.data, map.size);
+    gst_buffer_unmap(buffer, &map);
+
+    // 4. 타임스탬프 설정 (appsrc가 is-live=true, do-timestamp=true일 경우)
+    static GstClockTime pts = 0;
+    GST_BUFFER_PTS(buffer) = pts;
+    GST_BUFFER_DTS(buffer) = pts;
+    GST_BUFFER_DURATION(buffer) = gst_util_uint64_scale_int(1, GST_SECOND, fps);
+    pts += GST_BUFFER_DURATION(buffer);
+
+    // 5. appsrc에 푸시
+    GstFlowReturn ret = gst_app_src_push_buffer(GST_APP_SRC(appsrc), buffer);
+    if (ret != GST_FLOW_OK) {
+        std::cerr << "[push_frame_to_appsrc] 버퍼 푸시 실패: " << gst_flow_get_name(ret) << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+static void push_dummy(GstElement* appsrc, StreamContext *ctx)
+{
+    // Dummy function to ensure appsrc is ready
+    // This can be used to push an initial frame if needed
+    std::cout << "[RTSP] Dummy push called" << std::endl;
+
+    Mat dummy_frame(ctx->height, ctx->width, CV_8UC3, Scalar(255,255,255));
+    Mat dummy_frameRGB;
+    cvtColor(dummy_frame, dummy_frameRGB, COLOR_BGR2RGB);
+
+    for (int i = 0; i < 3; i++)
+    {
+        if (!push_frame_to_appsrc(appsrc, dummy_frameRGB))
+        {
+            std::cerr << "[RTSP] Dummy push failed" << std::endl;
+            return;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    
+}
+
 static void media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, gpointer user_data)
 {
     GstElement *pipeline = gst_rtsp_media_get_element(media);
@@ -102,8 +166,8 @@ static void media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, g
     StreamContext *ctx = reinterpret_cast<StreamContext *>(user_data);
 
     // 상태 초기화
-    gst_element_set_state(appsrc, GST_STATE_READY);
-    gst_element_set_state(appsrc, GST_STATE_PLAYING);
+    // gst_element_set_state(appsrc, GST_STATE_READY);
+    // gst_element_set_state(appsrc, GST_STATE_PLAYING);
 
     GstCaps *caps = gst_caps_new_simple(
         "video/x-raw",
@@ -114,6 +178,8 @@ static void media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, g
         NULL);
     gst_app_src_set_caps(GST_APP_SRC(appsrc), caps);
     gst_caps_unref(caps);
+
+    push_dummy(appsrc, ctx);
 
     ctx->frame_count = 0;
     running = true;
