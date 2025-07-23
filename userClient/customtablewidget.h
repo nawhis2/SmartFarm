@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include <QVector>
+#include <QTableWidget>
+#include "customtablewidget.h"
+#include "ui_customtablewidget.h"
 
 class QStandardItemModel;
 class PaginationProxyModel;
@@ -21,6 +24,7 @@ public:
 public:
     void SetDetectStr(const std::string& detectStr){ this->detectStr = detectStr;}
     void initModelAndView();
+    QTableView* getInnerTable() const;
 
 private slots:
     void on_prevButton_clicked();
@@ -37,10 +41,16 @@ private:
     QVector<QPixmap> m_pixmaps;
     std::string detectStr;
 
+    int m_pageSize;    // 한 페이지에 몇 개
+    int m_currentPage;    // 현재 페이지
+    int m_totalCount; // 전체 페이지
+    int m_pageCount; // 전체 페이지 수
+    bool m_hasNext;
+
 private:
     void updateButtons();
     void onNewData(const QStringList& fields);
-    void loadData();
+    void loadData(const int page);
 };
 
 #endif // CUSTOMTABLEWIDGET_H

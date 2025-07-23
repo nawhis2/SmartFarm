@@ -28,17 +28,19 @@ QMainWindow, QAbstractScrollArea {
 /* ===== 공통 QLabel ===== */
 QLabel {
    background-color: transparent;
-    color: #90ee90;
-    border: 0.5px dashed #1de9b6;
+    color: #aef3c0;
     font-family: 'Segoe UI';
     font-size: 20px;
     qproperty-alignment: AlignCenter;
 }
 
 /*색있는 Label*/
-QLabel#label_fire {
+QLabel#videoLabel1,
+QLabel#videoLabel2,
+QLabel#videoLabel3,
+QLabel#videoLabel4 {
     background-color: #112424;
-    color: #90ee90;
+    color: #aef3c0;
     border: 0.5px dashed #1de9b6;
     font-family: 'Segoe UI';
     font-size: 20px;
@@ -82,6 +84,7 @@ QPushButton#startCameraButton {
 QTableWidget {
     background-color: #0d1e1e;
     color: #b8f1cc;
+	border: 1px solid #33aa88;
     gridline-color: #1de9b6;
     font-family: 'Segoe UI';
     font-size: 12pt;
@@ -93,15 +96,14 @@ QTableWidget {
     selection-color: #b8f1cc;
 }
 
+QFrame#frame_Chart,
 QFrame#frame_Max,
-QFrame#frame_Cur,
-QFrame#frame_Temp {
+QFrame#frame_Temp,
+QFrame#frame_Cur {
 	background-color: #102222;
-    border: 5px solid #33aa88;
+    border: 1px solid #33aa88;
     border-radius: 10px;
-	padding: 8px;        /* 내부 여백 */
-    margin: 8px;         /* 외부 여백 → 부모 위젯 기준 */
-
+	padding: 8;
     /* 🔥 핵심: border 그리기 보장용 코드 */
     outline: none;
 }

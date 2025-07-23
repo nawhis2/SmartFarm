@@ -27,6 +27,7 @@ FireDetectWidget::FireDetectWidget(QStackedWidget *stack, QWidget *parent)
     //     onSensorDataReceived(data);
     // });
     // simTimer->start(3000);  // 3초마다
+
     connect(ui->btnBackFromFire, &QPushButton::clicked, this, &FireDetectWidget::showHomePage);
 }
 void FireDetectWidget::setupChart()
@@ -42,14 +43,14 @@ void FireDetectWidget::setupChart()
     QChart *chart = new QChart();
     chart->addSeries(co2Series);
     chart->setTitle("CO₂ LEVELS");
-    chart->setTitleFont(QFont("Segoe UI", 12, QFont::Bold));
+    chart->setTitleFont(QFont("Segoe UI", 20, QFont::Bold));
     chart->setTitleBrush(QBrush(QColor("#aef3c0")));
     chart->setBackgroundBrush(Qt::transparent);  // 투명
     chart->legend()->hide();
 
     // 3. X축 (시간)
     axisX = new QDateTimeAxis;
-    axisX->setFormat("HH:mm:ss");  // 더 정밀하게 보기
+    axisX->setFormat("HH:mm");  // 더 정밀하게 보기
     axisX->setTitleText("Time");
     axisX->setTitleBrush(QBrush(QColor("#aef3c0")));
     axisX->setLabelsColor(QColor("#aef3c0"));
@@ -67,7 +68,7 @@ void FireDetectWidget::setupChart()
     axisY->setTitleBrush(QBrush(QColor("#aef3c0")));
     axisY->setLabelsColor(QColor("#aef3c0"));
     axisY->setGridLineColor(QColor("#225544"));
-    axisY->setRange(100, 1000);  // 🔧 더 넓게 잡아서 보장
+    axisY->setRange(300, 2000);  // 🔧 더 넓게 잡아서 보장
     chart->addAxis(axisY, Qt::AlignLeft);
     co2Series->attachAxis(axisY);
 
@@ -86,18 +87,18 @@ void FireDetectWidget::onSensorDataReceived(const QString& data) {
         // 최대값 비교
         if (co2 > maxCo2) {
             maxCo2 = co2;
-            ui->label_co2M->setText(
-                QString("<span style='font-size:32pt; font-weight:bold;'>%1</span><br>"
-                        "<span style='font-size:12pt;'>ppm</span>").arg((int)maxCo2));
+            ui->label_co2MNum->setText(
+                QString("<span style='font-size:50pt; font-weight:bold;'>%1</span><br>"
+                        "<span style='font-size:20pt;'>ppm</span>").arg((int)maxCo2));
         }
 
         // 1. QLabel에 실시간 표시
-        ui->label_co2->setText(
-            QString("<span style='font-size:32pt; font-weight:bold;'>%1</span><br>"
-                    "<span style='font-size:12pt;'>ppm</span>").arg((int)co2));
-        ui->label_temp->setText(
-            QString("<span style='font-size:32pt; font-weight:bold;'>%1</span><br>"
-                    "<span style='font-size:12pt;'>℃</span>").arg(temp, 0, 'f', 1));
+        ui->label_co2Num->setText(
+            QString("<span style='font-size:50pt; font-weight:bold;'>%1</span><br>"
+                    "<span style='font-size:20pt;'>ppm</span>").arg((int)co2));
+        ui->label_TempNum->setText(
+            QString("<span style='font-size:50pt; font-weight:bold;'>%1</span><br>"
+                    "<span style='font-size:20pt;'>℃</span>").arg(temp, 0, 'f', 1));
 
         // 2. 그래프에 추가
         QDateTime now = QDateTime::currentDateTime();
@@ -132,7 +133,19 @@ void FireDetectWidget::onSensorDataReceivedWrapper() {
     QString data = QString("%1 %2").arg(sensorData.co2Value).arg(sensorData.tempValue);
     onSensorDataReceived(data);
 }
+void FireDetectWidget::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);  // 부모 클래스 기본 동작 먼저 수행
 
+    // 온도 아이콘 강제 스케일링
+    QPixmap tempIcon(":/icons/temperature_icon3.png");
+    QSize labelSize = ui->labelTempIcon->size();
+    int maxW = 150;
+    int maxH = 150;
+    int w = std::min(labelSize.width(), maxW);
+    int h = std::min(labelSize.height(), maxH);
+    ui->labelTempIcon->setPixmap(tempIcon.scaled(w, h, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
 
 FireDetectWidget::~FireDetectWidget()
 {
