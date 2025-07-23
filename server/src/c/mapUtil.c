@@ -9,7 +9,7 @@ int stopStrawPipe = 0;
 int stopMapPipe = 0;
 
 // straw에서 cmd가 들어왔을경우
-void writeClientFromStraw(const char *cmd)
+void writeToClient(const char *cmd)
 {
     ssize_t len = strlen(cmd);
     int fd;
@@ -34,6 +34,7 @@ void writeClientFromStraw(const char *cmd)
     {
         perror("write to client pipe");
     }
+    write(fd, "\0", 1);
 
     close(fd);
 }
@@ -87,7 +88,7 @@ void *readClient(void *arg)
 }
 
 // USER에서 원하는 cmd가 들어왔을경우
-void wirteStrawFromUser(const char *cmd)
+void wirteToStraw(const char *cmd)
 {
     ssize_t len = strlen(cmd);
     int fd;
@@ -112,6 +113,7 @@ void wirteStrawFromUser(const char *cmd)
     {
         perror("write to client pipe");
     }
+    write(fd, "\0", 1);
 
     close(fd);
 }
@@ -144,11 +146,11 @@ void *readStraw(void *arg)
         // 파이프에서 데이터가 들어올 때까지 블록 → SSL_write
         while ((n = read(fd, buf, sizeof(buf))) > 0)
         {
-            if (strncmp(buf, "done", 4))
+            if (strncmp(buf, "done", 4) == 0)
             {
-                wirteMapFromStraw(buf);
+                wirteToMap(buf);
             }
-            else if (strncmp(buf, "start", 5))
+            else if (strncmp(buf, "start", 5) == 0)
             {
                 // strawberry cctv에게 start전송
                 if (SSL_write(ssl, buf, n) <= 0)
@@ -173,7 +175,7 @@ void *readStraw(void *arg)
 }
 
 // Straw에서 Map 파이프로 cmd 전송
-void wirteMapFromStraw(const char *cmd)
+void wirteToMap(const char *cmd)
 {
     ssize_t len = strlen(cmd);
     int fd;
@@ -198,6 +200,7 @@ void wirteMapFromStraw(const char *cmd)
     {
         perror("write to client pipe");
     }
+    write(fd, "\0", 1);
 
     close(fd);
 }
@@ -230,12 +233,20 @@ void *readMap(void *arg)
         // 파이프에서 데이터가 들어올 때까지 블록 → SSL_write
         while ((n = read(fd, buf, sizeof(buf))) > 0)
         {
-
-            if (strncmp(buf, "done", 4))
+            if (strncmp(buf, "done", 4) == 0)
             {
                 if (SSL_write(ssl, buf, n) <= 0)
                 {
                     perror("SSL_write");
+                    break;
+                }
+            }
+            else if (strncmp(buf, "start", 5) == 0)
+            {
+                // strawberry cctv에게 start전송
+                if (SSL_write(ssl, buf, n) <= 0)
+                {
+                    perror("SSL_write1");
                     break;
                 }
             }
