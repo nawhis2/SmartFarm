@@ -37,7 +37,12 @@ private:
     QString url;
     GstElement *pipeline;
     GMainLoop *loop;
+
     bool isFirstFrame;
+    bool m_logConnected;   // 최초 연결 시 한 번만 로그
+    bool m_logError;   // 에러 발생 시 한 번만 로그
+    bool m_logReconnected;   // 재접속(첫 프레임) 시 한 번만 로그
+
     QTimer *retryTimer;
     QTimer *watchdogTimer;
     StreamThread *streamThread;

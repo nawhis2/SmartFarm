@@ -9,9 +9,7 @@ QFuture<void> DetectCoreWidget::m_loadFuture;
 QFutureWatcher<void> DetectCoreWidget::m_loadWatcher;
 
 DetectCoreWidget::DetectCoreWidget(QStackedWidget *stack, QWidget *parent)
-    : QWidget(parent)
-    , stackWidget(stack)
-    , type("")
+    : CoreStackWidget(stack, parent)
     , tableWidget(nullptr)
     , myIndex(-1)
     , m_currentProcessingPage(-1)
@@ -31,21 +29,12 @@ DetectCoreWidget::DetectCoreWidget(QStackedWidget *stack, QWidget *parent)
     });
 }
 
-void DetectCoreWidget::showHomePage() {
-    changePage(0);
-}
-
 void DetectCoreWidget::onPageChanged(int index) {
     if(index){
         if (myIndex == index) {
             pageChanged(index);
         }
     }
-}
-
-void DetectCoreWidget::changePage(const int index) {
-    if (stackWidget)
-        stackWidget->setCurrentIndex(index);
 }
 
 void DetectCoreWidget::pageChanged(int index) {

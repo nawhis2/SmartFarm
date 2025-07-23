@@ -1,12 +1,21 @@
 #include "videostreamhandler.h"
+#include "logsystemmanager.h"
 #include <QDebug>
 #include <QMetaObject>
 #include <QApplication>
 #include <gst/app/gstappsink.h>
 
 VideoStreamHandler::VideoStreamHandler(int idx, const QString &rtspUrl, QObject *parent)
-    : QObject(parent), index(idx), url(rtspUrl), pipeline(nullptr),
-    loop(nullptr), isFirstFrame(false), streamThread(nullptr)
+    : QObject(parent)
+    , index(idx)
+    , url(rtspUrl)
+    , pipeline(nullptr)
+    , loop(nullptr)
+    , isFirstFrame(false)
+    , m_logConnected(false)
+    , m_logError(false)
+    , m_logReconnected(true)
+    , streamThread(nullptr)
 {
     retryTimer = new QTimer(this);
     retryTimer->setInterval(5000);
@@ -181,8 +190,23 @@ GstFlowReturn VideoStreamHandler::onNewSample(GstAppSink *sink, gpointer user_da
     QImage frame = img.copy();
 
     QMetaObject::invokeMethod(self, [self, frame]() {
+        if (!self->isFirstFrame) {
+            if (!self->m_logConnected) {
+                LogSystemManager::instance()
+                .makeAndSaveLogData("CCTV Connected", self->url);
+                self->m_logConnected = true;
+            }
+            // 재접속 시(두번째 이후의 첫 프레임) 로그 한 번만
+            else if (!self->m_logReconnected) {
+                LogSystemManager::instance()
+                .makeAndSaveLogData("CCTV Reconnected", self->url);
+                self->m_logReconnected = true;
+            }
+            self->m_logError = false;
+            self->isFirstFrame = true;
+        }
+
         emit self->frameReady(self->index, frame);
-        if (!self->isFirstFrame) self->isFirstFrame = true;
         self->watchdogTimer->start();
     }, Qt::QueuedConnection);
 
@@ -196,6 +220,15 @@ void VideoStreamHandler::onBusMessage(GstBus *, GstMessage *msg, gpointer user_d
     if (GST_MESSAGE_TYPE(msg) == GST_MESSAGE_ERROR) {
         GError *err; gchar *dbg;
         gst_message_parse_error(msg, &err, &dbg);
+
+        if (!self->m_logError) {
+            LogSystemManager::instance()
+            .makeAndSaveLogData("CCTV Connection Error", err->message);
+            self->m_logError = true;
+        }
+
+        self->m_logReconnected = false;
+
         debugIdx(qWarning, self->index) << "[Bus] Error:" << err->message;
         g_error_free(err); g_free(dbg);
         QMetaObject::invokeMethod(self, "restart", Qt::QueuedConnection);

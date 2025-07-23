@@ -11,6 +11,9 @@ add_definitions(-D__restrict= -DOSSL_CRYPTO_ALLOC=)
 
 # Qt 설정
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Concurrent Charts Charts)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(OpenSSL REQUIRED)
 
 include_directories(
@@ -31,6 +34,7 @@ include_directories(
     "."
     "./Detect"
     "./Network"
+    "./log"
     "${GSTREAMER_ROOT_X86_64}/include/gstreamer-1.0"
     "${GSTREAMER_ROOT_X86_64}/include/glib-2.0"
     "${GSTREAMER_ROOT_X86_64}/lib/glib-2.0/include"
@@ -101,8 +105,17 @@ add_executable(${PROJECT_NAME}
     fullrowimagedelegate.h
     network/mapactivereceive.h
     network/mapactivereceive.cpp
+    logsystemmanager.h logsystemmanager.cpp
+    logcustomtablewidget.h logcustomtablewidget.cpp
+    log/logwidget.h log/logwidget.cpp log/logwidget.ui
+    corestackwidget.h corestackwidget.cpp
+
 )
 
+
+target_link_libraries(SmartFarmDashboard PRIVATE Qt6::Core)
+target_link_libraries(SmartFarmDashboard PRIVATE Qt6::Widgets)
+target_link_libraries(SmartFarmDashboard PRIVATE Qt6::Widgets)
 target_sources(${PROJECT_NAME}
     PRIVATE
     ${APP_RESOURCES}

@@ -31,6 +31,11 @@ protected:
         int start = m_currentPage * m_pageSize;
         return srcRow >= start && srcRow < start + m_pageSize;
     }
+    Qt::ItemFlags flags(const QModelIndex &index) const override {
+        // 기본 플래그에서 ItemIsEditable 만 빼 버립니다
+        return QSortFilterProxyModel::flags(index) & ~Qt::ItemIsEditable;
+    }
+
 private:
     int m_pageSize;
     int m_currentPage;

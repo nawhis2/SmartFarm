@@ -27,7 +27,7 @@ DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
     connect(ui->btnFire,       &QPushButton::clicked, this, &DetectMainWidget::showFirePage);
     connect(ui->btnGrowth,     &QPushButton::clicked, this, &DetectMainWidget::showGrowthPage);
     connect(ui->btnIntrusion,  &QPushButton::clicked, this, &DetectMainWidget::showIntrusionPage);
-    connect(ui->btnMap,        &QPushButton::clicked, this, &DetectMainWidget::showSensorPage);
+    connect(ui->btnLog,        &QPushButton::clicked, this, &DetectMainWidget::showLogPage);
     connect(ui->startCameraButton, &QPushButton::clicked, this, &DetectMainWidget::setupAllStreams);
 }
 
@@ -41,7 +41,7 @@ void DetectMainWidget::on_btnSync_clicked(){ sendFile("start", "CMD"); }
 void DetectMainWidget::showFirePage()     { changePage(1); }
 void DetectMainWidget::showGrowthPage()   { changePage(3); }
 void DetectMainWidget::showIntrusionPage(){ changePage(2); }
-void DetectMainWidget::showSensorPage()   {}
+void DetectMainWidget::showLogPage()   { changePage(4); }
 
 void DetectMainWidget::setupStream(const char* cctvName, const int index){
     sendFile(cctvName, "IP");
