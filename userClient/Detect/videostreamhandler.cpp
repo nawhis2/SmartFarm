@@ -9,11 +9,12 @@ VideoStreamHandler::VideoStreamHandler(int idx, const QString &rtspUrl, QObject 
     loop(nullptr), isFirstFrame(false), streamThread(nullptr)
 {
     retryTimer = new QTimer(this);
-    retryTimer->setInterval(1000);
+    retryTimer->setInterval(5000);
     connect(retryTimer, &QTimer::timeout, this, &VideoStreamHandler::tryStart);
 
     watchdogTimer = new QTimer(this);
     watchdogTimer->setInterval(5000);
+    watchdogTimer->setSingleShot(true);
     connect(watchdogTimer, &QTimer::timeout, this, &VideoStreamHandler::onStall);
 
     connect(qApp, &QCoreApplication::aboutToQuit,
@@ -54,13 +55,23 @@ void VideoStreamHandler::initialize() {
         loop = nullptr;
     }
 
-    std::string launch = "rtspsrc location=" + url.toStdString() + " tls-validation-flags=0 latency=100 protocols=udp retry=3 timeout=5000000 "
-                                                                   "! queue max-size-buffers=10 leaky=downstream ! rtph264depay "
-                                                                   "! queue max-size-buffers=10 leaky=downstream ! h264parse config-interval=1 "
-                                                                   "! queue max-size-buffers=10 leaky=downstream ! d3d11h264dec "
-                                                                   "! videoconvert "
-                                                                   "! video/x-raw,format=RGB "
-                                                                   "! appsink name=sink ";
+    // std::string launch = "rtspsrc location=" + url.toStdString() + " tls-validation-flags=0 latency=100 protocols=udp retry=3 timeout=5000000 "
+    //                                                                "! queue max-size-buffers=10 leaky=downstream ! rtph264depay "
+    //                                                                "! queue max-size-buffers=10 leaky=downstream ! h264parse config-interval=1 "
+    //                                                                "! queue max-size-buffers=10 leaky=downstream ! d3d11h264dec "
+    //                                                                "! videoconvert "
+    //                                                                "! video/x-raw,format=RGB "
+    //                                                                "! appsink name=sink ";
+
+    //std::string launch =  "rtspsrc location=" + url.toStdString() + " tls-validation-flags=0 latency=100 protocols=tcp ! "
+                                                                   "decodebin ! videoconvert ! video/x-raw,format=RGB ! appsink name=sink";
+
+    std::string launch =
+        "rtspsrc location=" + url.toStdString() +
+        " tls-validation-flags=0 latency=100 protocols=tcp ! "
+        "rtph264depay ! decodebin ! "
+        "videoconvert ! video/x-raw,format=RGB ! appsink name=sink";
+
     GError *error = nullptr;
     pipeline = gst_parse_launch(launch.c_str(), &error);
     if (!pipeline) {

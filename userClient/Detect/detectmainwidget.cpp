@@ -16,7 +16,7 @@ DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
     cctvNames.emplace(0, "Fire");
     cctvNames.emplace(1, "Intrusion");
     cctvNames.emplace(2, "Strawberry");
-    cctvNames.emplace(3, "cctv");
+    cctvNames.emplace(3, "Map");
 
     videoLabels[0] = ui->videoLabel1;
     videoLabels[1] = ui->videoLabel2;
