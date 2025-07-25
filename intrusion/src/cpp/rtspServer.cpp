@@ -1,51 +1,9 @@
 #include "rtspServer.h"
 #include "jsonlParse.h"
 
-const vector<string> class_names = {"Deer", "Hog", "Raccoon", "person"};
 // ----------------------------
 // Processing functions
 // ----------------------------
-Mat updateBackground(const Mat &frame, Mat &background, double alpha)
-{
-    Mat f32;
-    frame.convertTo(f32, CV_32F);
-    accumulateWeighted(f32, background, alpha);
-    Mat bg8u;
-    background.convertTo(bg8u, CV_8U);
-    return bg8u;
-}
-
-Mat getMotionMask(const Mat &frame, const Mat &bg8u, double diffThresh = 30.0, int blurSize = 15)
-{
-    Mat diff, gray, fg;
-    absdiff(frame, bg8u, diff);
-    cvtColor(diff, gray, COLOR_BGR2GRAY);
-    threshold(gray, fg, diffThresh, 255, THRESH_BINARY);
-    GaussianBlur(fg, fg, Size(blurSize, blurSize), 0);
-    threshold(fg, fg, diffThresh, 255, THRESH_BINARY);
-    return fg;
-}
-
-vector<Rect> extractMotionBoxes(const Mat &fgmask, double minArea = 500.0)
-{
-    vector<vector<Point>> contours;
-    findContours(fgmask, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-    vector<Rect> boxes;
-    for (auto &c : contours)
-    {
-        if (contourArea(c) < minArea)
-            continue;
-        boxes.push_back(boundingRect(c));
-    }
-    return boxes;
-}
-
-float calculateIoU(const Rect &a, const Rect &b)
-{
-    int inter = (a & b).area();
-    int uni = a.area() + b.area() - inter;
-    return uni > 0 ? static_cast<float>(inter) / uni : 0.0f;
-}
 
 bool pushFrame(GstElement *appsrc, StreamContext &ctx)
 {
@@ -55,7 +13,10 @@ bool pushFrame(GstElement *appsrc, StreamContext &ctx)
     {
         std::lock_guard<std::mutex> lock(frame_mutex);
         if (latest_frame.empty())
+        {
+            std::cout << "[RTSP] appsrc에 푸쉬 안됨\n";
             return false;
+        }
 
         frame = latest_frame.clone();
         pts = latest_pts;
@@ -85,6 +46,7 @@ bool pushFrame(GstElement *appsrc, StreamContext &ctx)
 static void onNeedData(GstElement *appsrc, guint, gpointer user_data)
 {
     StreamContext *ctx = reinterpret_cast<StreamContext *>(user_data);
+
     if (!running)
     {
         gst_app_src_end_of_stream(GST_APP_SRC(appsrc));
@@ -95,23 +57,27 @@ static void onNeedData(GstElement *appsrc, guint, gpointer user_data)
     }
 }
 
-bool push_frame_to_appsrc(GstElement *appsrc, const cv::Mat &frame, int fps = 30) {
+bool push_frame_to_appsrc(GstElement *appsrc, const cv::Mat &frame, int fps = 30)
+{
     // 1. 프레임 유효성 검사
-    if (frame.empty()) {
+    if (frame.empty())
+    {
         std::cerr << "[push_frame_to_appsrc] 빈 프레임입니다." << std::endl;
         return false;
     }
 
     // 2. GStreamer 버퍼 생성
     GstBuffer *buffer = gst_buffer_new_allocate(nullptr, frame.total() * frame.elemSize(), nullptr);
-    if (!buffer) {
+    if (!buffer)
+    {
         std::cerr << "[push_frame_to_appsrc] GstBuffer 생성 실패" << std::endl;
         return false;
     }
 
     // 3. 버퍼에 데이터 복사
     GstMapInfo map;
-    if (!gst_buffer_map(buffer, &map, GST_MAP_WRITE)) {
+    if (!gst_buffer_map(buffer, &map, GST_MAP_WRITE))
+    {
         std::cerr << "[push_frame_to_appsrc] 버퍼 매핑 실패" << std::endl;
         gst_buffer_unref(buffer);
         return false;
@@ -128,7 +94,8 @@ bool push_frame_to_appsrc(GstElement *appsrc, const cv::Mat &frame, int fps = 30
 
     // 5. appsrc에 푸시
     GstFlowReturn ret = gst_app_src_push_buffer(GST_APP_SRC(appsrc), buffer);
-    if (ret != GST_FLOW_OK) {
+    if (ret != GST_FLOW_OK)
+    {
         std::cerr << "[push_frame_to_appsrc] 버퍼 푸시 실패: " << gst_flow_get_name(ret) << std::endl;
         return false;
     }
@@ -136,17 +103,18 @@ bool push_frame_to_appsrc(GstElement *appsrc, const cv::Mat &frame, int fps = 30
     return true;
 }
 
-static void push_dummy(GstElement* appsrc, StreamContext *ctx)
+static void push_dummy(GstElement *appsrc, StreamContext *ctx)
 {
     // Dummy function to ensure appsrc is ready
     // This can be used to push an initial frame if needed
+
     std::cout << "[RTSP] Dummy push called" << std::endl;
 
-    Mat dummy_frame(ctx->height, ctx->width, CV_8UC3, Scalar(255,255,255));
+    Mat dummy_frame(ctx->height, ctx->width, CV_8UC3, Scalar(255, 255, 255));
     Mat dummy_frameRGB;
     cvtColor(dummy_frame, dummy_frameRGB, COLOR_BGR2RGB);
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 5; i++)
     {
         if (!push_frame_to_appsrc(appsrc, dummy_frameRGB))
         {
@@ -155,19 +123,34 @@ static void push_dummy(GstElement* appsrc, StreamContext *ctx)
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
-    
 }
 
+// 새로운 콜백 추가
+static void on_media_prepared(GstRTSPMedia *media, gpointer user_data)
+{
+    StreamContext *ctx = reinterpret_cast<StreamContext *>(user_data);
+    GstElement *pipeline = gst_rtsp_media_get_element(media);
+    GstElement *appsrc = gst_bin_get_by_name(GST_BIN(pipeline), "video_src");
+
+    std::cout << "[RTSP] Client connected -> pushing dummy frames" << std::endl;
+
+    running = true;
+    static std::atomic<bool> dummy_pushed{false};
+    if (!dummy_pushed.exchange(true))
+    {
+        push_dummy(appsrc, ctx);
+    }
+
+    gst_object_unref(appsrc);
+    gst_object_unref(pipeline);
+}
+
+// media_configure 수정
 static void media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, gpointer user_data)
 {
     GstElement *pipeline = gst_rtsp_media_get_element(media);
     GstElement *appsrc = gst_bin_get_by_name(GST_BIN(pipeline), "video_src");
     StreamContext *ctx = reinterpret_cast<StreamContext *>(user_data);
-
-    // 상태 초기화
-    // gst_element_set_state(appsrc, GST_STATE_READY);
-    // gst_element_set_state(appsrc, GST_STATE_PLAYING);
 
     GstCaps *caps = gst_caps_new_simple(
         "video/x-raw",
@@ -179,12 +162,10 @@ static void media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, g
     gst_app_src_set_caps(GST_APP_SRC(appsrc), caps);
     gst_caps_unref(caps);
 
-    push_dummy(appsrc, ctx);
-
-    ctx->frame_count = 0;
-    running = true;
+    g_signal_connect(media, "prepared", G_CALLBACK(on_media_prepared), ctx);
 
     g_signal_connect(appsrc, "need-data", G_CALLBACK(onNeedData), ctx);
+
     gst_object_unref(appsrc);
     gst_object_unref(pipeline);
 }
@@ -240,12 +221,14 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
         "! videoconvert "
         "! video/x-raw,format=NV12 "
         "! v4l2convert "
-        "! v4l2h264enc extra-controls=\"controls,repeat_sequence_header=1,"
+        "! v4l2h264enc "
+        "extra-controls=\"controls,repeat_sequence_header=1,"
         "video_bitrate=" +
-        std::to_string(bitrate) + ",h264_i_frame_period=1,h264_profile=4\" "
-                                  "! video/x-h264,level=(string)4 "
-                                  "! h264parse "
-                                  "! rtph264pay name=pay0 pt=96 config-interval=1 )";
+        std::to_string(bitrate) +
+        ",h264_i_frame_period=1,h264_profile=0\" "
+        "! video/x-h264,level=(string)4 "
+        "! h264parse "
+        "! rtph264pay name=pay0 pt=96 config-interval=1 )";
 
     gst_rtsp_media_factory_set_launch(factory, launch_desc.c_str());
     gst_rtsp_media_factory_set_shared(factory, TRUE);
@@ -280,51 +263,25 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
 
 void inferenceLoop(StreamContext *ctx)
 {
-    while (running) {
+    while (running)
+    {
         Mat frame;
-        if (!ctx->cap->read(frame)) {
+        if (!ctx->cap->read(frame))
+        {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
             continue;
         }
 
-        // 1. 원본 프레임 보관 (박스 없음)
+        // 1. 원본 프레임 보관
         {
             std::lock_guard<std::mutex> lock(raw_mutex);
             latest_raw_frame = frame.clone();
         }
 
-        // 2. 버퍼에 저장
-        {
-            std::lock_guard<std::mutex> lock(buffer_mutex);
-            frame_buffer.push_back({ctx->frame_count, frame.clone()});
-            if (frame_buffer.size() > 10)
-                frame_buffer.pop_front();
-        }
-
-        // 3. 지연된 프레임 꺼내기
-        Mat delayed_frame;
-        {
-            std::lock_guard<std::mutex> lock(buffer_mutex);
-            if (frame_buffer.size() > BUFFER_DELAY_FRAMES)
-                delayed_frame = frame_buffer[frame_buffer.size() - BUFFER_DELAY_FRAMES - 1].second.clone();
-            else
-                delayed_frame = frame.clone();
-        }
-
-        // 4. 박스 그리기 (tracked 기반)
-        {
-            std::lock_guard<std::mutex> lock(track_mutex);
-            for (const auto& [id, d] : ctx->tracked) {
-                rectangle(delayed_frame, d.box, Scalar(0, 255, 0), 2);
-                string label = (*ctx->class_names)[d.class_id] + format(" ID %d", id);
-                putText(delayed_frame, label, d.box.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0), 2);
-            }
-        }
-
-        // 5. 송출용 프레임으로 설정
+        // 3. 송출용 프레임 설정
         {
             std::lock_guard<std::mutex> lock(frame_mutex);
-            latest_frame = delayed_frame.clone();
+            latest_frame = frame.clone();
             latest_pts = ctx->frame_count++;
         }
 
@@ -332,69 +289,51 @@ void inferenceLoop(StreamContext *ctx)
     }
 }
 
-void detectionLoop(StreamContext* ctx) {
-    while (running) {
+void detectionLoop(StreamContext *ctx)
+{
+    initMotionDetector();
+
+    std::map<int, DetectionResult> tracked;
+    std::map<int, int> appearCount;
+    int next_id = 0;
+    bool prev_had_motion = false;  // 🔸 이전 프레임에 감지된 객체가 있었는지
+
+    while (running)
+    {
         Mat raw_frame;
         {
             std::lock_guard<std::mutex> lock(raw_mutex);
-            if (latest_raw_frame.empty()) continue;
+            if (latest_raw_frame.empty())
+                continue;
             raw_frame = latest_raw_frame.clone();
         }
 
-        // 배경 모델 업데이트 + 모션 박스 추출
-        if (ctx->frame_count == 0)
-            raw_frame.convertTo(ctx->background_model, CV_32F);
+        auto detections = detectMotion(raw_frame);
+        runTracking(detections, tracked, appearCount, next_id);
 
-        Mat bg8u = updateBackground(raw_frame, ctx->background_model, 0.01);
-        Mat fg = getMotionMask(raw_frame, bg8u);
-        auto motion_boxes = extractMotionBoxes(fg);
-
-        // 감지 주기 제한
-        if (++ctx->frame_counter % 5 != 0) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            continue;
-        }
-
-        // YOLO 감지
-        auto detections = runDetection(*ctx->net, raw_frame, 0.6f, 0.4f, Size(640, 640));
-
-        // IOU 기반 tracking
-        map<int, DetectionResult> updated;
+        bool has_motion = false;
+        for (const auto& [id, tr] : tracked)
         {
-            std::lock_guard<std::mutex> lock(track_mutex);
-            for (const auto& d : detections) {
-                bool matched = false;
-                for (const auto& [id, prev] : ctx->tracked) {
-                    if ((d.box & prev.box).area() > 0 &&
-                        static_cast<float>((d.box & prev.box).area()) / (d.box | prev.box).area() > 0.3f) {
-                        updated[id] = d;
-                        matched = true;
-                        break;
-                    }
-                }
-                if (!matched) {
-                    updated[ctx->next_id++] = d;
-                }
+            if (appearCount[id] >= 3)  // 유효한 트래킹 대상이 있는지 확인
+            {
+                has_motion = true;
+                break;
             }
-            ctx->tracked = std::move(updated);
         }
 
-        // 박스 그리기
+        // 박스만 그리기 (ID 표시 제거)
         Mat boxed_frame = raw_frame.clone();
+        for (const auto& [id, tr] : tracked)
         {
-            std::lock_guard<std::mutex> lock(track_mutex);
-            for (const auto& [id, tr] : ctx->tracked) {
-                rectangle(boxed_frame, tr.box, Scalar(0, 0, 255), 2);
-                string label = (*ctx->class_names)[tr.class_id] + format(" ID %d", id);
-                putText(boxed_frame, label, tr.box.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 0, 255), 2);
-            }
+            if (appearCount[id] < 3) continue;
+            rectangle(boxed_frame, tr.box, Scalar(0, 0, 255), 2);
         }
 
-        // 이벤트 전송
         auto now = steady_clock::now();
-        if (!ctx->tracked.empty() &&
-            duration_cast<seconds>(now - ctx->last_snapshot_time).count() >= 10) {
-
+        // 🔥 새로 모션이 발생한 경우에만 이미지 전송
+        if (has_motion && !prev_had_motion &&
+            duration_cast<seconds>(now - ctx->last_snapshot_time).count() >= 10)
+        {
             vector<uchar> jpeg_buf;
             vector<int> jpeg_params = {IMWRITE_JPEG_QUALITY, 90};
             imencode(".jpg", boxed_frame, jpeg_buf, jpeg_params);
@@ -402,9 +341,12 @@ void detectionLoop(StreamContext* ctx) {
             send_jsonl_event("intrusion_detected", 1, "intrusion", 1, 0, 0,
                              jpeg_buf.data(), jpeg_buf.size(), ".jpeg");
 
-            ctx->last_snapshot_time = now;
+            ctx->last_snapshot_time = steady_clock::now();
         }
+
+        prev_had_motion = has_motion;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-}   
+}
+
