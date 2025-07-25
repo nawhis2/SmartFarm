@@ -185,7 +185,7 @@ int main()
                     exit(0);
                 }
                 pthread_t sensorTid = regisSensorUser(sensor);
-                pthread_t mapTid = regisReadClient(mapfd);
+                pthread_t mapTid = regisReadUser(mapfd);
                 receiveUser(user);
 
                 stop_pipe = 1;

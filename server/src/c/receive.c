@@ -120,6 +120,102 @@ void store_event_to_mysql(json_t *obj)
     free(raw);
 }
 
+static int store_map_to_mysql(const char *map_buf, int size)
+{
+    // 1) JSON 파싱
+    char *line = strndup(map_buf, size);
+    if (!line)
+        return -1;
+
+    json_error_t err;
+    json_t *obj = json_loads(line, 0, &err);
+    if (!obj) {
+        fprintf(stderr,
+                "[MapParse] JSON parse error: %s at line %d\n",
+                err.text, err.line);
+        return -1;
+    }
+
+    // 2) 필드 추출
+    json_t *j;
+    long   ts_epoch = json_integer_value(
+                          json_object_get(obj, "timestamp"));
+    double center_x = json_number_value(
+                          json_object_get(obj, "center_x"));
+    double center_y = json_number_value(
+                          json_object_get(obj, "center_y"));
+    double right_x  = json_number_value(
+                          json_object_get(obj, "right_x"));
+    double right_y  = json_number_value(
+                          json_object_get(obj, "right_y"));
+    double left_x   = json_number_value(
+                          json_object_get(obj, "left_x"));
+    double left_y   = json_number_value(
+                          json_object_get(obj, "left_y"));
+
+    json_decref(obj);
+
+    // 3) Prepared Statement 생성
+    MYSQL_STMT *stmt = mysql_stmt_init(g_conn);
+    const char *sql =
+      "INSERT INTO smartfarm.map "
+      "(ts_epoch, center_x, center_y, right_x, right_y, left_x, left_y) "
+      "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    if (mysql_stmt_prepare(stmt, sql, strlen(sql))) {
+        fprintf(stderr,
+                "[MapDB] stmt prepare error: %s\n",
+                mysql_stmt_error(stmt));
+        mysql_stmt_close(stmt);
+        return -1;
+    }
+
+    // 4) 바인딩
+    MYSQL_BIND bind[7];
+    memset(bind, 0, sizeof(bind));
+
+    bind[0].buffer_type = MYSQL_TYPE_LONG;
+    bind[0].buffer      = &ts_epoch;
+    bind[0].is_unsigned = 1;
+
+    bind[1].buffer_type = MYSQL_TYPE_DOUBLE;
+    bind[1].buffer      = &center_x;
+
+    bind[2].buffer_type = MYSQL_TYPE_DOUBLE;
+    bind[2].buffer      = &center_y;
+
+    bind[3].buffer_type = MYSQL_TYPE_DOUBLE;
+    bind[3].buffer      = &right_x;
+
+    bind[4].buffer_type = MYSQL_TYPE_DOUBLE;
+    bind[4].buffer      = &right_y;
+
+    bind[5].buffer_type = MYSQL_TYPE_DOUBLE;
+    bind[5].buffer      = &left_x;
+
+    bind[6].buffer_type = MYSQL_TYPE_DOUBLE;
+    bind[6].buffer      = &left_y;
+
+    if (mysql_stmt_bind_param(stmt, bind)) {
+        fprintf(stderr,
+                "[MapDB] stmt bind error: %s\n",
+                mysql_stmt_error(stmt));
+        mysql_stmt_close(stmt);
+        return -1;
+    }
+
+    // 5) 실행
+    if (mysql_stmt_execute(stmt)) {
+        fprintf(stderr,
+                "[MapDB] insert error: %s\n",
+                mysql_stmt_error(stmt));
+        mysql_stmt_close(stmt);
+        return -1;
+    }
+
+    mysql_stmt_close(stmt);
+    return 0;
+}
+
 // jsonl을 json으로 저장
 static int write_event_with_filepath(const char *buf, int size, const char *file_path)
 {
@@ -192,16 +288,31 @@ int receiveCCTVPacket(SSL *ssl)
         }
         msg[size] = '\0';
         printf("[TEXT] %s\n", msg);
+
+        if(strncmp(msg, "error", 5) == 0){
+            writeToUser(msg);
+        }
+        else if(strncmp(msg, "ready", 5) == 0){
+            writeToStraw(msg);
+        }
+        else if(strncmp(msg, "done", 4) == 0){
+            writeToMap(msg);
+            writeToUser(msg);
+        }
+
         free(msg);
         return 0;
     }
 
     // [4] JSONL 한 줄 수신: has_file 플래그 확인 후 처리
-    if (strncmp(type, "JSON", 4) == 0)
+    else if (strncmp(type, "JSON", 4) == 0)
     {
         // 이전 JSONL 버퍼 해제
-        if (jsonl_buf)
+        if (jsonl_buf){
             free(jsonl_buf);
+            jsonl_buf = NULL;
+            
+        }
         // 새 JSONL 수신
         jsonl_buf = (char *)malloc(size + 1);
         if (!jsonl_buf)
@@ -235,7 +346,6 @@ int receiveCCTVPacket(SSL *ssl)
         }
         json_t *jf = json_object_get(obj, "has_file");
         int has_file = json_integer_value(jf);
-        printf("%d\n", has_file);
         json_decref(obj);
 
         if (!has_file)
@@ -246,6 +356,44 @@ int receiveCCTVPacket(SSL *ssl)
             jsonl_buf = NULL;
             jsonl_size = 0;
         }
+        return 0;
+    }
+    
+    else if(strncmp(type, "MAP", 3) == 0){
+        if (jsonl_buf) {
+            free(jsonl_buf);
+            jsonl_buf   = NULL;
+            jsonl_size  = 0;
+        }
+
+        // 2) 새 MAP 데이터 수신
+        jsonl_buf = (char *)malloc(size + 1);
+        if (!jsonl_buf) return -1;
+        size_t rec = 0;
+        while (rec < (size_t)size) {
+            int n = SSL_read(ssl, jsonl_buf + rec, size - rec);
+            if (n <= 0) {
+                free(jsonl_buf);
+                jsonl_buf = NULL;
+                return -1;
+            }
+            rec += n;
+        }
+        jsonl_buf[size] = '\0';
+        jsonl_size      = size;
+        printf("[MAP buffered] %s\n", jsonl_buf);
+
+        if(store_map_to_mysql(jsonl_buf, jsonl_size)){
+            perror("Json Map Parsing");
+            free(jsonl_buf);
+            jsonl_buf = NULL;
+            jsonl_size = 0;
+            return -1;
+        }
+        free(jsonl_buf);
+        jsonl_buf = NULL;
+        jsonl_size = 0;
+        
         return 0;
     }
 
@@ -378,7 +526,7 @@ int receiveUserPacket(SSL *ssl)
     }
     else if (strncmp(type, "CMD", 3) == 0)
     {
-        wirteToMap(msg);
+        writeToMap(msg);
         free(msg);
         return 0;
     }
