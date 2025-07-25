@@ -1,44 +1,49 @@
 #include "rtspStreaming.h"
 #include "rtspServer.h"
+#include "DetectionUtils.h"
 
 int RtspStreaming(const int width, const int height, const int fps)
 {
     string pipeline =
         "libcamerasrc ! "
         "video/x-raw,width=" +
-        to_string(width) + ",height=" + to_string(height) + ",framerate=" + to_string(fps) + "/1 ! "
-        "videoconvert ! videoscale ! appsink caps=video/x-raw,format=BGR,width=" +
+        to_string(width) +
+        ",height=" + to_string(height) +
+        ",framerate=" + to_string(fps) + "/1 ! "
+        "videoconvert ! videoscale ! "
+        "queue max-size-buffers=1 leaky=downstream ! "
+        "appsink caps=video/x-raw,format=BGR,width=" +
         to_string(width) + ",height=" + to_string(height);
+
     VideoCapture cap(pipeline, CAP_GSTREAMER);
     if (!cap.isOpened())
     {
         cerr << "Camera open failed" << endl;
         return -1;
     }
-    dnn::Net net = dnn::readNetFromONNX("best.onnx");
-    net.setPreferableBackend(dnn::DNN_BACKEND_OPENCV);
-    net.setPreferableTarget(dnn::DNN_TARGET_CPU);
+
+    // ✅ MOG2 모션 감지기 초기화
+    initMotionDetector();
 
     StreamContext ctx;
     ctx.cap = &cap;
-    ctx.net = &net;
-    ctx.class_names = const_cast<vector<string> *>(&class_names);
     ctx.width = width;
     ctx.height = height;
     ctx.fps = fps;
     ctx.frame_count = 0;
-    ctx.frame_counter = 0;
-    ctx.next_id = 0;
-    ctx.background_model = Mat();
+    ctx.last_snapshot_time = std::chrono::steady_clock::now();
 
+    // 스레드 시작
     std::thread inference_thread(inferenceLoop, &ctx);
     std::thread detect_thread(detectionLoop, &ctx);
+
     // ⬇️ RTSP 서버 설정
     GstRTSPServer *server = setupRtspServer(ctx);
     if (!server)
     {
         running = false;
         inference_thread.join();
+        detect_thread.join();
         return -1;
     }
 
@@ -46,8 +51,10 @@ int RtspStreaming(const int width, const int height, const int fps)
     GMainLoop *loop = g_main_loop_new(nullptr, FALSE);
     g_main_loop_run(loop);
 
+    // 종료 처리
     running = false;
     inference_thread.join();
-    
+    detect_thread.join();
+
     return 0;
 }
