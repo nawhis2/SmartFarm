@@ -4,7 +4,7 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-#define CLINET_PIPE "/tmp/client_pipe"
+#define CLIENT_PIPE "/tmp/client_pipe"
 #define STRAW_PIPE "/tmp/straw_pipe"
 #define MAP_PIPE "/tmp/map_pipe"
 
@@ -12,13 +12,13 @@ extern int stopClientPipe;
 extern int stopStrawPipe;
 extern int stopMapPipe;
 
-void writeToUser(const char*);
+int writeToUser(const char*);
 void *readUser(void*);
 
-void writeToStraw(const char*);
+int writeToStraw(const char*);
 void *readStraw(void*);
 
-void writeToMap(const char*);
+int writeToMap(const char*);
 void *readMap(void*);
 
 pthread_t regisReadUser(SSL*);

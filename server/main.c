@@ -47,7 +47,7 @@ int main()
     mkfifo(SENSOR_PIPE, 0666);
     mkfifo(MAP_PIPE, 0666);
     mkfifo(STRAW_PIPE, 0666);
-    mkfifo(CLINET_PIPE, 0666);
+    mkfifo(CLIENT_PIPE, 0666);
 
     init_openssl();
     SSL_CTX *ctx = create_context();

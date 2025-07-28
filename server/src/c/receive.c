@@ -23,7 +23,7 @@ void store_event_to_mysql(json_t *obj)
 {
     // 1) 필드 추출
     const char *etype = json_string_value(json_object_get(obj, "event_type"));
-    long ts = json_integer_value(json_object_get(obj, "timestamp"));
+    long long ts = json_integer_value(json_object_get(obj, "timestamp"));
 
     json_t *data = json_object_get(obj, "data");
     json_t *jt;
@@ -73,7 +73,7 @@ void store_event_to_mysql(json_t *obj)
     bind[0].length = &etype_len;
 
     // ts_epoch
-    bind[1].buffer_type = MYSQL_TYPE_LONG;
+    bind[1].buffer_type = MYSQL_TYPE_LONGLONG;
     bind[1].buffer = &ts;
     bind[1].is_unsigned = 1;
 
@@ -138,7 +138,7 @@ static int store_map_to_mysql(const char *map_buf, int size)
 
     // 2) 필드 추출
     json_t *j;
-    long   ts_epoch = json_integer_value(
+    long long   ts_epoch = json_integer_value(
                           json_object_get(obj, "timestamp"));
     double center_x = json_number_value(
                           json_object_get(obj, "center_x"));
@@ -173,7 +173,7 @@ static int store_map_to_mysql(const char *map_buf, int size)
     MYSQL_BIND bind[7];
     memset(bind, 0, sizeof(bind));
 
-    bind[0].buffer_type = MYSQL_TYPE_LONG;
+    bind[0].buffer_type = MYSQL_TYPE_LONGLONG;
     bind[0].buffer      = &ts_epoch;
     bind[0].is_unsigned = 1;
 
@@ -293,11 +293,17 @@ int receiveCCTVPacket(SSL *ssl)
             writeToUser(msg);
         }
         else if(strncmp(msg, "ready", 5) == 0){
-            writeToStraw(msg);
+            if(writeToStraw(msg) < 0){
+                writeToUser("error");
+            }
         }
         else if(strncmp(msg, "done", 4) == 0){
-            writeToMap(msg);
-            writeToUser(msg);
+            if(writeToMap(msg) < 0){
+                writeToUser("error");
+            }
+            if(writeToUser(msg) < 0){
+                writeToUser("error");
+            }
         }
 
         free(msg);
@@ -526,7 +532,14 @@ int receiveUserPacket(SSL *ssl)
     }
     else if (strncmp(type, "CMD", 3) == 0)
     {
-        writeToMap(msg);
+        if(!writeToMap(msg))
+            clear_map_data();
+        free(msg);
+        return 0;
+    }
+    else if(strncmp(type, "MAP", 3) == 0)
+    {
+        query_and_send_map_and_bounds(ssl);
         free(msg);
         return 0;
     }
