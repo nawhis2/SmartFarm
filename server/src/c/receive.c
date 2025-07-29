@@ -14,6 +14,7 @@
 #include "db.h"
 #include "userclientsend.h"
 #include "mapUtil.h"
+#include "emailManage.h"
 
 // 클라이언트가 보낸 단일 JSONL 한 줄을 버퍼에 저장
 static char *jsonl_buf = NULL;
@@ -23,6 +24,14 @@ void store_event_to_mysql(json_t *obj)
 {
     // 1) 필드 추출
     const char *etype = json_string_value(json_object_get(obj, "event_type"));
+
+    if(strncmp(etype, "intrusion_detected", 18) == 0){
+        onIntrusionDetected();
+    }
+    // else if(strncmp(etype, "fire_detected", 13) == 0){
+    //     onFireDetected();
+    // }
+
     long long ts = json_integer_value(json_object_get(obj, "timestamp"));
 
     json_t *data = json_object_get(obj, "data");
@@ -540,6 +549,18 @@ int receiveUserPacket(SSL *ssl)
     else if(strncmp(type, "MAP", 3) == 0)
     {
         query_and_send_map_and_bounds(ssl);
+        free(msg);
+        return 0;
+    }
+    else if(strncmp(type, "NOWEMAIL", 8) == 0)
+    {
+        send_config_email(ssl);
+        free(msg);
+        return 0;
+    }
+    else if(strncmp(type, "NEWEMAIL", 8) == 0)
+    {
+        store_email_config(msg);
         free(msg);
         return 0;
     }

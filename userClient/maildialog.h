@@ -18,8 +18,16 @@ public:
     QString getEmail() const;
     QString getPassword() const;
 
+protected:
+    void showEvent(QShowEvent* event) override;
+
+private slots:
+    void okButtonClicked();
+
 private:
     Ui::mailDialog *ui;
+    QString getCredential() const;
+    void chkNowUserMail();
 };
 
 #endif // MAILDIALOG_H
