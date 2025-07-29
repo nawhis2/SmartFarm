@@ -13,8 +13,12 @@ void init_mysql(const char *host,
                 const char *db,
                 unsigned int port);
 void close_mysql(void);
+
 void query_and_send(SSL*, const char *);
 void query_and_send_daily(SSL *, const char *);
 void query_and_send_weekly(SSL *, const char *);
+
+void query_and_send_map_and_bounds(SSL *ssl);
+void clear_map_data();
 
 #endif

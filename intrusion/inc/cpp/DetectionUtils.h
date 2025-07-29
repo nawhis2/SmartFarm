@@ -1,29 +1,20 @@
-#ifndef DETECTIONUTILS_H
-#define DETECTIONUTILS_H
+#ifndef DETECTION_UTILS_H
+#define DETECTION_UTILS_H
 
 #include <opencv2/opencv.hpp>
-#include <opencv2/dnn.hpp>
-#include <vector>
-#include <string>
+#include <map>
 
 struct DetectionResult {
-    int class_id;
-    float confidence;
+    int class_id;              // 항상 0으로 고정 (motion 기반이라 class 없음)
+    float confidence;          // 항상 1.0
     cv::Rect box;
 };
 
-cv::Mat letterbox(const cv::Mat &src, cv::Size target_size,
-                  cv::Scalar pad_color = cv::Scalar(114,114,114),
-                  float *scale = nullptr, cv::Point *pad = nullptr);
-
-std::vector<DetectionResult> runDetection(
-    cv::dnn::Net& net,
-    const cv::Mat& frame,
-    float conf_threshold,
-    float nms_threshold,
-    const cv::Size& model_size
-);
-
-cv::Rect convertBoxFromLetterbox(const cv::Rect2f& box_in_letterbox, float scale, const cv::Point& pad, const cv::Size& original_size);
+void initMotionDetector();  // MOG2 초기화
+std::vector<DetectionResult> detectMotion(const cv::Mat& frame);
+void runTracking(const std::vector<DetectionResult>& detections,
+                 std::map<int, DetectionResult>& tracked,
+                 std::map<int, int>& appearCount,
+                 int& next_id);
 
 #endif

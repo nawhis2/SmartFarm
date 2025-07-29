@@ -9,7 +9,7 @@ int stopStrawPipe = 0;
 int stopMapPipe = 0;
 
 // straw에서 cmd가 들어왔을경우
-void writeToClient(const char *cmd)
+void writeToUser(const char *cmd)
 {
     ssize_t len = strlen(cmd);
     int fd;
@@ -40,7 +40,7 @@ void writeToClient(const char *cmd)
 }
 
 // 유저 클라이언트로 보낼 신호들 읽기
-void *readClient(void *arg)
+void *readUser(void *arg)
 {
     SSL *ssl = (SSL *)arg;
     char buf[4096];
@@ -88,7 +88,7 @@ void *readClient(void *arg)
 }
 
 // USER에서 원하는 cmd가 들어왔을경우
-void wirteToStraw(const char *cmd)
+void writeToStraw(const char *cmd)
 {
     ssize_t len = strlen(cmd);
     int fd;
@@ -148,7 +148,7 @@ void *readStraw(void *arg)
         {
             if (strncmp(buf, "done", 4) == 0)
             {
-                wirteToMap(buf);
+                writeToMap(buf);
             }
             else if (strncmp(buf, "start", 5) == 0)
             {
@@ -175,7 +175,7 @@ void *readStraw(void *arg)
 }
 
 // Straw에서 Map 파이프로 cmd 전송
-void wirteToMap(const char *cmd)
+void writeToMap(const char *cmd)
 {
     ssize_t len = strlen(cmd);
     int fd;
@@ -265,10 +265,10 @@ void *readMap(void *arg)
     return NULL;
 }
 
-pthread_t regisReadClient(SSL *ssl)
+pthread_t regisReadUser(SSL *ssl)
 {
     pthread_t tid;
-    pthread_create(&tid, NULL, readClient, ssl);
+    pthread_create(&tid, NULL, readUser, ssl);
 
     return tid;
 }

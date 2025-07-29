@@ -72,7 +72,7 @@ int main(int argc, char **argv)
         sendFile("hi Server\n", "TEXT");
     }
 
-    RtspStreaming(1920, 1080, 30);
+    RtspStreaming(1920, 1080, 15);
     sleep(1);
 
     while (1);
