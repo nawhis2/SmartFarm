@@ -285,6 +285,7 @@ void StrawBerryWidget::onDiseaseSliceClicked(QPieSlice* slice)
     QString label = slice->label();
     qDebug() << "[Disease Pie] slice clicked:" << label;
     updateLineChartFromData(label);
+    tableWidget->setClassType(label.toStdString());
 }
 
 //전환 부분 애니메이션

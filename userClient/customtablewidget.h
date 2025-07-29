@@ -24,10 +24,14 @@ public:
 
 public:
     void SetDetectStr(const std::string& detectStr){ this->detectStr = detectStr;}
+    void setClassType(const std::string& classType);
+    void setDateHour(const std::string& dateHour);
+
     void initModelAndView();
     QTableView* getInnerTable() const;
     void setPageSize(const int pageSize) { m_pageSize = pageSize; }
     std::function<void(const QStringList&)> onNewDataHook;  // 외부 후처리 훅
+
 
 private slots:
     void on_prevButton_clicked();
@@ -43,6 +47,8 @@ private:
 
     QVector<QPixmap> m_pixmaps;
     std::string detectStr;
+    std::string classType;
+    std::string dateHour;
 
     int m_pageSize;    // 한 페이지에 몇 개
     int m_currentPage;    // 현재 페이지

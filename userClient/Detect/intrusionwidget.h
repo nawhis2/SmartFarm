@@ -50,6 +50,7 @@ private:
 
     void setupBarChart();
     void setupBarInteraction();
+    std::string makeTimeRangeString(int index);
 };
 
 #endif // INTRUSIONWIDGET_H

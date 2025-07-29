@@ -39,6 +39,7 @@ void receiveMapActive(SSL* ssl) {
 
         int n;
         if((n = SSL_read(ssl, buf, strlen(buf))) > 0){
+            buf[n] = '\0';
             qDebug() << buf;
             continue;
         }
