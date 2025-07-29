@@ -6,6 +6,7 @@
 #include <QTableWidget>
 #include "customtablewidget.h"
 #include "ui_customtablewidget.h"
+#include <functional>
 
 class QStandardItemModel;
 class PaginationProxyModel;
@@ -25,6 +26,8 @@ public:
     void SetDetectStr(const std::string& detectStr){ this->detectStr = detectStr;}
     void initModelAndView();
     QTableView* getInnerTable() const;
+    void setPageSize(const int pageSize) { m_pageSize = pageSize; }
+    std::function<void(const QStringList&)> onNewDataHook;  // 외부 후처리 훅
 
 private slots:
     void on_prevButton_clicked();
@@ -51,6 +54,7 @@ private:
     void updateButtons();
     void onNewData(const QStringList& fields);
     void loadData(const int page);
+    void adjustRowHeightsToFitTable();
 };
 
 #endif // CUSTOMTABLEWIDGET_H

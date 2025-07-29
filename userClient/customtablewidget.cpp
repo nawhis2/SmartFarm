@@ -109,6 +109,7 @@ void CustomTableWidget::onNewData(const QStringList& fields) {
     // 3) Num 칼럼 아이템
     QStandardItem* numItem = new QStandardItem(QString::number(globalNum));
     numItem->setTextAlignment(Qt::AlignCenter);
+    numItem->setForeground(QColor("#b8f1cc"));
     items.append(numItem);
 
     // 4) Date, Eventname 칼럼
@@ -132,6 +133,10 @@ void CustomTableWidget::onNewData(const QStringList& fields) {
     int newPageCount = m_proxy->pageCount();
     if (newPageCount != oldPageCount) {
         updateButtons();
+    }
+
+    if (onNewDataHook) {
+        onNewDataHook(fields);  // 🔥 침입 차트에 알리기
     }
 }
 
@@ -226,6 +231,10 @@ void CustomTableWidget::refreshPage() {
             Qt::DecorationRole
             );
     }
+    QMetaObject::invokeMethod(this, [this]() {
+        adjustRowHeightsToFitTable();
+    }, Qt::QueuedConnection);
+
 }
 
 void CustomTableWidget::on_eventTable_clicked(const QModelIndex &index) {
@@ -247,3 +256,25 @@ void CustomTableWidget::on_eventTable_clicked(const QModelIndex &index) {
 QTableView* CustomTableWidget::getInnerTable() const {
     return ui->eventTable;  // QTableView
 }
+
+void CustomTableWidget::adjustRowHeightsToFitTable()
+{
+    int totalHeight = ui->eventTable->height();
+    int headerHeight = ui->eventTable->horizontalHeader()->height();
+    int visibleRows = m_proxy->rowCount();
+    if (visibleRows <= 0) return;
+
+    int availableHeight = totalHeight - headerHeight;
+    int rowHeight = availableHeight / visibleRows;
+
+    for (int row = 0; row < visibleRows; ++row) {
+        ui->eventTable->setRowHeight(row, rowHeight);
+    }
+
+    // ✅ 아이콘 사이즈도 그에 맞게 자동 조정
+    int imageHeight = rowHeight * 0.95;  // 여백 조금 주기
+    int imageWidth = static_cast<int>(imageHeight * 1.7);  // 이미지 비율에 맞게 (가로/세로 1.7:1 가정)
+
+    ui->eventTable->setIconSize(QSize(imageWidth, imageHeight));
+}
+

@@ -11,6 +11,7 @@ FireDetectWidget::FireDetectWidget(QStackedWidget *stack, QWidget *parent)
     type = "fire_detected";
     tableWidget = ui->fireEventTable;
     tableWidget->SetDetectStr(type);
+    tableWidget->setPageSize(9);
     myIndex = 1;
     setupChart();
     fireWidget = this; //포인터 등록

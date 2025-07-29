@@ -28,21 +28,48 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
-   <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="0">
+  <layout class="QGridLayout" name="gridLayout_2">
+   <property name="leftMargin">
+    <number>20</number>
+   </property>
+   <property name="topMargin">
+    <number>11</number>
+   </property>
+   <property name="rightMargin">
+    <number>20</number>
+   </property>
+   <property name="bottomMargin">
+    <number>11</number>
+   </property>
+   <property name="spacing">
+    <number>20</number>
+   </property>
+   <item row="2" column="0" colspan="6">
+    <layout class="QGridLayout" name="gridLayout" rowstretch="1,1" columnstretch="1,1" rowminimumheight="1,1" columnminimumwidth="1,1">
+     <property name="sizeConstraint">
+      <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
       <widget class="QLabel" name="videoLabel2">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>600</width>
-         <height>400</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -56,18 +83,18 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="videoLabel4">
+     <item row="1" column="0">
+      <widget class="QLabel" name="videoLabel3">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>600</width>
-         <height>400</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -81,28 +108,18 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="QPushButton" name="startCameraButton">
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string>Start Camera</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
+     <item row="0" column="1">
       <widget class="QLabel" name="videoLabel1">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>600</width>
-         <height>400</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="font">
@@ -129,18 +146,18 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="videoLabel3">
+     <item row="1" column="1">
+      <widget class="QLabel" name="videoLabel4">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="minimumSize">
         <size>
-         <width>600</width>
-         <height>400</height>
+         <width>0</width>
+         <height>0</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -156,23 +173,10 @@
      </item>
     </layout>
    </item>
-   <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
+   <item row="2" column="6">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="1,1,1,1">
      <item>
-      <widget class="QPushButton" name="btnSync">
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset theme="QIcon::ThemeIcon::SyncSynchronizing"/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnFire">
+      <widget class="QToolButton" name="btnLog">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -181,20 +185,20 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>100</width>
-         <height>0</height>
+         <width>300</width>
+         <height>120</height>
         </size>
        </property>
        <property name="styleSheet">
         <string notr="true"/>
        </property>
        <property name="text">
-        <string>🔥</string>
+        <string>Log</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnGrowth">
+      <widget class="QToolButton" name="btnGrowth">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -203,20 +207,20 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>100</width>
-         <height>0</height>
+         <width>300</width>
+         <height>120</height>
         </size>
        </property>
        <property name="styleSheet">
         <string notr="true"/>
        </property>
        <property name="text">
-        <string>🍓</string>
+        <string>Growth</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnIntrusion">
+      <widget class="QToolButton" name="btnFire">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -225,20 +229,20 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>100</width>
-         <height>0</height>
+         <width>300</width>
+         <height>120</height>
         </size>
        </property>
        <property name="styleSheet">
         <string notr="true"/>
        </property>
        <property name="text">
-        <string>🚪</string>
+        <string>Fire</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnLog">
+      <widget class="QToolButton" name="btnIntrusion">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -247,19 +251,91 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>100</width>
-         <height>0</height>
+         <width>300</width>
+         <height>120</height>
         </size>
        </property>
        <property name="styleSheet">
         <string notr="true"/>
        </property>
        <property name="text">
-        <string>📊</string>
+        <string>Intrusion</string>
        </property>
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="3" column="5">
+    <widget class="QToolButton" name="startCameraButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>start camera</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="6">
+    <widget class="QToolButton" name="btnSync">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>50</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LayoutDirection::LeftToRight</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset theme="QIcon::ThemeIcon::SyncSynchronizing"/>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="7">
+    <widget class="QLabel" name="label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font-size: 35px; </string>
+     </property>
+     <property name="text">
+      <string>SMART FARM SYSTEM</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
