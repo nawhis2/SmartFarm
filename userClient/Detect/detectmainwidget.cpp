@@ -5,6 +5,7 @@
 #include "network.h"
 #include <QPixmap>
 #include <QDebug>
+#include "maildialog.h"
 
 DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
     : DetectCoreWidget(stack, parent)
@@ -48,6 +49,12 @@ DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
     ui->btnLog->setIcon(QIcon(":/icons/log.png"));
     ui->btnLog->setIconSize(QSize(100, 100));  // 아이콘 크기 조절
     ui->btnLog->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); // 아이콘 위, 텍스트 아래
+
+    connect(ui->btnMail, &QToolButton::clicked, this, &DetectMainWidget::showMailDialog);
+    ui->btnMail->setMinimumSize(100, 100); // 다른 버튼과 통일
+    ui->btnMail->setIcon(QIcon(":/icons/mail.png"));
+    ui->btnMail->setIconSize(QSize(100, 100));
+    ui->btnMail->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
     connect(ui->startCameraButton, &QToolButton::clicked, this, &DetectMainWidget::setupAllStreams);
 }
@@ -108,5 +115,15 @@ void DetectMainWidget::setupAllStreams()
                 }
             }
         });
+    }
+}
+
+void DetectMainWidget::showMailDialog()
+{
+    MailDialog dialog(this);
+    if (dialog.exec() == QDialog::Accepted) {
+        QString email = dialog.getEmail();
+        QString password = dialog.getPassword();
+        qDebug() << "[MailDialog] Email:" << email << ", Password:" << password;
     }
 }

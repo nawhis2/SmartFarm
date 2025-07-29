@@ -112,6 +112,8 @@ add_executable(${PROJECT_NAME}
     LogSystem/logwidget.ui
     corestackwidget.h corestackwidget.cpp
     drawmap.h drawMap.cpp
+    maildialog.h maildialog.cpp maildialog.ui
+
 )
 
 

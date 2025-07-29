@@ -102,8 +102,9 @@ void IntrusionWidget::setupBarChart()
 
 void IntrusionWidget::addIntrusionEvent(const QDateTime& timestamp)
 {
-    intrusionTimestamps.append(timestamp);
-
+    if (!intrusionTimestamps.contains(timestamp)) {  // ✅ 중복 방지
+        intrusionTimestamps.append(timestamp);
+    }
     // 현재 선택된 날짜와 같으면 차트 갱신
     if (timestamp.date() == selectedDate) {
         setDateAndUpdate(selectedDate);
@@ -133,6 +134,9 @@ void IntrusionWidget::setDateAndUpdate(const QDate& date)
     // 최대값에 따라 Y축 조정
     int maxCount = *std::max_element(hourlyCount.begin(), hourlyCount.end());
     axisY->setRange(0, std::max(5, maxCount + 1));
+    axisY->setTickCount(std::max(6, maxCount + 2));
+    axisY->applyNiceNumbers();
+    axisY->setLabelFormat("%d");
 
     ui->chartView->update();
 }
@@ -140,13 +144,7 @@ void IntrusionWidget::setDateAndUpdate(const QDate& date)
 void IntrusionWidget::setupBarInteraction()
 {
     connect(barSet, &QBarSet::clicked, this, [=](int index) {
-        // 모든 막대를 기본 색으로 초기화
-        barSet->setColor(QColor("#1de9b6")); // 기본색
-
-
         tableWidget->setDateHour(makeTimeRangeString(index));
-        // 클릭된 막대 색 변경
-        //barSet->setColor(index, QColor("#ff4081")); // 선택된 색
     });
 }
 
