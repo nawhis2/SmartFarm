@@ -37,6 +37,178 @@ void close_mysql(void)
     }
 }
 
+int store_email_config(const char *msg)
+{
+    if (mysql_query(g_conn, "TRUNCATE TABLE smartfarm.email_config;")) {
+        fprintf(stderr,
+                "[EmailConfig] TRUNCATE failed: %s\n",
+                mysql_error(g_conn));
+        return -1;
+    }
+    
+    // 1) msg 복사 및 분리
+    char *buf = strdup(msg);
+    if (!buf) {
+        fprintf(stderr, "[EmailConfig] strdup failed\n");
+        return -1;
+    }
+    char *sep = strchr(buf, '|');
+    if (!sep) {
+        fprintf(stderr, "[EmailConfig] invalid format, no '|'\n");
+        free(buf);
+        return -1;
+    }
+    *sep = '\0';
+    const char *email    = buf;
+    const char *password = sep + 1;
+
+    // 2) Prepared Statement 초기화
+    MYSQL_STMT *stmt = mysql_stmt_init(g_conn);
+    if (!stmt) {
+        fprintf(stderr, "[EmailConfig] mysql_stmt_init failed\n");
+        free(buf);
+        return -1;
+    }
+    const char *sql =
+        "INSERT INTO smartfarm.email_config (email, password) VALUES (?, ?);";
+    if (mysql_stmt_prepare(stmt, sql, (unsigned long)strlen(sql))) {
+        fprintf(stderr,
+                "[EmailConfig] prepare failed: %s\n",
+                mysql_stmt_error(stmt));
+        mysql_stmt_close(stmt);
+        free(buf);
+        return -1;
+    }
+
+    // 3) 파라미터 바인딩
+    MYSQL_BIND bind[2];
+    memset(bind, 0, sizeof(bind));
+    unsigned long email_len    = (unsigned long)strlen(email);
+    unsigned long password_len = (unsigned long)strlen(password);
+
+    bind[0].buffer_type   = MYSQL_TYPE_STRING;
+    bind[0].buffer        = (char *)email;
+    bind[0].buffer_length = email_len;
+    bind[0].length        = &email_len;
+
+    bind[1].buffer_type   = MYSQL_TYPE_STRING;
+    bind[1].buffer        = (char *)password;
+    bind[1].buffer_length = password_len;
+    bind[1].length        = &password_len;
+
+    if (mysql_stmt_bind_param(stmt, bind)) {
+        fprintf(stderr,
+                "[EmailConfig] bind_param failed: %s\n",
+                mysql_stmt_error(stmt));
+        mysql_stmt_close(stmt);
+        free(buf);
+        return -1;
+    }
+
+    // 4) 실행
+    if (mysql_stmt_execute(stmt)) {
+        fprintf(stderr,
+                "[EmailConfig] execute failed: %s\n",
+                mysql_stmt_error(stmt));
+        mysql_stmt_close(stmt);
+        free(buf);
+        return -1;
+    }
+
+    // 5) 정리
+    mysql_stmt_close(stmt);
+    free(buf);
+    return 0;
+}
+
+int send_config_email(SSL *sock_fd)
+{
+    // 1) SQL 실행
+    const char *sql = 
+        "SELECT email "
+        "FROM smartfarm.email_config "
+        "LIMIT 1;";
+    if (mysql_query(g_conn, sql)) {
+        fprintf(stderr,
+                "[EmailConfig] SELECT error: %s\n",
+                mysql_error(g_conn));
+        return -1;
+    }
+
+    // 2) 결과 저장
+    MYSQL_RES *res = mysql_store_result(g_conn);
+    if (!res) {
+        fprintf(stderr,
+                "[EmailConfig] store_result error: %s\n",
+                mysql_error(g_conn));
+        return -1;
+    }
+
+    // 3) 행이 있는지 확인
+    MYSQL_ROW row = mysql_fetch_row(res);
+    if (!row || !row[0]) {
+        // 저장된 이메일이 없음
+        mysql_free_result(res);
+        // 빈 문자열로라도 보내 주거나 에러로 처리
+        const char *empty = "NO EMAIL";
+
+        sendData(sock_fd, empty);
+        return 0;
+    }
+
+    // 4) 이메일 전송
+    const char *email = row[0];
+    sendData(sock_fd, email);
+
+    // 5) 정리
+    mysql_free_result(res);
+    return 0;
+}
+
+MailUser check_email_pass(void) {
+    MailUser user;
+    user.email[0] = '\0';
+    user.pass[0]  = '\0';
+
+    // 1) SQL 실행 ("SELECT email, password")
+    const char *sql =
+        "SELECT email, password "
+        "FROM smartfarm.email_config "
+        "LIMIT 1;";
+
+    if (mysql_query(g_conn, sql)) {
+        fprintf(stderr,
+                "[EmailConfig] SELECT error: %s\n",
+                mysql_error(g_conn));
+        return user;
+    }
+
+    // 2) 결과 저장
+    MYSQL_RES *res = mysql_store_result(g_conn);
+    if (!res) {
+        fprintf(stderr,
+                "[EmailConfig] store_result error: %s\n",
+                mysql_error(g_conn));
+        return user;
+    }
+
+    // 3) 행이 있는지 확인
+    MYSQL_ROW row = mysql_fetch_row(res);
+    if (!row || !row[0] || !row[1]) {
+        mysql_free_result(res);
+        return user;
+    }
+
+    // 4) 값을 struct에 복사 (strncpy로 안전하게)
+    strncpy(user.email, row[0], sizeof(user.email)-1);
+    user.email[sizeof(user.email)-1] = '\0';
+    strncpy(user.pass,  row[1], sizeof(user.pass)-1);
+    user.pass[sizeof(user.pass)-1]   = '\0';
+
+    mysql_free_result(res);
+    return user;
+}
+
 void query_and_send(SSL *sock_fd, const char *payload)
 {
     // 1) payload 파싱
