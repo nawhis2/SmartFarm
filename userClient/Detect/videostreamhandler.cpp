@@ -50,9 +50,19 @@ VideoStreamHandler::~VideoStreamHandler() {
             g_main_loop_quit(loop);
         g_main_loop_unref(loop);
     }
+
     if (pipeline) {
+        // a) ERROR/WARN 메시지 감시 해제
+        GstBus *bus = gst_element_get_bus(pipeline);
+        gst_bus_remove_signal_watch(bus);
+        gst_object_unref(bus);
+
+        // b) NULL 상태로 전환
         gst_element_set_state(pipeline, GST_STATE_NULL);
+
+        // c) 레퍼런스 해제
         gst_object_unref(pipeline);
+        pipeline = nullptr;
     }
 }
 
@@ -75,11 +85,13 @@ void VideoStreamHandler::initialize() {
     //std::string launch =  "rtspsrc location=" + url.toStdString() + " tls-validation-flags=0 latency=100 protocols=tcp ! "
                                                                    "decodebin ! videoconvert ! video/x-raw,format=RGB ! appsink name=sink";
 
-    std::string launch =
-        "rtspsrc location=" + url.toStdString() +
-        " tls-validation-flags=0 latency=100 protocols=tcp ! "
-        "rtph264depay ! decodebin ! "
-        "videoconvert ! video/x-raw,format=RGB ! appsink name=sink";
+    std::string launch =  "rtspsrc location=" + url.toStdString() + " tls-validation-flags=0 drop-on-latency=true latency=100 protocols=tcp ! "
+                                                                  "queue max-size-buffers=10 leaky=downstream ! "
+                                                                  "decodebin ! "
+                                                                  "queue ! "
+                                                                  "videoconvert ! "
+                                                                  "video/x-raw,format=RGB ! "
+                                                                  "appsink name=sink ";
 
     GError *error = nullptr;
     pipeline = gst_parse_launch(launch.c_str(), &error);

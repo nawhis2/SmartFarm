@@ -143,7 +143,28 @@ void IntrusionWidget::setupBarInteraction()
         // 모든 막대를 기본 색으로 초기화
         barSet->setColor(QColor("#1de9b6")); // 기본색
 
+
+        tableWidget->setDateHour(makeTimeRangeString(index));
         // 클릭된 막대 색 변경
         //barSet->setColor(index, QColor("#ff4081")); // 선택된 색
     });
+}
+
+std::string IntrusionWidget::makeTimeRangeString(int index) {
+    // 1) dateEdit에서 날짜를 꺼냅니다.
+    QDate date = ui->dateEdit->date();
+
+    // 2) 시작 시각 계산 (index 시 0분 0초)
+    QDateTime start(date, QTime(index, 0, 0));
+
+    // 3) 1시간 뒤 계산
+    QDateTime end = start.addSecs(3600);
+
+    // 4) 문자열 포맷
+    const QString fmt = "yyyy-MM-dd HH:mm:ss";
+    QString s = start.toString(fmt);
+    QString e = end  .toString(fmt);
+
+    // 5) std::string으로 변환해 반환
+    return (s + "|" + e).toStdString();
 }

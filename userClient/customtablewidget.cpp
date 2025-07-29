@@ -14,6 +14,9 @@ CustomTableWidget::CustomTableWidget(QWidget* parent)
     , ui(new Ui::CustomTableWidget)
     , m_sourceModel(nullptr)
     , m_proxy(nullptr)
+    , detectStr("")
+    , classType("")
+    , dateHour("")
     , m_pageSize(10)
     , m_currentPage(0)
     , m_totalCount(0)
@@ -37,6 +40,18 @@ CustomTableWidget::CustomTableWidget(QWidget* parent)
 
 CustomTableWidget::~CustomTableWidget(){
     delete ui;
+}
+
+void CustomTableWidget::setClassType(const std::string& classType){
+    this->classType = classType;
+
+    loadData(0);
+}
+
+void CustomTableWidget::setDateHour(const std::string& dateHour){
+    this->dateHour = dateHour;
+
+    loadData(0);
 }
 
 void CustomTableWidget::initModelAndView() {
@@ -155,6 +170,15 @@ void CustomTableWidget::loadData(int page) {
     std::string payload = detectStr
                           + "|" + std::to_string(limit)
                           + "|" + std::to_string(offset);
+
+    if(classType != ""){
+        payload += "|" + classType;
+    }
+
+    if(dateHour != ""){
+        payload += "|" + dateHour;
+    }
+
     sendFile(payload.c_str(), "DATA");
 
     // 3) 데이터 받기 (limit개) + 플래그 받기

@@ -82,37 +82,39 @@ bool DrawMap::receiveMapData(SSL *ssl)
 
     QString recvBuf;
     char buffer[1024];
-    while (true) {
+    bool finished = false;
+
+    while (!finished) {
         int n = SSL_read(ssl, buffer, sizeof(buffer) - 1);
-        if (n > 0) {
-            buffer[n] = '\0';
-            recvBuf += QString::fromUtf8(buffer);
+        if (n <= 0) {
+            // 서버 종료 또는 오류
+            break;
+        }
 
-            int idx;
-            // 여러 줄 한꺼번에 처리 (\n 기본)
-            while ((idx = recvBuf.indexOf('\n')) >= 0) {
-                QString line = recvBuf.left(idx).trimmed();
+        buffer[n] = '\0';
+        recvBuf += QString::fromUtf8(buffer);
 
-                recvBuf = recvBuf.mid(idx + 1);
-                feedLine(line.toUtf8());
-                if (line == "END") {
-                    // END를 만나면 바로 break로 탈출
-                    break;
-                }
+        int idx;
+        // 한 번에 여러 줄이 들어올 수 있으니, '\n' 단위로 처리
+        while ((idx = recvBuf.indexOf('\n')) >= 0) {
+            QString line = recvBuf.left(idx).trimmed();
+            recvBuf = recvBuf.mid(idx + 1);
+
+            feedLine(line.toUtf8());
+
+            if (line == QLatin1String("END")) {
+                finished = true;
+                break;  // 내부 while 탈출
             }
-            // 위에서 break된 경우 while(true) 바로 탈출
-            if (recvBuf.contains("END")) break;
-        } else {
-            break; // 서버 종료/에러
         }
     }
 
-    // 남은 줄(미완 줄) 처리
-    if (!recvBuf.trimmed().isEmpty()) {
+    // 남은 줄(END 이후 잔여 데이터)이 있을 경우 처리
+    if (!recvBuf.trimmed().isEmpty() && !finished) {
         feedLine(recvBuf.toUtf8());
     }
+
     section = None;
-    // 맵 잘 그렸으면 true 반환
     return !mapData.isEmpty();
 }
 

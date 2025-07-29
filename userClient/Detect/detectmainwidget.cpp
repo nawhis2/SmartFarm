@@ -99,7 +99,7 @@ void DetectMainWidget::setupAllStreams()
 {
     qDebug() << "setupAllStreams() called";
 
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < 4; i++){
         QTimer::singleShot(i * 1000, this, [=]() {
             if (ipAddress[i].empty()) {
                 auto it = cctvNames.find(i);
