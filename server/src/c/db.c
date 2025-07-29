@@ -197,9 +197,6 @@ static void query_and_send_map(SSL *ssl)
     MYSQL_RES *res = mysql_store_result(g_conn);
     MYSQL_ROW row;
 
-    // 헤더
-    sendData(ssl, "MAP\n");
-
     while ((row = mysql_fetch_row(res)))
     {
         // row[0]=ts_epoch, [1]=center_x, [2]=center_y, [3]=right_x, [4]=right_y, [5]=left_x, [6]=left_y, [7]=created_at
@@ -217,9 +214,6 @@ static void query_and_send_map(SSL *ssl)
         sendData(ssl, line);
     }
     mysql_free_result(res);
-
-    // 끝마커
-    sendData(ssl, "END\n");
 }
 
 // 2) 첫·마지막 strawberry 이벤트 바운드 전송
@@ -230,11 +224,10 @@ static void query_and_send_bounds(SSL *ssl)
         "SELECT e.ts_epoch, e.class_type, e.feature "
         "FROM smartfarm.events AS e "
         "WHERE e.event_type = 'strawberry_detected' "
-        "  AND e.ts_epoch IN ("
-        "    SELECT MIN(ts_epoch) FROM smartfarm.map "
-        "    UNION "
-        "    SELECT MAX(ts_epoch) FROM smartfarm.map"
-        "  ) "
+        "  AND e.ts_epoch BETWEEN "
+        "    (SELECT MIN(ts_epoch) FROM smartfarm.map) "
+        "  AND "
+        "    (SELECT MAX(ts_epoch) FROM smartfarm.map) "
         "ORDER BY e.ts_epoch ASC;";
 
     // 2) 쿼리 실행
@@ -253,9 +246,6 @@ static void query_and_send_bounds(SSL *ssl)
         return;
     }
 
-    // 구분용 헤더
-    sendData(ssl, "BOUNDS\n");
-
     MYSQL_ROW row;
     while ((row = mysql_fetch_row(res)))
     {
@@ -269,16 +259,18 @@ static void query_and_send_bounds(SSL *ssl)
         sendData(ssl, line);
     }
     mysql_free_result(res);
-
-    // 끝마커
-    sendData(ssl, "END\n");
 }
 
 // 3) 위 두 함수를 연달아 호출하는 래퍼
 void query_and_send_map_and_bounds(SSL *ssl)
 {
     query_and_send_map(ssl);
+    // 중간 체크
+    sendData(ssl, "SPLIT\n");
+
     query_and_send_bounds(ssl);
+    // 끝마커
+    sendData(ssl, "END\n");
 }
 
 void clear_map_data()
