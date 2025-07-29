@@ -23,7 +23,7 @@
    <enum>Qt::LayoutDirection::LeftToRight</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+   <item row="2" column="0">
     <widget class="LogCustomTableWidget" name="LogEventTable" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -31,9 +31,17 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="styleSheet">
+      <string notr="true">	color: #aef3c0;
+    background-color: transparent;
+    gridline-color: #225544;
+    font-family: 'Segoe UI';
+    font-size: 16px;
+    selection-background-color: #2a3b3b;</string>
+     </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="0" column="0">
     <widget class="QPushButton" name="btnBackFromLog">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -42,7 +50,7 @@
       </sizepolicy>
      </property>
      <property name="layoutDirection">
-      <enum>Qt::LayoutDirection::RightToLeft</enum>
+      <enum>Qt::LayoutDirection::LeftToRight</enum>
      </property>
      <property name="text">
       <string> home</string>
@@ -51,6 +59,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LogCustomTableWidget</class>
+   <extends>QWidget</extends>
+   <header>logcustomtablewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

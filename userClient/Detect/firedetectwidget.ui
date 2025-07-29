@@ -132,7 +132,7 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
+         <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1,1">
           <item>
            <widget class="QFrame" name="frame_Max">
             <property name="sizePolicy">
@@ -142,8 +142,7 @@
              </sizepolicy>
             </property>
             <property name="styleSheet">
-             <string notr="true">
-</string>
+             <string notr="true"/>
             </property>
             <property name="frameShape">
              <enum>QFrame::Shape::Box</enum>
@@ -151,7 +150,7 @@
             <property name="frameShadow">
              <enum>QFrame::Shadow::Plain</enum>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout" stretch="1,3">
+            <layout class="QVBoxLayout" name="verticalLayout" stretch="1,2">
              <item>
               <widget class="QLabel" name="label_co2M">
                <property name="styleSheet">
@@ -160,6 +159,9 @@
                <property name="text">
                 <string>MAX CO2 
 LEVEL</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
                </property>
               </widget>
              </item>
@@ -196,7 +198,7 @@ LEVEL</string>
             <property name="frameShadow">
              <enum>QFrame::Shadow::Plain</enum>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,3">
+            <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,2">
              <item>
               <widget class="QLabel" name="label_co2">
                <property name="styleSheet">
@@ -205,6 +207,9 @@ LEVEL</string>
                <property name="text">
                 <string>CURRENT 
 CO2 LEVEL</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
                </property>
               </widget>
              </item>

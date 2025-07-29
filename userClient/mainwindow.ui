@@ -22,12 +22,12 @@
   <property name="styleSheet">
    <string notr="true">/* ===== 전체 배경 ===== */
 QMainWindow, QAbstractScrollArea {
-    background-color: #0d1e1e;
+    background-color: #0c1919;
 }
 
 /* ===== 공통 QLabel ===== */
 QLabel {
-   background-color: transparent;
+    background-color: transparent;
     color: #aef3c0;
     font-family: 'Segoe UI';
     font-size: 20px;
@@ -47,52 +47,60 @@ QLabel#videoLabel4 {
     qproperty-alignment: AlignCenter;
 }
 
-
 /* ===== QPushButton 공통 ===== */
 QPushButton {
-    background-color: #143d35;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 #145c50, stop:1 #0e2924);
     color: #aef3c0;
-    border: 1px solid #1de9b6;
+    border: 0.3px solid #1de9b6;
     border-radius: 6px;
     padding: 6px;
     font-family: 'Segoe UI';
     font-size: 12pt;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
-QPushButton:hover { background-color: #1b5247; }
-QPushButton:pressed { background-color: #0e2924; }
+QPushButton:hover {
+    background-color: #1b5247;
+}
+QPushButton:pressed {
+    background-color: #0e2924;
+}
 
 /* ===== 사이드 버튼 (아이콘 전용) ===== */
-QPushButton#btnFire,
-QPushButton#btnGrowth,
-QPushButton#btnIntrusion,
-QPushButton#btnMap,
-QPushButton#btnSync {
-    min-width: 50px;
-    min-height: 50px;
+QToolButton#btnFire,
+QToolButton#btnGrowth,
+QToolButton#btnIntrusion,
+QToolButton#btnLog,
+QToolButton#btnSync,
+QToolButton#startCameraButton {
+    background-color: #143d35;
+    color: #aef3c0;
+    border: 0.3px solid #1de9b6;
+    padding: 8px 12px;
     border-radius: 10px;
-    qproperty-iconSize: 24px;
+    font-family: 'Segoe UI';
+    font-size: 25pt;
+    min-width: 70px;
+    min-height: 70px;
 }
 
-/* ===== Start Camera 전용 ===== */
-QPushButton#startCameraButton {
+/* ===== Start Camera 전용 ===== 
+QToolButton#startCameraButton {
     background-color: #0d3c32;
     font-weight: bold;
     font-size: 14pt;
+    border: 2px solid #33aa88;
 }
-
+*/
 /* ===== QTableWidget ===== */
 QTableWidget {
     background-color: #0d1e1e;
     color: #b8f1cc;
-	border: 1px solid #33aa88;
+    border: 1px solid #33aa88;
     gridline-color: #1de9b6;
     font-family: 'Segoe UI';
     font-size: 12pt;
     alternate-background-color: #112424;
-    border: 1px solid #33aa88;
-
-    /* ✅ 선택 효과 제거 */
-    selection-background-color: transparent;
+    selection-background-color: rgba(51, 170, 136, 0.2);
     selection-color: #b8f1cc;
 }
 
@@ -100,13 +108,13 @@ QFrame#frame_Chart,
 QFrame#frame_Max,
 QFrame#frame_Temp,
 QFrame#frame_Cur {
-	background-color: #102222;
+    background-color: #102222;
     border: 1px solid #33aa88;
     border-radius: 10px;
-	padding: 8;
-    /* 🔥 핵심: border 그리기 보장용 코드 */
+    padding: 8;
     outline: none;
 }
+
 /* 헤더 */
 QHeaderView::section {
     background-color: #223333;
@@ -115,19 +123,13 @@ QHeaderView::section {
     font-weight: bold;
     border: 1px solid #33aa88;
     padding: 4px;
+    border-radius: 4px;
 }
 
 /* 셀 내부 */
 QTableWidget::item {
     padding: 8px 10px;
 }
-
-/* ✅ hover 제거: 이거 삭제 또는 주석처리하면 됨 */
-/*// QTableWidget::item:hover {
-//     font-size: 13pt;
-//     background-color: #1b5247;
-// }*/
-
 
 /* 스크롤바 */
 QScrollBar:vertical {
@@ -137,14 +139,14 @@ QScrollBar:vertical {
 QScrollBar::handle:vertical {
     background: #33aa88;
     min-height: 20px;
+    border-radius: 6px;
 }
 
 /* ===== QChartView ===== */
 QChartView {
     background-color: transparent;
     border: none;
-}
-</string>
+}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -215,7 +217,7 @@ QChartView {
      <x>0</x>
      <y>0</y>
      <width>968</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

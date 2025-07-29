@@ -23,12 +23,33 @@ DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
     videoLabels[2] = ui->videoLabel3;
     videoLabels[3] = ui->videoLabel4;
 
+    for (int i = 0; i < 4; ++i)
+        videoLabels[i]->setScaledContents(true);
+
     // 버튼 연결 유지
-    connect(ui->btnFire,       &QPushButton::clicked, this, &DetectMainWidget::showFirePage);
-    connect(ui->btnGrowth,     &QPushButton::clicked, this, &DetectMainWidget::showGrowthPage);
-    connect(ui->btnIntrusion,  &QPushButton::clicked, this, &DetectMainWidget::showIntrusionPage);
-    connect(ui->btnLog,        &QPushButton::clicked, this, &DetectMainWidget::showLogPage);
-    connect(ui->startCameraButton, &QPushButton::clicked, this, &DetectMainWidget::setupAllStreams);
+    connect(ui->btnFire,       &QToolButton::clicked, this, &DetectMainWidget::showFirePage);
+    ui->btnFire->setMinimumSize(100, 100);
+    ui->btnFire->setIcon(QIcon(":/icons/fire2.png"));
+    ui->btnFire->setIconSize(QSize(100, 100));  // 아이콘 크기 조절
+    ui->btnFire->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); // 아이콘 위, 텍스트 아래
+
+    connect(ui->btnGrowth,     &QToolButton::clicked, this, &DetectMainWidget::showGrowthPage);
+    ui->btnGrowth->setMinimumSize(100, 100);
+    ui->btnGrowth->setIcon(QIcon(":/icons/strawberry2.png"));
+    ui->btnGrowth->setIconSize(QSize(100, 100));  // 아이콘 크기 조절
+    ui->btnGrowth->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); // 아이콘 위, 텍스트 아래
+
+    connect(ui->btnIntrusion,  &QToolButton::clicked, this, &DetectMainWidget::showIntrusionPage);
+    ui->btnIntrusion->setIcon(QIcon(":/icons/intrusion.png"));
+    ui->btnIntrusion->setIconSize(QSize(100, 100));  // 아이콘 크기 조절
+    ui->btnIntrusion->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); // 아이콘 위, 텍스트 아래
+
+    connect(ui->btnLog,        &QToolButton::clicked, this, &DetectMainWidget::showLogPage);
+    ui->btnLog->setIcon(QIcon(":/icons/log.png"));
+    ui->btnLog->setIconSize(QSize(100, 100));  // 아이콘 크기 조절
+    ui->btnLog->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); // 아이콘 위, 텍스트 아래
+
+    connect(ui->startCameraButton, &QToolButton::clicked, this, &DetectMainWidget::setupAllStreams);
 }
 
 DetectMainWidget::~DetectMainWidget()

@@ -107,9 +107,11 @@ add_executable(${PROJECT_NAME}
     network/mapactivereceive.cpp
     logsystemmanager.h logsystemmanager.cpp
     logcustomtablewidget.h logcustomtablewidget.cpp
-    LogSystem/logwidget.h LogSystem/logwidget.cpp LogSystem/logwidget.ui
+    LogSystem/logwidget.h
+    LogSystem/logwidget.cpp
+    LogSystem/logwidget.ui
     corestackwidget.h corestackwidget.cpp
-
+    drawmap.h drawMap.cpp
 )
 
 

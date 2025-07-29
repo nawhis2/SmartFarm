@@ -23,17 +23,65 @@
    <enum>Qt::LayoutDirection::LeftToRight</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="CustomTableWidget" name="intrusionEventTable" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
+   <item row="2" column="0" colspan="4">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
+     <item>
+      <widget class="CustomTableWidget" name="intrusionEventTable" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QDateEdit" name="dateEdit">
+         <property name="styleSheet">
+          <string notr="true">QDateEdit {
+    background-color: #1c1c1c;
+    color: #aef3c0;
+    border: 1px solid #1de9b6;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 16px;
+    font-family: 'Segoe UI';
+}
+
+QDateEdit::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left: 1px solid #1de9b6;
+    background-color: #143d35;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+QDateEdit::down-arrow {
+    image: url(:/icons/down_arrow_white.png); /* 너가 사용하는 아이콘 경로로 수정 */
+    width: 12px;
+    height: 12px;
+}
+
+QDateEdit::up-arrow, QDateEdit::down-arrow:disabled {
+    width: 0;
+    height: 0;
+}
+</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QChartView" name="chartView" native="true"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
-   <item row="1" column="0">
+   <item row="0" column="0">
     <widget class="QPushButton" name="btnBackFromIntrusion">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -49,9 +97,34 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="1" colspan="3">
+    <widget class="QLabel" name="label">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font-size: 25px; </string>
+     </property>
+     <property name="text">
+      <string>INTREUSION MONITORING            </string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QWidget</extends>
+   <header location="global">qchartview.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>CustomTableWidget</class>
    <extends>QWidget</extends>
