@@ -71,7 +71,8 @@ QToolButton#btnGrowth,
 QToolButton#btnIntrusion,
 QToolButton#btnLog,
 QToolButton#btnSync,
-QToolButton#startCameraButton {
+QToolButton#startCameraButton,
+QToolButton#btnMail {
     background-color: #143d35;
     color: #aef3c0;
     border: 0.3px solid #1de9b6;
@@ -146,6 +147,85 @@ QScrollBar::handle:vertical {
 QChartView {
     background-color: transparent;
     border: none;
+}
+
+/* ===== QCalendarWidget ===== */
+QCalendarWidget {
+    background-color: #0d1e1e;
+    color: #aef3c0;
+    font-family: 'Segoe UI', 'Noto Sans KR';
+    font-size: 14px;
+    border-radius: 10px;
+}
+
+QCalendarWidget QWidget#qt_calendar_navigationbar {
+    background-color: #112e2e;
+    border-bottom: 1px solid #1de9b6;
+}
+
+QCalendarWidget QToolButton {
+    color: #aef3c0;
+    font-family: 'Segoe UI', 'Noto Sans KR';
+    font-size: 14px;
+    background-color: transparent;
+    border: none;
+}
+
+QCalendarWidget QToolButton:hover {
+    color: #1de9b6;
+}
+
+QCalendarWidget QToolButton#qt_calendar_prevmonth,
+QCalendarWidget QToolButton#qt_calendar_nextmonth {
+    qproperty-icon: url(:/icons/arrow_left_neon.png); /* ← 오른쪽은 arrow_right */
+    qproperty-iconSize: 14px;
+}
+
+QCalendarWidget QTableView QHeaderView::section {
+    background-color: #0f2e2e;
+    color: #aef3c0;
+    font-family: 'Segoe UI', 'Noto Sans KR';
+    font-weight: normal;
+    padding: 4px;
+    border: none;
+}
+
+QCalendarWidget QAbstractItemView {
+    background-color: #0d1e1e;
+    color: #aef3c0;
+    selection-background-color: #1de9b6;
+    selection-color: #0d1e1e;
+    gridline-color: #1de9b6;
+}
+
+QCalendarWidget QWidget#qt_calendar_today {
+    border: 1px solid #1de9b6;
+    border-radius: 6px;
+    color: #aef3c0;
+}
+
+/* 다이얼로그 배경 */
+QDialog {
+    background-color: #f2f2f2;
+    font-family: 'Segoe UI';
+    font-size: 14px;
+    color: #143d35;
+}
+
+/* QLabel (email:, pass:) */
+QLabel {
+    color: #143d35;
+    font-weight: bold;
+}
+
+/* QLineEdit (입력칸) */
+QLineEdit {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: white;
+    color: #143d35;
+    selection-background-color: #aef3c0;
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">

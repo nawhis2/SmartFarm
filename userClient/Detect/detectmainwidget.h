@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 
+
 namespace Ui {
 class DetectMainWidget;
 }
@@ -32,6 +33,7 @@ private slots:
     void showIntrusionPage();
     void showLogPage();
     void on_btnSync_clicked();
+    void showMailDialog();
 
     // 스트림 제어
     void setupAllStreams();

@@ -209,6 +209,8 @@ void StrawBerryWidget::onPieSliceClicked(QPieSlice* slice)
 {
     QString label = slice->label();
     updateLineChartFromData(label);
+
+    tableWidget->setClassType(label.toStdString());
 }
 
 void StrawBerryWidget::updatePieChartFromTable()

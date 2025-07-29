@@ -8,5 +8,6 @@
         <file>icons/log.png</file>
         <file>icons/strawberry2.png</file>
         <file>icons/fire2.png</file>
+        <file>icons/mail.png</file>
     </qresource>
 </RCC>
