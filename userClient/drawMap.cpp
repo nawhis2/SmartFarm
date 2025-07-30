@@ -35,6 +35,7 @@ DrawMap::DrawMap(QGraphicsView *view_, QObject *parent)
 {
     scene = new QGraphicsScene(this);
     scene->setSceneRect(0, 0, 640, 480);
+    scene->setBackgroundBrush(QBrush(QColor("#0c1919"))); // 어두운 남색 톤
     if (view)
         view->setScene(scene);
 }
@@ -149,7 +150,7 @@ void DrawMap::processBoundLine(const QStringList &p) {
 
 QPointF DrawMap::scale(double x, double y) const {
     constexpr double sceneW = 640, sceneH = 480;
-    constexpr double pad = 100; // 상하좌우 모두에 동일하게 적용할 패딩
+    constexpr double pad = 50; // 상하좌우 모두에 동일하게 적용할 패딩
     const double effW = sceneW - 2 * pad;
     const double effH = sceneH - 2 * pad;
 
@@ -159,6 +160,11 @@ QPointF DrawMap::scale(double x, double y) const {
     // 실제 좌표계 폭/높이가 0에 가까우면 중앙에 찍기 (분모 방어)
     double sx = (inW > 1e-6) ? ((x - minX) / inW * effW) : effW / 2.0;
     double sy = (inH > 1e-6) ? ((y - minY) / inH * effH) : effH / 2.0;
+
+    // 축소 스케일 추가 (예: 85%)
+    constexpr double scaleFactor = 0.65;
+    sx *= scaleFactor;
+    sy *= scaleFactor;
 
     // 패딩만큼 평행이동
     return { sx + pad, sy + pad };
@@ -229,27 +235,31 @@ void DrawMap::drawMap() {
     }
 
     auto *pathItem = new QGraphicsPathItem(path);
-    pathItem->setPen(QPen(Qt::black, 3)); // 굵은 선!
+    QPen pen(QColor("#00ffcc"));
+    pen.setWidth(4);
+    pen.setCapStyle(Qt::RoundCap);
+    pathItem->setPen(pen);
     scene->addItem(pathItem);
 
     // 3. 시작/끝점 객체(Bold 마커+라벨)
     QPointF start = scale(mapData.first().cx, mapData.first().cy);
     QPointF end = scale(mapData.last().cx, mapData.last().cy);
 
-    // 시작점: 파란 굵은 원, "START" 텍스트
-    scene->addEllipse(start.x() - 10, start.y() - 10, 20, 20, QPen(Qt::blue, 3), QBrush(Qt::white));
-    auto *startTxt = scene->addText("START", QFont("Arial", 11, QFont::Bold));
-    startTxt->setDefaultTextColor(Qt::blue);
-    startTxt->setPos(start.x() - 22, start.y() - 32);
+    scene->addEllipse(start.x() - 10, start.y() - 10, 20, 20,
+                      QPen(QColor("#00ffff"), 2), QBrush(QColor(0, 255, 255, 150)));
+    QFont labelFont("Segoe UI", 12, QFont::Bold);
+    auto *startTxt = scene->addText("START", labelFont);
+    startTxt->setDefaultTextColor(QColor("#00ffff"));
+    startTxt->setPos(start.x() - 24, start.y() - 28);
 
-    // 끝점: 빨강 굵은 원, "END" 텍스트
-    scene->addEllipse(end.x() - 10, end.y() - 10, 20, 20, QPen(Qt::red, 3), QBrush(Qt::white));
-    auto *endTxt = scene->addText("END", QFont("Arial", 11, QFont::Bold));
-    endTxt->setDefaultTextColor(Qt::red);
-    endTxt->setPos(end.x() - 6, end.y() + 10);
+    scene->addEllipse(end.x() - 10, end.y() - 10, 20, 20,
+                      QPen(QColor("#ff0066"), 2), QBrush(QColor(255, 0, 102, 150)));
+    auto *endTxt = scene->addText("END", labelFont);
+    endTxt->setDefaultTextColor(QColor("#ff0066"));
+    endTxt->setPos(end.x() - 10, end.y() + 12);
 
     // 4. 범례(Bold, 작게, 좌상단)
-    const int r = 8, lx = 16, ly = 12, spacing = 22;
+    const int r = 8, lx = 6, ly = 6, spacing = 22;
     int idx = 0;
     QFont legendFont("Arial", 11, QFont::Bold);
     for (auto it = classColor.begin(); it != classColor.end(); ++it, ++idx) {
@@ -257,7 +267,7 @@ void DrawMap::drawMap() {
         scene->addEllipse(lx, ly + idx * spacing, 2 * r, 2 * r,
                           QPen(Qt::black, 2), QBrush(col));
         auto *txt = scene->addText(it.key(), legendFont);
-        txt->setDefaultTextColor(Qt::black);
+        txt->setDefaultTextColor(Qt::white);
         txt->setPos(lx + 2 * r + 8, ly + idx * spacing - 4);
     }
 

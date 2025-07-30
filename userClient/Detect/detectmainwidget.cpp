@@ -57,6 +57,11 @@ DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
     ui->btnMail->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
     connect(ui->startCameraButton, &QToolButton::clicked, this, &DetectMainWidget::setupAllStreams);
+
+    weatherManager = new QNetworkAccessManager(this);
+    connect(weatherManager, &QNetworkAccessManager::finished, this, &DetectMainWidget::handleWeatherData);
+
+    fetchWeather();  // 날씨 가져오기 요청
 }
 
 DetectMainWidget::~DetectMainWidget()
@@ -127,3 +132,81 @@ void DetectMainWidget::showMailDialog()
         qDebug() << "[MailDialog] Email:" << email << ", Password:" << password;
     }
 }
+
+// 날씨 정보 요청
+void DetectMainWidget::fetchWeather()
+{
+    QString apiKey = "ed464dec9a556ac76d138891022188b5";
+    QString city = "Seoul";
+    QString urlStr = QString("https://api.openweathermap.org/data/2.5/weather?q=%1&appid=%2&units=metric&lang=kr")
+                         .arg(city).arg(apiKey);
+
+    QNetworkReply* reply = weatherManager->get(QNetworkRequest(QUrl(urlStr)));
+    connect(reply, &QNetworkReply::finished, this, &DetectMainWidget::handleWeatherData);
+}
+
+// 날씨 아이콘 요청
+void DetectMainWidget::fetchWeatherIcon(const QString& iconCode)
+{
+    QString iconUrlStr = QString("https://openweathermap.org/img/wn/%1@2x.png").arg(iconCode);
+    QNetworkReply* iconReply = weatherManager->get(QNetworkRequest(QUrl(iconUrlStr)));
+    connect(iconReply, &QNetworkReply::finished, this, &DetectMainWidget::handleWeatherIcon);
+}
+
+void DetectMainWidget::handleWeatherData()
+{
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply) return;
+
+    QByteArray response = reply->readAll();
+    reply->deleteLater();
+
+    qDebug() << "[날씨 응답 JSON]" << QString::fromUtf8(response);
+
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(response, &err);
+    if (err.error != QJsonParseError::NoError) {
+        qDebug() << "[JSON 파싱 에러]" << err.errorString();
+        ui->label_weather->setText("날씨 정보 오류");
+        return;
+    }
+
+    QJsonObject obj = doc.object();
+    QJsonArray weatherArray = obj["weather"].toArray();
+    if (weatherArray.isEmpty()) {
+        qDebug() << "[날씨 응답 오류] weather 배열이 비어 있음";
+        ui->label_weather->setText("날씨 정보 없음");
+        return;
+    }
+
+    QJsonObject weatherObj = weatherArray.first().toObject();
+    QString description = weatherObj["description"].toString();
+    QString iconCode = weatherObj["icon"].toString();
+    double temp = obj["main"].toObject()["temp"].toDouble();
+
+    ui->label_weather->setText(QString("%1 / %2°C").arg(description).arg(temp, 0, 'f', 1));
+
+    // ✅ 아이콘 요청 별도 함수로 분리
+    fetchWeatherIcon(iconCode);
+}
+
+void DetectMainWidget::handleWeatherIcon()
+{
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply) return;
+
+    QByteArray imageData = reply->readAll();
+    reply->deleteLater();
+
+    QPixmap pix;
+    if (!pix.loadFromData(imageData)) {
+        qDebug() << "[날씨 아이콘 오류] loadFromData 실패";
+        return;
+    }
+
+    ui->label_weatherIcon->setPixmap(pix.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
+
+
+
+

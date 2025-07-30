@@ -289,7 +289,7 @@ void CustomTableWidget::adjustRowHeightsToFitTable()
     if (visibleRows <= 0) return;
 
     int availableHeight = totalHeight - headerHeight;
-    int rowHeight = availableHeight / visibleRows;
+    int rowHeight = availableHeight / visibleRows -1;
 
     for (int row = 0; row < visibleRows; ++row) {
         ui->eventTable->setRowHeight(row, rowHeight);

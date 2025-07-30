@@ -9,6 +9,7 @@
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QChart>
 #include <QColor>
+#include <QTimer>
 
 IntrusionWidget::IntrusionWidget(QStackedWidget *stack, QWidget *parent)
     : DetectCoreWidget(stack, parent)
@@ -35,8 +36,11 @@ IntrusionWidget::IntrusionWidget(QStackedWidget *stack, QWidget *parent)
             if (fields.size() >= 2) {
                 QDateTime ts = QDateTime::fromString(fields[0], "yyyy-MM-dd HH:mm:ss");
                 if (ts.isValid()) {
-                    qDebug() << "[Hook] addIntrusionEvent called at" << ts;
-                    addIntrusionEvent(ts);
+                    qDebug() << "[Hook] Queueing addIntrusionEvent at" << ts;
+
+                    QMetaObject::invokeMethod(this, [=]() {
+                        addIntrusionEvent(ts);
+                    }, Qt::QueuedConnection);  // <-- ⭐ 여기!
                 } else {
                     qDebug() << "[Hook] Invalid QDateTime:" << fields[0];
                 }
@@ -47,34 +51,39 @@ IntrusionWidget::IntrusionWidget(QStackedWidget *stack, QWidget *parent)
 
     }
 
-    // 기본 날짜: 오늘
-    setDateAndUpdate(QDate::currentDate());
-    ui->dateEdit->setDate(QDate::currentDate());
+    QTimer::singleShot(0, this, [=]() {
+        ui->dateEdit->setDate(QDate::currentDate());
+    });
 }
 
 IntrusionWidget::~IntrusionWidget()
 {
     delete ui;
 }
+
 void IntrusionWidget::setupBarChart()
 {
+    // 1. BarSet 생성
     barSet = new QBarSet("Intrusions");
     for (int i = 0; i < 24; ++i) {
         *barSet << 0;
     }
 
+    // 2. BarSeries 설정
     barSeries = new QBarSeries();
     barSeries->append(barSet);
-    barSeries->setBarWidth(0.8);
+    barSeries->setBarWidth(0.9);  // 바 너비 늘려서 맞추기
 
+    // 3. Chart 설정
     barChart = new QChart();
     barChart->addSeries(barSeries);
     barChart->setTitle("시간대별 침입 이벤트");
     barChart->setBackgroundBrush(Qt::transparent);
     barChart->legend()->hide();
 
-    // X축 (0시 ~ 23시)
-    axisX = new QCategoryAxis();
+    // 4. X축: QCategoryAxis (2시간 간격 라벨)
+    axisX = new QCategoryAxis();  // 꼭 헤더에 QCategoryAxis* axisX 로 선언
+
     for (int i = 0; i < 24; i += 2) {
         axisX->append(QString("%1시").arg(i), i);
     }
@@ -82,23 +91,27 @@ void IntrusionWidget::setupBarChart()
     axisX->setLabelsColor(QColor("#aef3c0"));
     axisX->setTitleBrush(QBrush(QColor("#aef3c0")));
     axisX->setTitleText("Hour");
+
     barChart->addAxis(axisX, Qt::AlignBottom);
     barSeries->attachAxis(axisX);
 
-    // Y축
+    // 5. Y축: 값 범위 자동 조절
     axisY = new QValueAxis();
-    axisY->setRange(0, 5); // 초기 최대값
+    axisY->setRange(0, 5);
+    axisY->setLabelFormat("%d");
     axisY->setTitleText("Count");
     axisY->setLabelsColor(QColor("#aef3c0"));
     axisY->setTitleBrush(QBrush(QColor("#aef3c0")));
     barChart->addAxis(axisY, Qt::AlignLeft);
     barSeries->attachAxis(axisY);
 
-    // ChartView에 적용
+    // 6. ChartView 적용
     ui->chartView->setChart(barChart);
     ui->chartView->setRenderHint(QPainter::Antialiasing);
     ui->chartView->setStyleSheet("background-color: transparent; border: none;");
 }
+
+
 
 void IntrusionWidget::addIntrusionEvent(const QDateTime& timestamp)
 {
