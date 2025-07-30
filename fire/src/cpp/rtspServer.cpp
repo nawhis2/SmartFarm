@@ -242,7 +242,9 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
     "( appsrc name=video_src is-live=true do-timestamp=true format=time "
     "! videoconvert "
     "! video/x-raw,format=NV12 "
+    "! queue "
     "! v4l2convert "
+    "! queue "
     "! v4l2h264enc "
     "extra-controls=\"controls,repeat_sequence_header=1,"
     "video_bitrate=" + std::to_string(bitrate) + 
@@ -253,6 +255,7 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
 
     gst_rtsp_media_factory_set_launch(factory, launch_desc.c_str());
     gst_rtsp_media_factory_set_shared(factory, TRUE);
+    gst_rtsp_media_factory_set_latency(factory, 200);
     gst_rtsp_media_factory_set_enable_rtcp(factory, TRUE);
     
     // ✔ appsrc 콜백 설정
@@ -360,7 +363,7 @@ void detectionLoop(StreamContext* ctx) {
         }
 
         // YOLO 감지
-        auto detections = runDetection(*ctx->net, raw_frame, 0.3f, 0.4f, Size(640, 640));
+        auto detections = runDetection(*ctx->net, raw_frame, 0.7f, 0.4f, Size(640, 640));
         // 여기에 로그 출력 추가
         for (const auto& det : detections) {
             std::string label = (*ctx->class_names)[det.class_id];
