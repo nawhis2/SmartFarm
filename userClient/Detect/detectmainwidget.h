@@ -9,7 +9,8 @@
 #include "videostreamhandler.h"
 #include <map>
 #include <string>
-
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 namespace Ui {
 class DetectMainWidget;
@@ -39,6 +40,9 @@ private slots:
     void setupAllStreams();
     void setupStream(const char* cctvName, const int index);
 
+    void handleWeatherData();      // 날씨 JSON 응답 처리
+    void handleWeatherIcon();      // 날씨 아이콘 이미지 응답 처리
+
 private:
     // appsink new-sample 콜백
     static GstFlowReturn onNewSample(GstAppSink *sink, gpointer user_data);
@@ -52,6 +56,9 @@ private:
     std::map<int, std::string> cctvNames;
     std::string ipAddress[4];
     VideoStreamHandler *Streamers[4];
-};
+
+    QNetworkAccessManager *weatherManager;
+    void fetchWeather();  // 날씨 정보 요청 함수
+    void fetchWeatherIcon(const QString& iconCode);};
 
 #endif // DETECTMAINWIDGET_H

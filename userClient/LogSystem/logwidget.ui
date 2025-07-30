@@ -23,24 +23,18 @@
    <enum>Qt::LayoutDirection::LeftToRight</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0">
-    <widget class="LogCustomTableWidget" name="LogEventTable" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">	color: #aef3c0;
-    background-color: transparent;
-    gridline-color: #225544;
-    font-family: 'Segoe UI';
-    font-size: 16px;
-    selection-background-color: #2a3b3b;</string>
-     </property>
-    </widget>
-   </item>
+   <property name="leftMargin">
+    <number>20</number>
+   </property>
+   <property name="topMargin">
+    <number>20</number>
+   </property>
+   <property name="rightMargin">
+    <number>20</number>
+   </property>
+   <property name="bottomMargin">
+    <number>20</number>
+   </property>
    <item row="0" column="0">
     <widget class="QPushButton" name="btnBackFromLog">
      <property name="sizePolicy">
@@ -54,6 +48,47 @@
      </property>
      <property name="text">
       <string> home</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>50</height>
+      </size>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LayoutDirection::RightToLeft</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font-size: 25px; </string>
+     </property>
+     <property name="text">
+      <string>SYSTEM LOG         </string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="LogCustomTableWidget" name="LogEventTable" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">	color: #aef3c0;
+    background-color: transparent;
+    gridline-color: #225544;
+    font-family: 'Segoe UI';
+    font-size: 16px;
+    selection-background-color: #2a3b3b;
+</string>
      </property>
     </widget>
    </item>
