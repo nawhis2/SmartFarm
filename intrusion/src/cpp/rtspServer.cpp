@@ -1,5 +1,6 @@
 #include "rtspServer.h"
 #include "jsonlParse.h"
+#include "buzDrvApp.h"
 
 // ----------------------------
 // Processing functions
@@ -332,11 +333,13 @@ void detectionLoop(StreamContext *ctx)
         auto now = steady_clock::now();
         // 🔥 새로 모션이 발생한 경우에만 이미지 전송
         if (has_motion && !prev_had_motion &&
-            duration_cast<seconds>(now - ctx->last_snapshot_time).count() >= 10)
+            duration_cast<seconds>(now - ctx->last_snapshot_time).count() >= 15)
         {
             vector<uchar> jpeg_buf;
             vector<int> jpeg_params = {IMWRITE_JPEG_QUALITY, 90};
             imencode(".jpg", boxed_frame, jpeg_buf, jpeg_params);
+            
+            buzControl();
 
             send_jsonl_event("intrusion_detected", 1, "intrusion", 1, 0, 0,
                              jpeg_buf.data(), jpeg_buf.size(), ".jpeg");
