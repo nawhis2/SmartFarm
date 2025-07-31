@@ -1,5 +1,6 @@
 #ifndef INTRUSIONWIDGET_H
 #define INTRUSIONWIDGET_H
+#define NOMINMAX
 
 #include "detectcorewidget.h"
 #include <QWidget>
@@ -29,6 +30,9 @@ public:
     ~IntrusionWidget();
     void addIntrusionEvent(const QDateTime& timestamp);
     void setDateAndUpdate(const QDate& date);
+
+protected:
+    virtual void pageChangedIdx() override;
 
 private:
     Ui::IntrusionWidget *ui;
