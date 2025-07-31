@@ -3,6 +3,8 @@
 
 #include <string>
 
-void sendEmail(const std::string& subject, const std::string& message);
+void sendEmail(const std::string&,
+               const std::string&,
+               const std::string&);
 
 #endif // sendEmil.h

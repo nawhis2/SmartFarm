@@ -23,6 +23,7 @@ int store_email_config(const char*);
 int send_config_email(SSL*);
 MailUser check_email_pass();
 
+void query_and_send_bar_data(SSL*s, const char*);
 void query_and_send(SSL*, const char*);
 void query_and_send_daily(SSL*, const char*);
 void query_and_send_weekly(SSL*, const char*);

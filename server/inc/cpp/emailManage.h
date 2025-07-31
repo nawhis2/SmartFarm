@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
-void onIntrusionDetected();
-void onFireDetected();
+void onIntrusionDetected(const char*);
+void onFireDetected(const char*);
 
 #ifdef __cplusplus
 }
