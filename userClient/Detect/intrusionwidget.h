@@ -52,7 +52,8 @@ private:
     void setupBarInteraction();
     std::string makeTimeRangeString(int index);
 
-    void requestIntrusionData();
+    void requestIntrusionData(const QString& date);
+    void updateHourlyChart(const int index, const int count);
 };
 
 #endif // INTRUSIONWIDGET_H

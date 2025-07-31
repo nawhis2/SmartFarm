@@ -1,6 +1,7 @@
 #include "intrusionwidget.h"
 #include "ui_intrusionwidget.h"
 #include "clientUtil.h"
+#include "network.h"
 #include <QDateTime>
 #include <QDebug>
 #include <QtCharts/QBarSet>
@@ -128,9 +129,6 @@ void IntrusionWidget::setupBarChart()
     ui->chartView->setRenderHint(QPainter::Antialiasing);
 }
 
-
-
-
 void IntrusionWidget::addIntrusionEvent(const QDateTime& timestamp)
 {
     if (!intrusionTimestamps.contains(timestamp)) {  // ✅ 중복 방지
@@ -198,3 +196,41 @@ std::string IntrusionWidget::makeTimeRangeString(int index) {
     return (s + "|" + e).toStdString();
 }
 
+void IntrusionWidget::requestIntrusionData(const QString& date)
+{
+    std::string payload = type + "|" + date.toStdString();
+    sendFile(payload.c_str(), "BAR");
+
+    while (1) {
+        char buffer[1024];
+        int n = SSL_read(sock_fd, buffer, sizeof(buffer) - 1);
+        if (n > 0) {
+            buffer[n] = '\0';
+
+            // 종료 조건
+            if (strncmp(buffer, "END", 3) == 0) break;
+
+            // 예: "10|3"
+            QString line = QString::fromUtf8(buffer).trimmed();
+            QStringList parts = line.split('|');
+            if (parts.size() == 2) {
+                bool ok1 = false, ok2 = false;
+                int index = parts[0].toInt(&ok1);
+                int count = parts[1].toInt(&ok2);
+                if (ok1 && ok2 && index >= 0 && index < 24) {
+                    // 실시간 업데이트 호출 (쓰레드 안전하게)
+                    QMetaObject::invokeMethod(this, [=]() {
+                        updateHourlyChart(index, count);
+                    }, Qt::QueuedConnection);
+                }
+            }
+        } else {
+            qDebug() << "[Intrusion] BAR receive failed.";
+            break;
+        }
+    }
+}
+
+void updateHourlyChart(const int index, const int count){
+
+}

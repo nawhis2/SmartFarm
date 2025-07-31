@@ -6,7 +6,7 @@
 #include "clientUtil.h"
 #include "network.h"
 #include "drawmap.h"
-//❌❌❌
+
 StrawBerryWidget::StrawBerryWidget(QStackedWidget *stack, QWidget *parent)
     : DetectCoreWidget(stack, parent)
     , ui(new Ui::StrawBerryWidget)
@@ -38,7 +38,7 @@ void StrawBerryWidget::appendData(const QString &newDateStr,
     // 1) 문자열을 QDate로 변환
     QDate newDate = QDate::fromString(newDateStr, "yyyy-MM-dd");
     if (!newDate.isValid()) {
-        qDebug() << "[appendData] ❌ Invalid QDate:" << newDateStr;
+        qDebug() << "[appendData] Invalid QDate:" << newDateStr;
         return;
     }
 
@@ -59,7 +59,7 @@ void StrawBerryWidget::appendData(const QString &newDateStr,
 
 
 void StrawBerryWidget::pageChangedIdx() {
-    // 🧹 질병 파이차트 정리
+    // 질병 파이차트 정리
     if (diseasePieChartView) {
         QMetaObject::invokeMethod(this, [=]() {
             diseasePieChartView->hide();
@@ -67,10 +67,10 @@ void StrawBerryWidget::pageChangedIdx() {
             diseasePieChartView = nullptr;
         }, Qt::QueuedConnection);
     }
-    // 🧹 disease mode 상태 초기화
+    // disease mode 상태 초기화
     isDiseaseMode = false;
 
-    // 📦 기본 처리
+    // 기본 처리
     DetectCoreWidget::pageChangedIdx();
 
     sendFile(type.c_str(), "WEEKLY");
@@ -129,7 +129,7 @@ void StrawBerryWidget::setupLineChart()
     chart->setBackgroundBrush(Qt::transparent);
     chart->legend()->hide();
 
-    // ✅ X축 (QDateTimeAxis 사용)
+    // X축 (QDateTimeAxis 사용)
     axisX = new QDateTimeAxis;
     axisX->setFormat("MM-dd");
     axisX->setTitleText("Date");
@@ -139,7 +139,7 @@ void StrawBerryWidget::setupLineChart()
     chart->addAxis(axisX, Qt::AlignBottom);
     ripeSeries->attachAxis(axisX);
 
-    // ✅ Y축
+    // Y축
     axisY = new QValueAxis;
     axisY->setTitleText("Count");
     axisY->setTitleBrush(QBrush(QColor("#aef3c0")));
@@ -181,7 +181,7 @@ void StrawBerryWidget::updateLineChartFromData(const QString& category)
                 }
             }
         } else {
-            // 🧠 실제 질병명인 경우 (예: Angular Leafspot)
+            // 실제 질병명인 경우 (예: Angular Leafspot)
             count = data[date].value(category, 0);
         }
         ripeSeries->append(date.startOfDay().toMSecsSinceEpoch(), count);
@@ -197,7 +197,7 @@ void StrawBerryWidget::updateLineChartFromData(const QString& category)
     if (category == "ripe") title = "Ripe Strawberry Count";
     else if (category == "unripe") title = "Unripe Strawberry Count";
     else if (category == "disease") title = "Total Disease Count";
-    else title = QString("%1 Count").arg(category);  // ✅ 병명 직접 반영!
+    else title = QString("%1 Count").arg(category);  // 병명 직접 반영!
     chart->setTitle(title);
 }
 
@@ -211,7 +211,7 @@ void StrawBerryWidget::onPieSliceClicked(QPieSlice* slice)
     updateLineChartFromData(label);
 
     if (label == "disease") {
-        tableWidget->setClassType("");  // ✅ 전체 요청
+        tableWidget->setClassType("");  // 전체 요청
     } else {
         tableWidget->setClassType(label.toStdString());  // 평소처럼 동작
     }
