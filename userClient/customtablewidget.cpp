@@ -36,8 +36,10 @@ CustomTableWidget::CustomTableWidget(QWidget* parent)
     ui->eventTable->setIconSize(QSize(80,45));
     ui->eventTable->verticalHeader()->setDefaultSectionSize(45);
     ui->eventTable->setColumnWidth(0, 80);
+    ui->eventTable->setStyleSheet(R"(
+        QTableView {
+            border: none;})");
 }
-
 CustomTableWidget::~CustomTableWidget(){
     delete ui;
 }

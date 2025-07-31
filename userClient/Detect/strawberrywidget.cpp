@@ -6,7 +6,7 @@
 #include "clientUtil.h"
 #include "network.h"
 #include "drawmap.h"
-
+//❌❌❌
 StrawBerryWidget::StrawBerryWidget(QStackedWidget *stack, QWidget *parent)
     : DetectCoreWidget(stack, parent)
     , ui(new Ui::StrawBerryWidget)
@@ -210,7 +210,11 @@ void StrawBerryWidget::onPieSliceClicked(QPieSlice* slice)
     QString label = slice->label();
     updateLineChartFromData(label);
 
-    tableWidget->setClassType(label.toStdString());
+    if (label == "disease") {
+        tableWidget->setClassType("");  // ✅ 전체 요청
+    } else {
+        tableWidget->setClassType(label.toStdString());  // 평소처럼 동작
+    }
 }
 
 void StrawBerryWidget::updatePieChartFromTable()
@@ -299,8 +303,10 @@ void StrawBerryWidget::showDiseaseMode(bool enable)
         if (!isDiseaseMode) {
             // ✅ 원래 pieChartView 위치 저장
             QRect geom = ui->pieChartView->geometry();
-            QPoint globalTopLeft = ui->pieChartView->mapTo(this, QPoint(0, 0));
-            originalPieGeometry = QRect(globalTopLeft, geom.size());
+            QPoint frameTopLeft = ui->pieChartView->parentWidget()->mapFromGlobal(
+                ui->pieChartView->mapToGlobal(QPoint(0, 0))
+                );
+            originalPieGeometry = QRect(frameTopLeft, geom.size());
             isDiseaseMode = true;
         }
 
@@ -344,15 +350,22 @@ void StrawBerryWidget::showDiseaseMode(bool enable)
             miniPieButton->setStyleSheet("background-color: transparent; border: none;");
             connect(miniPieButton, &QPushButton::clicked, this, [=]() {
                 qDebug() << "⬅ mini pie clicked!";
+                tableWidget->setClassType("");
                 showDiseaseMode(false);
             });
         }
 
         // 버튼을 축소된 pie 위치에 맞게 설정
-        int btnWidth = target.width() * 0.6;
-        int btnHeight = target.height() * 0.6;
-        int btnX = target.x() + (target.width() - btnWidth) / 2;
-        int btnY = target.y() + (target.height() - btnHeight) / 2;
+        QRect miniPieRect = QRect(
+            ui->pieChartView->mapTo(this, target.topLeft()),
+            target.size()
+            );
+
+        // 가운데 정렬된 버튼 크기
+        int btnWidth = miniPieRect.width() * 0.6;
+        int btnHeight = miniPieRect.height() * 0.6;
+        int btnX = miniPieRect.x() + (miniPieRect.width() - btnWidth) / 2;
+        int btnY = miniPieRect.y() + (miniPieRect.height() - btnHeight) / 2;
 
         miniPieButton->setGeometry(btnX, btnY, btnWidth, btnHeight);
 
@@ -434,7 +447,10 @@ void StrawBerryWidget::showDiseasePieChart()
     diseasePieChartView->setRenderHint(QPainter::Antialiasing);
     diseasePieChartView->setStyleSheet("background-color: transparent; border: none;");
 
-    QRect targetRect = ui->pieChartView->geometry();
+    QRect targetRect = QRect(
+        ui->pieChartView->mapTo(this, QPoint(0, 0)),  // ← this 기준으로 좌표 변환
+        ui->pieChartView->size()
+        );
     diseasePieChartView->setGeometry(targetRect);
     // ✅ opacity 효과 추가
     QGraphicsOpacityEffect* effect = new QGraphicsOpacityEffect(diseasePieChartView);
@@ -464,7 +480,12 @@ void StrawBerryWidget::setupMapView() {
 
     QGraphicsView *mapView = new QGraphicsView(ui->graphicView);
     // mapView->setFixedSize(640, 480);
-    mapView->setStyleSheet("background: rgba(255,255,255,220); border:1px solid #AAA;");
+    mapView->setStyleSheet(R"(
+    border: 1px solid #33aa88;
+    border-radius: 10px;
+    padding: 8px;
+    outline: none;
+)");
     mapView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mapView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 

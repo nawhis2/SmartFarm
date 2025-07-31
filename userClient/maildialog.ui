@@ -29,52 +29,6 @@
     <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="emailLineEdit">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>100</y>
-     <width>113</width>
-     <height>28</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="passwordLineEdit">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>150</y>
-     <width>113</width>
-     <height>28</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="mailLabel">
-   <property name="geometry">
-    <rect>
-     <x>31</x>
-     <y>100</y>
-     <width>81</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>email : </string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="passLabel">
-   <property name="geometry">
-    <rect>
-     <x>31</x>
-     <y>150</y>
-     <width>81</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>pass : </string>
-   </property>
-  </widget>
   <widget class="QLabel" name="mymailLabel">
    <property name="geometry">
     <rect>
@@ -87,6 +41,38 @@
    <property name="text">
     <string>mymail@gmail.com</string>
    </property>
+  </widget>
+  <widget class="QWidget" name="gridLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>100</y>
+     <width>171</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="passwordLineEdit"/>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="mailLabel">
+      <property name="text">
+       <string>email : </string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="passLabel">
+      <property name="text">
+       <string>pass : </string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLineEdit" name="emailLineEdit"/>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

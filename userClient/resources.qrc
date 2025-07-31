@@ -9,5 +9,8 @@
         <file>icons/strawberry2.png</file>
         <file>icons/fire2.png</file>
         <file>icons/mail.png</file>
+        <file>icons/camera.png</file>
+        <file>icons/car2.png</file>
+        <file>icons/mail2.png</file>
     </qresource>
 </RCC>

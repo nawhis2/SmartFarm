@@ -31,32 +31,36 @@ DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
     connect(ui->btnFire,       &QToolButton::clicked, this, &DetectMainWidget::showFirePage);
     ui->btnFire->setMinimumSize(100, 100);
     ui->btnFire->setIcon(QIcon(":/icons/fire2.png"));
-    ui->btnFire->setIconSize(QSize(100, 100));  // 아이콘 크기 조절
+    ui->btnFire->setIconSize(QSize(75, 75));  // 아이콘 크기 조절
     ui->btnFire->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); // 아이콘 위, 텍스트 아래
 
     connect(ui->btnGrowth,     &QToolButton::clicked, this, &DetectMainWidget::showGrowthPage);
     ui->btnGrowth->setMinimumSize(100, 100);
     ui->btnGrowth->setIcon(QIcon(":/icons/strawberry2.png"));
-    ui->btnGrowth->setIconSize(QSize(100, 100));  // 아이콘 크기 조절
+    ui->btnGrowth->setIconSize(QSize(75, 75));  // 아이콘 크기 조절
     ui->btnGrowth->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); // 아이콘 위, 텍스트 아래
 
     connect(ui->btnIntrusion,  &QToolButton::clicked, this, &DetectMainWidget::showIntrusionPage);
     ui->btnIntrusion->setIcon(QIcon(":/icons/intrusion.png"));
-    ui->btnIntrusion->setIconSize(QSize(100, 100));  // 아이콘 크기 조절
+    ui->btnIntrusion->setIconSize(QSize(75, 75));  // 아d이콘 크기 조절
     ui->btnIntrusion->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); // 아이콘 위, 텍스트 아래
 
     connect(ui->btnLog,        &QToolButton::clicked, this, &DetectMainWidget::showLogPage);
     ui->btnLog->setIcon(QIcon(":/icons/log.png"));
-    ui->btnLog->setIconSize(QSize(100, 100));  // 아이콘 크기 조절
+    ui->btnLog->setIconSize(QSize(75, 75));  // 아이콘 크기 조절
     ui->btnLog->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); // 아이콘 위, 텍스트 아래
 
     connect(ui->btnMail, &QToolButton::clicked, this, &DetectMainWidget::showMailDialog);
-    ui->btnMail->setMinimumSize(100, 100); // 다른 버튼과 통일
-    ui->btnMail->setIcon(QIcon(":/icons/mail.png"));
-    ui->btnMail->setIconSize(QSize(100, 100));
-    ui->btnMail->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    //ui->btnMail->setMinimumSize(100, 100); // 다른 버튼과 통일
+    ui->btnMail->setIcon(QIcon(":/icons/mail2.png"));
+    ui->btnMail->setIconSize(QSize(50, 50));
 
-    connect(ui->startCameraButton, &QToolButton::clicked, this, &DetectMainWidget::setupAllStreams);
+    connect(ui->btnCamera, &QToolButton::clicked, this, &DetectMainWidget::setupAllStreams);
+    ui->btnCamera->setIcon(QIcon(":/icons/camera.png"));
+    ui->btnCamera->setIconSize(QSize(50, 50));
+
+    ui->btnSync->setIcon(QIcon(":/icons/car2.png"));
+    ui->btnSync->setIconSize(QSize(50, 50));
 
     weatherManager = new QNetworkAccessManager(this);
     connect(weatherManager, &QNetworkAccessManager::finished, this, &DetectMainWidget::handleWeatherData);
