@@ -44,6 +44,7 @@ static void *uartReceiveLoop(void* arg) {
     
     while (running) {
         ssize_t bytesRead = read(uartDevice.getFd(), buffer, sizeof(buffer) - 1);
+        // std::cout << "[Sensor] : " << buffer << '\n';
         if (bytesRead > 0) {
             buffer[bytesRead] = '\0'; // Null-terminate the string
             std::lock_guard<std::mutex> lock(m);
@@ -64,7 +65,7 @@ static void *sendEveryMinute(void* arg) {
         std::vector<std::string> parsedData;
         {
             std::lock_guard<std::mutex> lock(m);
-            std::cout << latest_data << std::endl;
+            std::cout << "[Sensor] : " << latest_data << std::endl;
             parsedData = parseSensorData(latest_data); // Parse the latest data
         }
 
@@ -79,14 +80,14 @@ static void *sendEveryMinute(void* arg) {
             float humidValue = std::stof(parsedData.at(1));
             float tempValue = std::stof(parsedData.at(2));
 
-            if (co2Value > 1000 && !ledState)
+            if (co2Value > 2000 && !ledState)
             {
                 std::cout << "High CO2 level detected: " << co2Value << " ppm" << std::endl;
                 ledState = true; // LED 상태 변경
 
                 write(uartDevice.getFd(), "L1", 2);
             }
-            else if (co2Value <= 1000 && ledState)
+            else if (co2Value <= 2000 && ledState)
             {
                 std::cout << "CO2 level back to normal: " << co2Value << " ppm" << std::endl;
                 ledState = false; // LED 상태 변경

@@ -363,7 +363,7 @@ void detectionLoop(StreamContext* ctx) {
         }
 
         // YOLO 감지
-        auto detections = runDetection(*ctx->net, raw_frame, 0.7f, 0.4f, Size(640, 640));
+        auto detections = runDetection(*ctx->net, raw_frame, 0.3f, 0.4f, Size(640, 640));
         // 여기에 로그 출력 추가
         for (const auto& det : detections) {
             std::string label = (*ctx->class_names)[det.class_id];
