@@ -170,6 +170,9 @@ void DrawMap::drawBounds() {
     if (boundsData.isEmpty() || mapData.size() < 2) return;
 
     for (const auto &evt : boundsData) {
+        if (!classColor.contains(evt.cls))
+            continue; // color table에 없는 라벨은 건너뜀
+
         // 1. 이벤트 ts에 해당하는 구간 탐색
         int i = 0;
         while (i < mapData.size() - 1 && evt.ts > mapData[i + 1].ts)

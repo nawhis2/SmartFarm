@@ -6,6 +6,7 @@
 #include <QPixmap>
 #include <QDebug>
 #include "maildialog.h"
+#include "sensorreceive.h"
 
 DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
     : DetectCoreWidget(stack, parent)
@@ -66,6 +67,21 @@ DetectMainWidget::DetectMainWidget(QStackedWidget *stack, QWidget *parent)
     connect(weatherManager, &QNetworkAccessManager::finished, this, &DetectMainWidget::handleWeatherData);
 
     fetchWeather();  // 날씨 가져오기 요청
+
+    // 습도/온도 표시 타이머
+    QTimer* sensorDisplayTimer = new QTimer(this);
+    connect(sensorDisplayTimer, &QTimer::timeout, this, [=]() {
+        float temp = sensorData.tempValue;
+        float humid = sensorData.humidValue;
+
+        ui->label_temhum->setText(
+            QString("🌡 %1°C   💧 %2%")
+                .arg(temp, 0, 'f', 1)
+                .arg(humid, 0, 'f', 1)
+            );
+    });
+    sensorDisplayTimer->start(2000);  // 2초마다 업데이트
+
 }
 
 DetectMainWidget::~DetectMainWidget()

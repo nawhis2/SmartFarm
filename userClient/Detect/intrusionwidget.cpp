@@ -30,28 +30,6 @@ IntrusionWidget::IntrusionWidget(QStackedWidget *stack, QWidget *parent)
     connect(ui->btnBackFromIntrusion, &QPushButton::clicked, this, &IntrusionWidget::showHomePage);
     connect(ui->dateEdit, &QDateEdit::dateChanged, this, &IntrusionWidget::setDateAndUpdate);
 
-
-    CustomTableWidget* tbl = dynamic_cast<CustomTableWidget*>(ui->intrusionEventTable);
-    if (tbl) {
-        tbl->onNewDataHook = [this](const QStringList& fields) {
-            if (fields.size() >= 2) {
-                QDateTime ts = QDateTime::fromString(fields[0], "yyyy-MM-dd HH:mm:ss");
-                if (ts.isValid()) {
-                    qDebug() << "[Hook] Queueing addIntrusionEvent at" << ts;
-
-                    QMetaObject::invokeMethod(this, [=]() {
-                        addIntrusionEvent(ts);
-                    }, Qt::QueuedConnection);  // <-- ⭐ 여기!
-                } else {
-                    qDebug() << "[Hook] Invalid QDateTime:" << fields[0];
-                }
-            } else {
-                qDebug() << "[Hook] Not enough fields:" << fields;
-            }
-        };
-
-    }
-
     QTimer::singleShot(0, this, [=]() {
         ui->dateEdit->setDate(QDate::currentDate());
     });
@@ -60,6 +38,22 @@ IntrusionWidget::IntrusionWidget(QStackedWidget *stack, QWidget *parent)
 IntrusionWidget::~IntrusionWidget()
 {
     delete ui;
+}
+
+void IntrusionWidget::pageChangedIdx() {
+    // 기본 처리
+    DetectCoreWidget::pageChangedIdx();
+
+    QTableWidget* realTable = tableWidget->findChild<QTableWidget*>();
+    if (realTable && realTable->rowCount() > 0) {
+        QString datetimeStr = realTable->item(0, 0)->text();  // 첫 번째 행의 첫 번째 열
+        QDateTime ts = QDateTime::fromString(datetimeStr, "yyyy-MM-dd HH:mm:ss");
+        if (ts.isValid()) {
+            intrusionTimestamps.append(ts);
+            setDateAndUpdate(ts.date());
+        }
+    }
+
 }
 
 void IntrusionWidget::setupBarChart()
@@ -144,30 +138,18 @@ void IntrusionWidget::setDateAndUpdate(const QDate& date)
 {
     selectedDate = date;
 
-    // 0~23시 count 초기화
-    QVector<int> hourlyCount(24, 0);
-
-    for (const QDateTime& ts : intrusionTimestamps) {
-        if (ts.date() == date) {
-            int hour = ts.time().hour();
-            if (hour >= 0 && hour < 24)
-                hourlyCount[hour]++;
-        }
-    }
-
-    // barSet 갱신
+    // ✅ Bar Chart 초기화
     barSet->remove(0, barSet->count());
-    for (int c : hourlyCount)
-        *barSet << c;
+    for (int i = 0; i < 24; ++i)
+        *barSet << 0;
 
-    // 최대값에 따라 Y축 조정
-    int maxCount = *std::max_element(hourlyCount.begin(), hourlyCount.end());
-    axisY->setRange(0, std::max(5, maxCount + 1));
-    axisY->setTickCount(std::max(6, maxCount + 2));
+    axisY->setRange(0, 5);
+    axisY->setTickCount(6);
     axisY->applyNiceNumbers();
-    axisY->setLabelFormat("%d");
-
     ui->chartView->update();
+
+    // ✅ 서버에서 차트 데이터 요청 (테이블 X)
+    requestIntrusionData(date.toString("yyyy-MM-dd"));
 }
 
 void IntrusionWidget::setupBarInteraction()
@@ -217,6 +199,8 @@ void IntrusionWidget::requestIntrusionData(const QString& date)
                 bool ok1 = false, ok2 = false;
                 int index = parts[0].toInt(&ok1);
                 int count = parts[1].toInt(&ok2);
+
+                qDebug()<<index<<count;
                 if (ok1 && ok2 && index >= 0 && index < 24) {
                     // 실시간 업데이트 호출 (쓰레드 안전하게)
                     QMetaObject::invokeMethod(this, [=]() {
@@ -231,6 +215,23 @@ void IntrusionWidget::requestIntrusionData(const QString& date)
     }
 }
 
-void updateHourlyChart(const int index, const int count){
+void IntrusionWidget::updateHourlyChart(const int index, const int count)
+{
+    if (index >= 0 && index < barSet->count()) {
+        barSet->replace(index, count);  // ✅ 올바른 방식
+
+        // Y축 최대값 재계산
+        int maxVal = 0;
+        for (int i = 0; i < barSet->count(); ++i) {
+            maxVal = std::max(maxVal, int(barSet->at(i)));
+        }
+
+        axisY->setRange(0, std::max(5, maxVal + 1));
+        axisY->setTickCount(std::max(6, maxVal + 2));
+        axisY->applyNiceNumbers();
+        axisY->setLabelFormat("%d");
+
+        ui->chartView->update();
+    }
 
 }
