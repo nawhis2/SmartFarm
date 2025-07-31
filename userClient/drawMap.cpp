@@ -16,7 +16,11 @@
 #define NOMINMAX
 #undef min
 #undef max
-
+constexpr double sceneW = 910, sceneH = 450;
+constexpr double mapW = 700, mapH = 400;
+constexpr double mapInnerPad = 50;
+constexpr double mapOriginX = sceneW - mapW;  // 210
+constexpr double mapOriginY = 0;
 
 // ------------------ 클래스별 색상 테이블 ------------------
 static QMap<QString, QColor> classColor = {
@@ -34,7 +38,7 @@ DrawMap::DrawMap(QGraphicsView *view_, QObject *parent)
     : QObject(parent), view(view_)
 {
     scene = new QGraphicsScene(this);
-    scene->setSceneRect(0, 0, 640, 480);
+    scene->setSceneRect(0, 0, 910, 450);
     scene->setBackgroundBrush(QBrush(QColor("#0c1919"))); // 어두운 남색 톤
     if (view)
         view->setScene(scene);
@@ -149,25 +153,17 @@ void DrawMap::processBoundLine(const QStringList &p) {
 }
 
 QPointF DrawMap::scale(double x, double y) const {
-    constexpr double sceneW = 640, sceneH = 480;
-    constexpr double pad = 50; // 상하좌우 모두에 동일하게 적용할 패딩
-    const double effW = sceneW - 2 * pad;
-    const double effH = sceneH - 2 * pad;
-
     double inW = maxX - minX;
     double inH = maxY - minY;
+    double effW = mapW - 2 * mapInnerPad;
+    double effH = mapH - 2 * mapInnerPad;
 
-    // 실제 좌표계 폭/높이가 0에 가까우면 중앙에 찍기 (분모 방어)
     double sx = (inW > 1e-6) ? ((x - minX) / inW * effW) : effW / 2.0;
     double sy = (inH > 1e-6) ? ((y - minY) / inH * effH) : effH / 2.0;
 
-    // 축소 스케일 추가 (예: 85%)
-    constexpr double scaleFactor = 0.65;
-    sx *= scaleFactor;
-    sy *= scaleFactor;
-
-    // 패딩만큼 평행이동
-    return { sx + pad, sy + pad };
+    sx += mapOriginX + mapInnerPad;
+    sy += mapOriginY + mapInnerPad;
+    return QPointF(sx, sy);
 }
 
 void DrawMap::drawBounds() {
@@ -205,24 +201,20 @@ void DrawMap::drawMap() {
     scene->clear();
     if (mapData.isEmpty()) return;
 
-    // 1. 좌표 범위 계산
+    // --- 좌표 범위 ---
     minX = minY = std::numeric_limits<double>::max();
     maxX = maxY = -std::numeric_limits<double>::max();
     for (const auto &pt : mapData) {
-        minX = std::min(minX, pt.cx);
-        maxX = std::max(maxX, pt.cx);
-        minY = std::min(minY, pt.cy);
-        maxY = std::max(maxY, pt.cy);
+        minX = std::min(minX, pt.cx);   maxX = std::max(maxX, pt.cx);
+        minY = std::min(minY, pt.cy);   maxY = std::max(maxY, pt.cy);
     }
     if (minX == maxX) { minX -= 0.5; maxX += 0.5; }
     if (minY == maxY) { minY -= 0.5; maxY += 0.5; }
 
-    // 2. (보간된) 경로선
+    // --- 곡선/경로 ---
     QPainterPath path;
     QPointF firstPt = scale(mapData[0].cx, mapData[0].cy);
     path.moveTo(firstPt);
-
-    // 간단한 곡선 보간: quadTo(2차 베지어, 3점씩) - 짧으면 직선
     for (int i = 1; i < mapData.size() - 2; ++i) {
         QPointF p0 = scale(mapData[i].cx, mapData[i].cy);
         QPointF p1 = scale(mapData[i + 1].cx, mapData[i + 1].cy);
@@ -231,17 +223,14 @@ void DrawMap::drawMap() {
     }
     if (mapData.size() >= 2) {
         QPointF last = scale(mapData.last().cx, mapData.last().cy);
-        path.lineTo(last); // 마지막 두점 연결
+        path.lineTo(last);
     }
-
     auto *pathItem = new QGraphicsPathItem(path);
-    QPen pen(QColor("#00ffcc"));
-    pen.setWidth(4);
-    pen.setCapStyle(Qt::RoundCap);
+    QPen pen(QColor("#00ffcc")); pen.setWidth(4); pen.setCapStyle(Qt::RoundCap);
     pathItem->setPen(pen);
     scene->addItem(pathItem);
 
-    // 3. 시작/끝점 객체(Bold 마커+라벨)
+    // --- 시작/끝점 마커/라벨 ---
     QPointF start = scale(mapData.first().cx, mapData.first().cy);
     QPointF end = scale(mapData.last().cx, mapData.last().cy);
 
@@ -258,20 +247,19 @@ void DrawMap::drawMap() {
     endTxt->setDefaultTextColor(QColor("#ff0066"));
     endTxt->setPos(end.x() - 10, end.y() + 12);
 
-    // 4. 범례(Bold, 작게, 좌상단)
-    const int r = 8, lx = 6, ly = 6, spacing = 22;
+    // --- 범례(좌상단) ---
+    const int r = 8, lx = 22, ly = 20, spacing = 22;
     int idx = 0;
     QFont legendFont("Arial", 11, QFont::Bold);
     for (auto it = classColor.begin(); it != classColor.end(); ++it, ++idx) {
         QColor col = it.value();
-        scene->addEllipse(lx, ly + idx * spacing, 2 * r, 2 * r,
-                          QPen(Qt::black, 2), QBrush(col));
+        scene->addEllipse(lx, ly + idx * spacing, 2*r, 2*r, QPen(Qt::black, 2), QBrush(col));
         auto *txt = scene->addText(it.key(), legendFont);
         txt->setDefaultTextColor(Qt::white);
-        txt->setPos(lx + 2 * r + 8, ly + idx * spacing - 4);
+        txt->setPos(lx + 2*r + 8, ly + idx*spacing - 4);
     }
 
-    // 5. 날짜(오른쪽 아래, yyyy-MM-dd만, Bold)
+    // --- 날짜(우하단, scene 기준) ---
     QString timeText;
     const MapPoint& last = mapData.last();
     if (!last.createdAt.isEmpty()) {
@@ -283,13 +271,12 @@ void DrawMap::drawMap() {
     auto *tsItem = scene->addText(timeText, dateFont);
     tsItem->setDefaultTextColor(Qt::darkGray);
 
-    constexpr double sceneW = 640, sceneH = 480;
-    int charPixelW = 11, marginRight = 16, marginBottom = 16;
+    int marginRight = 24, marginBottom = 20, charPixelW = 11;
     double textX = sceneW - (timeText.size() * charPixelW) - marginRight;
     double textY = sceneH - marginBottom - 22;
     tsItem->setPos(textX, textY);
 
-    // 6. (선택) 시작/끝점 좌표 콘솔 출력
+    // (디버그) 시작/끝점 콘솔 출력
     qDebug() << "[MAP] 시작점:" << mapData.first().cx << mapData.first().cy
              << "끝점:" << mapData.last().cx << mapData.last().cy;
 }

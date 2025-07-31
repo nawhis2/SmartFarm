@@ -63,27 +63,35 @@ IntrusionWidget::~IntrusionWidget()
 
 void IntrusionWidget::setupBarChart()
 {
-    // 1. BarSet 생성
+    // 1. BarSet 생성 (색상/테두리 커스텀)
     barSet = new QBarSet("Intrusions");
     for (int i = 0; i < 24; ++i) {
         *barSet << 0;
     }
+    barSet->setColor(QColor("#33aa88"));  // 메인 민트 컬러
+    barSet->setBorderColor(QColor("#1de9b6")); // 엣지 민트
+    barSet->setLabelBrush(QColor("#aef3c0")); // 값 표시 색
+    barSet->setLabelFont(QFont("Segoe UI", 10, QFont::Bold));
 
     // 2. BarSeries 설정
     barSeries = new QBarSeries();
     barSeries->append(barSet);
-    barSeries->setBarWidth(0.9);  // 바 너비 늘려서 맞추기
+    barSeries->setBarWidth(0.9);
+    barSeries->setLabelsVisible(true);  // 막대 위 숫자 표시
 
     // 3. Chart 설정
     barChart = new QChart();
     barChart->addSeries(barSeries);
-    barChart->setTitle("시간대별 침입 이벤트");
-    barChart->setBackgroundBrush(Qt::transparent);
+    barChart->setTitle("Hourly Intrusion Events");
+    barChart->setTitleFont(QFont("Segoe UI", 13));
+    barChart->setTitleBrush(QBrush(QColor("#aef3c0")));
+    barChart->setBackgroundVisible(false);
+    barChart->setBackgroundBrush(Qt::NoBrush);
+    barChart->setPlotAreaBackgroundVisible(false);
     barChart->legend()->hide();
 
     // 4. X축: QCategoryAxis (2시간 간격 라벨)
-    axisX = new QCategoryAxis();  // 꼭 헤더에 QCategoryAxis* axisX 로 선언
-
+    axisX = new QCategoryAxis();
     for (int i = 0; i < 24; i += 2) {
         axisX->append(QString("%1시").arg(i), i);
     }
@@ -91,25 +99,35 @@ void IntrusionWidget::setupBarChart()
     axisX->setLabelsColor(QColor("#aef3c0"));
     axisX->setTitleBrush(QBrush(QColor("#aef3c0")));
     axisX->setTitleText("Hour");
+    axisX->setTitleFont(QFont("Segoe UI", 11));
+    axisX->setLabelsFont(QFont("Segoe UI", 9));
+
+    QPen gridPen(QColor("#406060"));
+    gridPen.setStyle(Qt::DashLine);
+    axisX->setGridLinePen(gridPen);
 
     barChart->addAxis(axisX, Qt::AlignBottom);
     barSeries->attachAxis(axisX);
 
-    // 5. Y축: 값 범위 자동 조절
+    // 5. Y축
     axisY = new QValueAxis();
     axisY->setRange(0, 5);
     axisY->setLabelFormat("%d");
     axisY->setTitleText("Count");
     axisY->setLabelsColor(QColor("#aef3c0"));
     axisY->setTitleBrush(QBrush(QColor("#aef3c0")));
+    axisY->setTitleFont(QFont("Segoe UI", 11));
+    axisY->setLabelsFont(QFont("Segoe UI", 9));
+    axisY->setGridLinePen(gridPen);
+
     barChart->addAxis(axisY, Qt::AlignLeft);
     barSeries->attachAxis(axisY);
 
-    // 6. ChartView 적용
+    // 6. ChartView
     ui->chartView->setChart(barChart);
     ui->chartView->setRenderHint(QPainter::Antialiasing);
-    ui->chartView->setStyleSheet("background-color: transparent; border: none;");
 }
+
 
 
 
@@ -179,3 +197,4 @@ std::string IntrusionWidget::makeTimeRangeString(int index) {
     // 5) std::string으로 변환해 반환
     return (s + "|" + e).toStdString();
 }
+

@@ -9,6 +9,7 @@ LogWidget::LogWidget(QStackedWidget *stack, QWidget *parent)
     ui->setupUi(this);
 
     connect(ui->btnBackFromLog, &QPushButton::clicked, this, &LogWidget::showHomePage);
+    ui->LogEventTable->setPageSize(27);
 }
 
 LogWidget::~LogWidget()

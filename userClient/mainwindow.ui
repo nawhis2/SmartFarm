@@ -31,7 +31,6 @@ QLabel {
     color: #aef3c0;
     font-family: 'Segoe UI';
     font-size: 20px;
-    qproperty-alignment: AlignCenter;
 }
 /* QLabel (email:, pass:) */
 QLabel#mailLabel,
@@ -76,9 +75,20 @@ QPushButton:pressed {
 QToolButton#btnFire,
 QToolButton#btnGrowth,
 QToolButton#btnIntrusion,
-QToolButton#btnLog,
+QToolButton#btnLog {
+    background-color: #143d35;
+    color: #aef3c0;
+    border: 0.3px solid #1de9b6;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-family: 'Segoe UI';
+    font-size: 25pt;
+	text-align: center;
+	padding-left: 30px;
+}
+
 QToolButton#btnSync,
-QToolButton#startCameraButton,
+QToolButton#btnCamera,
 QToolButton#btnMail {
     background-color: #143d35;
     color: #aef3c0;
@@ -87,18 +97,8 @@ QToolButton#btnMail {
     border-radius: 10px;
     font-family: 'Segoe UI';
     font-size: 25pt;
-    min-width: 70px;
-    min-height: 70px;
 }
 
-/* ===== Start Camera 전용 ===== 
-QToolButton#startCameraButton {
-    background-color: #0d3c32;
-    font-weight: bold;
-    font-size: 14pt;
-    border: 2px solid #33aa88;
-}
-*/
 /* ===== QTableWidget ===== */
 QTableWidget {
     background-color: #0d1e1e;
@@ -115,14 +115,32 @@ QTableWidget {
 QFrame#frame_Chart,
 QFrame#frame_Max,
 QFrame#frame_Temp,
-QFrame#frame_Cur {
-    background-color: #102222;
+QFrame#frame_Cur,
+QFrame#frame_Line,
+QFrame#frame_Bar,
+QFrame#frame_Pie,
+QFrame#frame_Itable,
+QFrame#frame_Stable,
+QFrame#frame_Ftable {
+    /*background-color: #102222;*/
     border: 1px solid #33aa88;
     border-radius: 10px;
     padding: 8;
     outline: none;
 }
 
+QWidget#graphicView {
+    border: 1px solid #33aa88;
+    border-radius: 10px;
+    padding: 8;
+    outline: none;
+}
+
+QGraphicsView#graphicView {
+    border: 2px solid #33aa88;
+    border-radius: 10px;
+    background-color: transparent;
+}
 /* 헤더 */
 QHeaderView::section {
     background-color: #223333;
