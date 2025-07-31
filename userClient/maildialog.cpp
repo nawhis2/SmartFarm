@@ -46,6 +46,9 @@ void MailDialog::okButtonClicked(){
     if(getEmail() == "" || getPassword() == "")
         return;
 
+    if(getEmail() == ui->mymailLabel->text())
+        return;
+
     QByteArray ba = getCredential().toUtf8();   // 유지되는 QByteArray
     const char* cstr = ba.constData();          // 유효한 메모리 영역
 

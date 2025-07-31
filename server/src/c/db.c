@@ -209,6 +209,58 @@ MailUser check_email_pass(void) {
     return user;
 }
 
+void query_and_send_bar_data(SSL *sock_fd, const char *payload)
+{
+    // 1. 파싱
+    char event_type[128], date[32];
+    if (sscanf(payload, "%127[^|]|%31[^|]", event_type, date) != 2) {
+        return;
+    }
+
+    // 2. 이스케이프
+    char evt_esc[128], date_esc[32];
+    mysql_real_escape_string(g_conn, evt_esc, event_type, strlen(event_type));
+    mysql_real_escape_string(g_conn, date_esc, date, strlen(date));
+
+    // 3. 쿼리 실행
+    char query[512];
+    snprintf(query, sizeof(query),
+        "SELECT HOUR(created_at), COUNT(*) "
+        "FROM smartfarm.events "
+        "WHERE event_type = '%s' AND DATE(created_at) = '%s' "
+        "GROUP BY HOUR(created_at);",
+        evt_esc, date_esc);
+
+    if (mysql_query(g_conn, query)) {
+        return;
+    }
+
+    // 4. 결과 수신 및 24칸 배열 초기화
+    int hourly[24] = {0};
+    MYSQL_RES *res = mysql_store_result(g_conn);
+    MYSQL_ROW row;
+
+    while ((row = mysql_fetch_row(res))) {
+        int hour = atoi(row[0]);
+        int count = atoi(row[1]);
+        if (hour >= 0 && hour < 24) {
+            hourly[hour] = count;
+        }
+    }
+    mysql_free_result(res);
+
+    // 5. 값이 0이 아닌 시간만 전송
+    for (int i = 0; i < 24; ++i) {
+        if (hourly[i] == 0) continue;
+
+        char line[64];
+        snprintf(line, sizeof(line), "%d|%d", i, hourly[i]);
+        sendData(sock_fd, line);
+    }
+
+    sendData(sock_fd, "END");
+}
+
 void query_and_send(SSL *sock_fd, const char *payload)
 {
     // 1) payload 파싱

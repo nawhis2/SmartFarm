@@ -25,13 +25,6 @@ void store_event_to_mysql(json_t *obj)
     // 1) 필드 추출
     const char *etype = json_string_value(json_object_get(obj, "event_type"));
 
-    if(strncmp(etype, "intrusion_detected", 18) == 0){
-        onIntrusionDetected();
-    }
-    // else if(strncmp(etype, "fire_detected", 13) == 0){
-    //     onFireDetected();
-    // }
-
     long long ts = json_integer_value(json_object_get(obj, "timestamp"));
 
     json_t *data = json_object_get(obj, "data");
@@ -116,6 +109,13 @@ void store_event_to_mysql(json_t *obj)
     bind[5].buffer_length = raw_len;
     bind[5].is_null = &raw_null;
     bind[5].length = &raw_len;
+
+    if(strncmp(etype, "intrusion_detected", 18) == 0){
+        onIntrusionDetected(image_url);
+    }
+    else if(strncmp(etype, "fire_detected", 13) == 0){
+        onFireDetected(image_url);
+    }
 
     // 4) 실행
     mysql_stmt_bind_param(stmt, bind);
@@ -564,6 +564,13 @@ int receiveUserPacket(SSL *ssl)
         free(msg);
         return 0;
     }
+    else if(strncmp(type, "BAR", 3) == 0)
+    {
+        query_and_send_bar_data(ssl, msg);
+        free(msg);
+        return 0;
+    }
+
 
     free(msg);
     return -1;
