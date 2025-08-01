@@ -228,7 +228,7 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
     "( appsrc name=video_src is-live=true do-timestamp=true format=time "
     "! videoconvert "
     "! video/x-raw,format=NV12 "
-    //"! queue max-size-buffers=2 "
+    "! queue max-size-buffers=2 "
     "! v4l2convert "
     "! v4l2h264enc "
     "capture-io-mode=2 "
@@ -236,7 +236,7 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
     "video_bitrate=" + std::to_string(bitrate) + 
     ",h264_i_frame_period=1,h264_profile=0\" "
     "! video/x-h264,level=(string)4 "
-    //"! queue max-size-buffers=5 "
+    "! queue max-size-buffers=5 "
     "! h264parse "
     "! rtph264pay name=pay0 pt=96 config-interval=1 )";
 
@@ -270,7 +270,8 @@ GstRTSPServer *setupRtspServer(StreamContext &ctx)
     return server;
 }
 
-void inferenceLoop(StreamContext* ctx) {
+void inferenceLoop(StreamContext *ctx)
+{
     while (running) {
         Mat frame;
         if (!ctx->cap->read(frame)) {
@@ -278,30 +279,121 @@ void inferenceLoop(StreamContext* ctx) {
             continue;
         }
 
-        // 객체 감지
-        std::vector<DetectionResult> results = detectAndTrack(*ctx, frame);
-
-        // 추적된 객체 표시
-        for (auto& tr : ctx->tracked) {
-            rectangle(frame, tr.second.box, Scalar(0, 255, 0), 2);
-            string label = (*ctx->class_names)[tr.second.class_id] + format(" ID %d", tr.first);
-            putText(frame, label, tr.second.box.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0), 2);
+        // 1. 원본 프레임 보관 (박스 없음)
+        {
+            std::lock_guard<std::mutex> lock(raw_mutex);
+            latest_raw_frame = frame.clone();
         }
-        
-        // 10초에 한 번씩 이벤트 전송
+
+        // 2. 버퍼에 저장
+        {
+            std::lock_guard<std::mutex> lock(buffer_mutex);
+            frame_buffer.push_back({ctx->frame_count, frame.clone()});
+            if (frame_buffer.size() > 10)
+                frame_buffer.pop_front();
+        }
+
+        // 3. 지연된 프레임 꺼내기
+        Mat delayed_frame;
+        {
+            std::lock_guard<std::mutex> lock(buffer_mutex);
+            if (frame_buffer.size() > BUFFER_DELAY_FRAMES)
+                delayed_frame = frame_buffer[frame_buffer.size() - BUFFER_DELAY_FRAMES - 1].second.clone();
+            else
+                delayed_frame = frame.clone();
+        }
+
+        // 4. 박스 그리기 (tracked 기반)
+        {
+            std::lock_guard<std::mutex> lock(track_mutex);
+            for (const auto& [id, d] : ctx->tracked) {
+                rectangle(delayed_frame, d.box, Scalar(0, 255, 0), 2);
+                string label = (*ctx->class_names)[d.class_id] + format(" ID %d", id);
+                putText(delayed_frame, label, d.box.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 255, 0), 2);
+            }
+        }
+
+        // 5. 송출용 프레임으로 설정
+        {
+            std::lock_guard<std::mutex> lock(frame_mutex);
+            latest_frame = delayed_frame.clone();
+            latest_pts = ctx->frame_count++;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000 / ctx->fps));
+    }
+}
+
+void detectionLoop(StreamContext* ctx) {
+    while (running) {
+        Mat raw_frame;
+        {
+            std::lock_guard<std::mutex> lock(raw_mutex);
+            if (latest_raw_frame.empty()) continue;
+            raw_frame = latest_raw_frame.clone();
+        }
+
+        // 배경 모델 업데이트 + 모션 박스 추출
+        if (ctx->frame_count == 0)
+            raw_frame.convertTo(ctx->background_model, CV_32F);
+
+        Mat bg8u = updateBackground(raw_frame, ctx->background_model, 0.01);
+        Mat fg = getMotionMask(raw_frame, bg8u);
+        auto motion_boxes = extractMotionBoxes(fg);
+
+        // 감지 주기 제한
+        if (++ctx->frame_counter % 5 != 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
+
+        // YOLO 감지
+        auto detections = runDetection(*ctx->net, raw_frame, 0.6f, 0.4f, Size(640, 640));
+
+        // IOU 기반 tracking
+        map<int, DetectionResult> updated;
+        {
+            std::lock_guard<std::mutex> lock(track_mutex);
+            for (const auto& d : detections) {
+                bool matched = false;
+                for (const auto& [id, prev] : ctx->tracked) {
+                    if ((d.box & prev.box).area() > 0 &&
+                        static_cast<float>((d.box & prev.box).area()) / (d.box | prev.box).area() > 0.3f) {
+                        updated[id] = d;
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    updated[ctx->next_id++] = d;
+                }
+            }
+            ctx->tracked = std::move(updated);
+        }
+
+        // 박스 그리기
+        Mat boxed_frame = raw_frame.clone();
+        {
+            std::lock_guard<std::mutex> lock(track_mutex);
+            for (const auto& [id, tr] : ctx->tracked) {
+                rectangle(boxed_frame, tr.box, Scalar(0, 0, 255), 2);
+                string label = (*ctx->class_names)[tr.class_id] + format(" ID %d", id);
+                putText(boxed_frame, label, tr.box.tl(), FONT_HERSHEY_SIMPLEX, 1.0, Scalar(0, 0, 255), 2);
+            }
+        }
+
+        // 이벤트 전송
         auto now = steady_clock::now();
-        std::cout << results.size() << " objects detected at frame " << ctx->frame_count << std::endl;
-        if (!results.empty() &&
-        duration_cast<seconds>(now - ctx->last_snapshot_time).count() >= 10) {
-            
-            // 스냅샷 생성
-            Mat snapshot = frame.clone();
+        if (!ctx->tracked.empty() &&
+            duration_cast<seconds>(now - ctx->last_snapshot_time).count() >= 10) 
+        {
+
             vector<uchar> jpeg_buf;
             vector<int> jpeg_params = {IMWRITE_JPEG_QUALITY, 90};
-            imencode(".jpg", snapshot, jpeg_buf, jpeg_params);
-            
+            imencode(".jpg", boxed_frame, jpeg_buf, jpeg_params);
+
             // 감지된 객체들 중 fire/smoke에 대해 전송
-            for (const auto& det : results) {
+            for (const auto& det : detections) {
                 std::string label = (*ctx->class_names)[det.class_id];
                 int conf = static_cast<int>(det.confidence * 100);
                 
@@ -321,15 +413,7 @@ void inferenceLoop(StreamContext* ctx) {
                     );
                 }
             }
-
-            ctx->last_snapshot_time = now;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
-
-        {
-            std::lock_guard<std::mutex> lock(frame_mutex);
-            latest_frame = frame.clone();
-            latest_pts = ctx->frame_count++;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(66));
     }
 }
