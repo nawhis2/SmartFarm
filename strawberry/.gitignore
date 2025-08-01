@@ -1,0 +1,51 @@
+# 빌드 디렉터리 및 빌드 산출물
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# 실행 파일
+main
+StrawberryVision
+test
+# 컴파일 중간 산출물
+*.o
+*.obj
+*.so
+*.a
+*.dll
+*.exe
+
+# 모델 및 데이터 파일
+*.onnx
+
+# 인증서/키/CSR 등 보안 파일
+*.pem
+*.key
+*.csr
+
+# 에디터/OS 임시 파일
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.directory
+
+# 로그, 임시, 백업 파일
+*.log
+*.tmp
+*.bak
+*.out
+*.test
+*.pid
+*.cache
+
+# 기타 불필요한 파일/디렉터리
+*.user
+*.idea/
+.vscode/
+
+../mapping/
+test.cpp
