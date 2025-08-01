@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/temperature_icon.png</file>
+        <file>icons/temperature_icon3.png</file>
+        <file>icons/strawberry.png</file>
+        <file>icons/fire.png</file>
+        <file>icons/intrusion.png</file>
+        <file>icons/log.png</file>
+        <file>icons/strawberry2.png</file>
+        <file>icons/fire2.png</file>
+        <file>icons/mail.png</file>
+        <file>icons/camera.png</file>
+        <file>icons/car2.png</file>
+        <file>icons/mail2.png</file>
+    </qresource>
+</RCC>

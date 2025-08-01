@@ -3,7 +3,8 @@
 
 #include "main.h"
 
-int serverNetwork();
-SSL *clientNetwork(int, SSL_CTX *);
+int serverNetwork(int);
+SSL *clientNetwork(int, SSL_CTX*);
+void returnSocket(SSL*);
 
 #endif

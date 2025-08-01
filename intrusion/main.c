@@ -16,82 +16,92 @@
 #include "network.h"
 #include "handshake.h"
 #include "jsonlParse.h"
+#include "rtspStreaming.h"
+
+#define PORT 60000
+#define CCTVPORT 60001
 
 #define BUF_SIZE 1024
 
-int main(){
+int main(int argc, char **argv)
+{
+    if (argc < 2)
+    {
+        fprintf(stderr, "FORMAT: %s <IP ADDRESS>\n", argv[0]);
+        return 1;
+    }
+    char *ip = argv[1];
+    if (!ip)
+    {
+        fprintf(stderr, "NO IP ADDRESS");
+        return 1;
+    }
     int num;
-	char buffer[BUF_SIZE];
-	
-	sigset_t set;
-    
+    char buffer[BUF_SIZE];
+
+    sigset_t set;
+
     sigfillset(&set);
     sigdelset(&set, SIGINT);
     sigprocmask(SIG_SETMASK, &set, NULL);
-    
-	init_openssl();
+
+    init_openssl();
     SSL_CTX *ctx = create_context();
-    
-    int sockfd = socketNetwork();
-	SSL* sock_fd = network(sockfd, ctx);
 
-    handshakeClient(sock_fd, "CCTV", "Intrusion");
+    // handshake
+    int sockfd = socketNetwork(ip, PORT);
+    {
+        if (network(sockfd, ctx) < 1)
+        {
+            perror("HandShake");
+            exit(1);
+        }
+        handshakeClient("CCTV", "Intrusion");
+        returnSocket();
+        close(sockfd);
+    }
 
-	sendFile(sock_fd, "hi Server\n", "TEXT");
-    JSONLEvent ev = create_jsonl_event(
-        "fire_detected",   // event_type
-        1,                 // has_file
-        NULL,              // class_type
-        0,                 // has_class_type
-        350,               // feature
-        1                  // has_feature
-    );
+    // cctv connect
+    int cctvfd = socketNetwork(ip, CCTVPORT);
+    {
+        if (network(cctvfd, ctx) < 1)
+        {
+            perror("CCTV");
+            exit(1);
+        }
+        sendFile("hi Server\n", "TEXT");
+    }
 
-    char* jsonlFile = make_jsonl_event(&ev);
-    sendFile(sock_fd, jsonlFile, "JSON");
-    sendFile(sock_fd, "/home/chanwoo/images/opencv.png", "DATA");
-    //sendFile(sock_fd, "/home/chanwoo/images/trailer.mp4", "VIDEO");
+    RtspStreaming(1920, 1080, 15);
     sleep(1);
 
-    JSONLEvent ev1 = create_jsonl_event(
-        "fire_detected",   // event_type
-        0,                 // has_file
-        NULL,              // class_type
-        0,                 // has_class_type
-        350,               // feature
-        1                  // has_feature
-    );
-    char* jsonlFile1 = make_jsonl_event(&ev1);
-    sendFile(sock_fd, jsonlFile1, "JSON");
-    
-    free_jsonl_event(jsonlFile);
-    free_jsonl_event(jsonlFile1);
-    
-    while(1);
-    
-	close(sockfd);
-	SSL_shutdown(sock_fd);
+    while (1);
+
+    returnSocket();
+    close(cctvfd);
     SSL_CTX_free(ctx);
-	SSL_free(sock_fd);
-	EVP_cleanup();
-    
+    EVP_cleanup();
+
     return 0;
 }
 
 // OpenSSL 초기화
-void init_openssl() {
+void init_openssl()
+{
     SSL_load_error_strings();
     OpenSSL_add_ssl_algorithms();
 }
 
 // SSL 컨텍스트 생성 (클라이언트용)
-SSL_CTX *create_context() {
+SSL_CTX *create_context()
+{
     const SSL_METHOD *method;
     SSL_CTX *ctx;
 
     method = SSLv23_client_method();
     ctx = SSL_CTX_new(method);
-    if (!ctx) {
+    if (!ctx)
+    {
         perror("SSL 컨텍스트 생성 실패");
         ERR_print_errors_fp(stderr);
         exit(EXIT_FAILURE);

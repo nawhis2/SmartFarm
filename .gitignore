@@ -5,9 +5,20 @@
 *.lib
 *.xml
 *.pem
-*.user
+*.zip
+*.tar
 main
 userTest
+
+#cmake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+*.o
+*.o.d
+*.make
+*.internal
+*.user
 
 #folder
 build/

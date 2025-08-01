@@ -1,0 +1,3 @@
+/home/veda/SmartFarm/detect/CMakeFiles/demo.dir
+/home/veda/SmartFarm/detect/CMakeFiles/edit_cache.dir
+/home/veda/SmartFarm/detect/CMakeFiles/rebuild_cache.dir
