@@ -1,0 +1,8 @@
+../Core/Src/motor_control.c:13:6:L9110s_Init	1
+../Core/Src/motor_control.c:26:6:L9110s_SetPWM	6
+../Core/Src/motor_control.c:49:6:L9110s_MotorControl	9
+../Core/Src/motor_control.c:89:6:L9110s_MoveForward	1
+../Core/Src/motor_control.c:95:6:L9110s_MoveBackward	1
+../Core/Src/motor_control.c:101:6:L9110s_TurnLeft	1
+../Core/Src/motor_control.c:107:6:L9110s_TurnRight	1
+../Core/Src/motor_control.c:113:6:L9110s_Stop	1
