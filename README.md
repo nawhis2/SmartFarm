@@ -77,8 +77,8 @@ openssl req -x509 -nodes -newkey rsa:2048     -keyout key.pem     -out cert.pem 
 3. **클라이언트 접속**
     - 클라이언트 실행 시 서버 IP와 포트를 지정하여 접속
    ```bash
-    ./main <서버 주소>
-    ```
+   ./main <서버 주소>
+   ```
 4. **RTSP 서버 실행**
     - 인증서와 함께 GStreamer RTSP 서버 실행
 
