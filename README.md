@@ -1,6 +1,7 @@
 Veda Final 프로젝트
 
 빌드 방법
+
 메인 서버
 - g++ main.c src/c/* src/cpp/* -o main -I inc/c -I inc/cpp -lssl -lcrypto -ljansson -lmysqlclient -lcurl
 
