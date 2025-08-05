@@ -9,47 +9,6 @@ const vector<string> class_names = {
 // ----------------------------
 // Processing functions
 // ----------------------------
-Mat updateBackground(const Mat &frame, Mat &background, double alpha)
-{
-    Mat f32;
-    frame.convertTo(f32, CV_32F);
-    accumulateWeighted(f32, background, alpha);
-    Mat bg8u;
-    background.convertTo(bg8u, CV_8U);
-    return bg8u;
-}
-
-Mat getMotionMask(const Mat &frame, const Mat &bg8u, double diffThresh = 30.0, int blurSize = 15)
-{
-    Mat diff, gray, fg;
-    absdiff(frame, bg8u, diff);
-    cvtColor(diff, gray, COLOR_BGR2GRAY);
-    threshold(gray, fg, diffThresh, 255, THRESH_BINARY);
-    GaussianBlur(fg, fg, Size(blurSize, blurSize), 0);
-    threshold(fg, fg, diffThresh, 255, THRESH_BINARY);
-    return fg;
-}
-
-vector<Rect> extractMotionBoxes(const Mat &fgmask, double minArea = 500.0)
-{
-    vector<vector<Point>> contours;
-    findContours(fgmask, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-    vector<Rect> boxes;
-    for (auto &c : contours)
-    {
-        if (contourArea(c) < minArea)
-            continue;
-        boxes.push_back(boundingRect(c));
-    }
-    return boxes;
-}
-
-float calculateIoU(const Rect &a, const Rect &b)
-{
-    int inter = (a & b).area();
-    int uni = a.area() + b.area() - inter;
-    return uni > 0 ? static_cast<float>(inter) / uni : 0.0f;
-}
 
 bool pushFrame(GstElement *appsrc, StreamContext &ctx)
 {
