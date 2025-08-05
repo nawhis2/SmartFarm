@@ -2,10 +2,10 @@ Veda Final 프로젝트
 
 빌드 방법
 메인 서버
-g++ main.c src/c/* src/cpp/* -o main -I inc/c -I inc/cpp -lssl -lcrypto -ljansson -lmysqlclient -lcurl
+- g++ main.c src/c/* src/cpp/* -o main -I inc/c -I inc/cpp -lssl -lcrypto -ljansson -lmysqlclient -lcurl
 
 그 외
-g++ main.c src/c/* src/cpp/* -o main -I inc/c/ -I inc/cpp/ $(pkg-config --cflags --libs opencv4 gstreamer-1.0 gstreamer-app-1.0 gstreamer-rtsp-server-1.0) -lssl -lcrypto -ljansson -lgio-2.0 -lgobject-2.0 -lglib-2.0
+- g++ main.c src/c/* src/cpp/* -o main -I inc/c/ -I inc/cpp/ $(pkg-config --cflags --libs opencv4 gstreamer-1.0 gstreamer-app-1.0 gstreamer-rtsp-server-1.0) -lssl -lcrypto -ljansson -lgio-2.0 -lgobject-2.0 -lglib-2.0
 
 실행 방법
 1. 서버와 RTSP용 openssl 인증서 발급
