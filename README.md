@@ -106,4 +106,4 @@ openssl req -x509 -nodes -newkey rsa:2048     -keyout key.pem     -out cert.pem 
 
 ## 📞 문의
 - 프로젝트명: VEDA Final Project
-- 담당: [whcksdn16@gmail.com]
+- 담당: ps496@naver.com
